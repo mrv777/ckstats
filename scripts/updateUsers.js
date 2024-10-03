@@ -2,6 +2,16 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
+const convertHashrate = (value) => {
+  const units = { P: 1e15, T: 1e12, G: 1e9, M: 1e6, K: 1e3 };
+  const match = value.match(/^(\d+(\.\d+)?)([PTGMK])$/);
+  if (match) {
+    const [, num, , unit] = match;
+    return (parseFloat(num) * units[unit]).toString();
+  }
+  return value;
+};
+
 async function fetchUserData(address) {
   const response = await fetch(`https://solo.ckpool.org/users/${address}`);
   if (!response.ok) {
@@ -26,11 +36,11 @@ async function updateUser(address, userData) {
   await prisma.userStats.create({
     data: {
       user: { connect: { address } },
-      hashrate1m: userData.hashrate1m.toString(),
-      hashrate5m: userData.hashrate5m.toString(),
-      hashrate1hr: userData.hashrate1hr.toString(),
-      hashrate1d: userData.hashrate1d.toString(),
-      hashrate7d: userData.hashrate7d.toString(),
+      hashrate1m: convertHashrate(userData.hashrate1m),
+      hashrate5m: convertHashrate(userData.hashrate5m),
+      hashrate1hr: convertHashrate(userData.hashrate1hr),
+      hashrate1d: convertHashrate(userData.hashrate1d),
+      hashrate7d: convertHashrate(userData.hashrate7d),
       lastShare: BigInt(userData.lastshare),
       workerCount: userData.workers,
       shares: BigInt(userData.shares),
@@ -50,11 +60,11 @@ async function updateWorker(address, workerData) {
       },
     },
     update: {
-      hashrate1m: workerData.hashrate1m.toString(),
-      hashrate5m: workerData.hashrate5m.toString(),
-      hashrate1hr: workerData.hashrate1hr.toString(),
-      hashrate1d: workerData.hashrate1d.toString(),
-      hashrate7d: workerData.hashrate7d.toString(),
+      hashrate1m: convertHashrate(workerData.hashrate1m),
+      hashrate5m: convertHashrate(workerData.hashrate5m),
+      hashrate1hr: convertHashrate(workerData.hashrate1hr),
+      hashrate1d: convertHashrate(workerData.hashrate1d),
+      hashrate7d: convertHashrate(workerData.hashrate7d),
       lastUpdate: new Date(workerData.lastshare * 1000),
       shares: BigInt(workerData.shares),
       bestShare: parseFloat(workerData.bestshare),
@@ -63,11 +73,11 @@ async function updateWorker(address, workerData) {
     create: {
       userAddress: address,
       name: workerName,
-      hashrate1m: workerData.hashrate1m.toString(),
-      hashrate5m: workerData.hashrate5m.toString(),
-      hashrate1hr: workerData.hashrate1hr.toString(),
-      hashrate1d: workerData.hashrate1d.toString(),
-      hashrate7d: workerData.hashrate7d.toString(),
+      hashrate1m: convertHashrate(workerData.hashrate1m),
+      hashrate5m: convertHashrate(workerData.hashrate5m),
+      hashrate1hr: convertHashrate(workerData.hashrate1hr),
+      hashrate1d: convertHashrate(workerData.hashrate1d),
+      hashrate7d: convertHashrate(workerData.hashrate7d),
       lastUpdate: new Date(workerData.lastshare * 1000),
       shares: BigInt(workerData.shares),
       bestShare: parseFloat(workerData.bestshare),
@@ -79,11 +89,11 @@ async function updateWorker(address, workerData) {
   await prisma.workerStats.create({
     data: {
       workerId: worker.id,
-      hashrate1m: workerData.hashrate1m.toString(),
-      hashrate5m: workerData.hashrate5m.toString(),
-      hashrate1hr: workerData.hashrate1hr.toString(),
-      hashrate1d: workerData.hashrate1d.toString(),
-      hashrate7d: workerData.hashrate7d.toString(),
+      hashrate1m: convertHashrate(workerData.hashrate1m),
+      hashrate5m: convertHashrate(workerData.hashrate5m),
+      hashrate1hr: convertHashrate(workerData.hashrate1hr),
+      hashrate1d: convertHashrate(workerData.hashrate1d),
+      hashrate7d: convertHashrate(workerData.hashrate7d),
       shares: BigInt(workerData.shares),
       bestShare: parseFloat(workerData.bestshare),
       bestEver: BigInt(workerData.bestever),

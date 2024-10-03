@@ -17,6 +17,18 @@ async function seed() {
     const stats = await fetchPoolStats();
     
     console.log('Saving pool stats to database...');
+
+    // Function to convert hashrate with units to string
+    const convertHashrate = (value) => {
+      const units = { P: 1e15, T: 1e12, G: 1e9, M: 1e6, K: 1e3 };
+      const match = value.match(/^(\d+(\.\d+)?)([PTGMK])$/);
+      if (match) {
+        const [, num, , unit] = match;
+        return (parseFloat(num) * units[unit]).toString();
+      }
+      return value;
+    };
+
     await prisma.poolStats.create({
       data: {
         runtime: stats.runtime,
@@ -24,13 +36,13 @@ async function seed() {
         workers: stats.Workers,
         idle: stats.Idle,
         disconnected: stats.Disconnected,
-        hashrate1m: stats.hashrate1m,
-        hashrate5m: stats.hashrate5m,
-        hashrate15m: stats.hashrate15m,
-        hashrate1hr: stats.hashrate1hr,
-        hashrate6hr: stats.hashrate6hr,
-        hashrate1d: stats.hashrate1d,
-        hashrate7d: stats.hashrate7d,
+        hashrate1m: convertHashrate(stats.hashrate1m),
+        hashrate5m: convertHashrate(stats.hashrate5m),
+        hashrate15m: convertHashrate(stats.hashrate15m),
+        hashrate1hr: convertHashrate(stats.hashrate1hr),
+        hashrate6hr: convertHashrate(stats.hashrate6hr),
+        hashrate1d: convertHashrate(stats.hashrate1d),
+        hashrate7d: convertHashrate(stats.hashrate7d),
         diff: stats.diff,
         accepted: BigInt(stats.accepted),
         rejected: BigInt(stats.rejected),
