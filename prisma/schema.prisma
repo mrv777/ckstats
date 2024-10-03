@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+  // Add this line
+  relationMode = "prisma"
+}
+
+model PoolStats {
+  id           Int      @id @default(autoincrement())
+  timestamp    DateTime @default(now())
+  runtime      Int
+  users        Int
+  workers      Int
+  idle         Int
+  disconnected Int
+  hashrate1m   String
+  hashrate5m   String
+  hashrate15m  String
+  hashrate1hr  String
+  hashrate6hr  String
+  hashrate1d   String
+  hashrate7d   String
+  diff         Float
+  accepted     BigInt
+  rejected     BigInt
+  bestshare    BigInt
+  SPS1m        Float
+  SPS5m        Float
+  SPS15m       Float
+  SPS1h        Float
+}
+
+model User {
+  address      String   @id @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  authorised   BigInt   @default(0)
+  workers      Worker[]
+  stats        UserStats[]
+}
+
+model UserStats {
+  id           Int      @id @default(autoincrement())
+  user         User     @relation(fields: [userAddress], references: [address])
+  userAddress  String
+  hashrate1m   String   @default("0")
+  hashrate5m   String   @default("0")
+  hashrate1hr  String   @default("0")
+  hashrate1d   String   @default("0")
+  hashrate7d   String   @default("0")
+  lastShare    BigInt   @default(0)
+  workerCount  Int      @default(0)
+  shares       BigInt   @default(0)
+  bestShare    Float    @default(0)
+  bestEver     BigInt   @default(0)
+  timestamp    DateTime @default(now())
+  @@index([timestamp])
+}
+
+model Worker {
+  id           Int      @id @default(autoincrement())
+  name         String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  hashrate1m   String   @default("0")
+  hashrate5m   String   @default("0")
+  hashrate1hr  String   @default("0")
+  hashrate1d   String   @default("0")
+  hashrate7d   String   @default("0")
+  lastUpdate   DateTime @default(now())
+  shares       BigInt   @default(0)
+  bestShare    Float    @default(0)
+  bestEver     BigInt   @default(0)
+  user         User     @relation(fields: [userAddress], references: [address])
+  userAddress  String
+  stats        WorkerStats[]
+  @@unique([userAddress, name])
+}
+
+model WorkerStats {
+  id           Int      @id @default(autoincrement())
+  worker       Worker   @relation(fields: [workerId], references: [id])
+  workerId     Int
+  hashrate1m   String   @default("0")
+  hashrate5m   String   @default("0")
+  hashrate1hr  String   @default("0")
+  hashrate1d   String   @default("0")
+  hashrate7d   String   @default("0")
+  shares       BigInt   @default(0)
+  bestShare    Float    @default(0)
+  bestEver     BigInt   @default(0)
+  timestamp    DateTime @default(now())
+  @@index([timestamp])
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
+}
