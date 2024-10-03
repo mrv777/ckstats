@@ -46,8 +46,7 @@ export default function ThemeController() {
     document.documentElement.setAttribute('data-theme', savedTheme);
   }, []);
 
-  const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newTheme = e.target.value;
+  const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
@@ -70,7 +69,7 @@ export default function ThemeController() {
                   aria-label={t}
                   value={t}
                   checked={theme === t}
-                  onClick={() => handleThemeChange({ target: { value: t } } as any)}
+                  onChange={() => handleThemeChange(t)}
                 />
               </li>
             ))}

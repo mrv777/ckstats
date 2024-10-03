@@ -1,22 +1,19 @@
-# Bitcoin Mining Pool Stats
+# CK Stats
 
-This project displays real-time and historical statistics for a Bitcoin mining pool using data from the CKPool API.
+This project displays real-time and historical statistics for the CKPool Bitcoin mining pool using data from their API.
 
 ## Features
 
 - Real-time pool statistics
 - Historical data chart
-- Responsive design with dark/light mode toggle
+- Responsive design with themed display
 
 ## Technologies Used
 
-- Next.js 14.2.7
-- React
-- TypeScript
+- Next.js
 - Tailwind CSS
 - daisyUI
 - Recharts
-- Knex.js with SQLite
 
 ## Getting Started
 
@@ -34,8 +31,8 @@ This project displays real-time and historical statistics for a Bitcoin mining p
 - `pnpm start`: Start the production server
 - `pnpm lint`: Run ESLint
 - `pnpm migrate`: Run database migrations
-- `pnpm seed`: Seed the database with initial data
+- `pnpm seed`: Load in pool stats
 
 ## License
 
-MIT
+GPL-3.0 license
