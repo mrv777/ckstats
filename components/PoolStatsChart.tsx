@@ -1,6 +1,15 @@
 'use client';
 
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 import { PoolStatsType } from '../lib/api';
 
 interface PoolStatsChartProps {
@@ -9,7 +18,7 @@ interface PoolStatsChartProps {
 
 export default function PoolStatsChart({ data }: PoolStatsChartProps) {
   // Format the data for the charts
-  const formattedData = data.map(item => ({
+  const formattedData = data.map((item) => ({
     ...item,
     timestamp: new Date(item.timestamp).toLocaleTimeString(), // Only extract time
     hashrate1m: parseFloat(item.hashrate1m.replace('P', '')),
@@ -34,10 +43,21 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
           <XAxis dataKey="timestamp" />
-          <YAxis allowDataOverflow={true} domain={['auto', 'auto']} />
+          <YAxis
+            allowDataOverflow={true}
+            domain={[
+              (dataMin: number) => Math.ceil(dataMin * 0.99),
+              (dataMax: number) => Math.floor(dataMax * 1.01),
+            ]}
+          />
           <Tooltip />
           <Legend />
-          <Line type="monotone" dataKey="users" stroke="#8884d8" activeDot={{ r: 8 }} />
+          <Line
+            type="monotone"
+            dataKey="users"
+            stroke="#8884d8"
+            activeDot={{ r: 8 }}
+          />
         </LineChart>
       </ResponsiveContainer>
     </div>
@@ -52,16 +72,57 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
           <XAxis dataKey="timestamp" />
-          <YAxis allowDataOverflow={true} domain={['auto', 'auto']} />
+          <YAxis
+            allowDataOverflow={true}
+            domain={[
+              (dataMin: number) => Math.ceil(dataMin * 0.99),
+              (dataMax: number) => Math.floor(dataMax * 1.01),
+            ]}
+          />
           <Tooltip />
           <Legend />
-          <Line type="monotone" dataKey="hashrate1m" name="1M" stroke="#8884d8" />
-          <Line type="monotone" dataKey="hashrate5m" name="5M" stroke="#82ca9d" />
-          <Line type="monotone" dataKey="hashrate15m" name="15M" stroke="#ffc658" />
-          <Line type="monotone" dataKey="hashrate1hr" name="1HR" stroke="#ff7300" />
-          <Line type="monotone" dataKey="hashrate6hr" name="6HR" stroke="#00C49F" />
-          <Line type="monotone" dataKey="hashrate1d" name="1D" stroke="#FFBB28" />
-          <Line type="monotone" dataKey="hashrate7d" name="7D" stroke="#FF8042" />
+          <Line
+            type="monotone"
+            dataKey="hashrate1m"
+            name="1M"
+            stroke="#8884d8"
+          />
+          <Line
+            type="monotone"
+            dataKey="hashrate5m"
+            name="5M"
+            stroke="#82ca9d"
+          />
+          <Line
+            type="monotone"
+            dataKey="hashrate15m"
+            name="15M"
+            stroke="#ffc658"
+          />
+          <Line
+            type="monotone"
+            dataKey="hashrate1hr"
+            name="1HR"
+            stroke="#ff7300"
+          />
+          <Line
+            type="monotone"
+            dataKey="hashrate6hr"
+            name="6HR"
+            stroke="#00C49F"
+          />
+          <Line
+            type="monotone"
+            dataKey="hashrate1d"
+            name="1D"
+            stroke="#FFBB28"
+          />
+          <Line
+            type="monotone"
+            dataKey="hashrate7d"
+            name="7D"
+            stroke="#FF8042"
+          />
         </LineChart>
       </ResponsiveContainer>
     </div>
@@ -76,7 +137,13 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
           <XAxis dataKey="timestamp" />
-          <YAxis allowDataOverflow={true} domain={['auto', 'auto']} />
+          <YAxis
+            allowDataOverflow={true}
+            domain={[
+              (dataMin: number) => Math.ceil(dataMin * 0.99),
+              (dataMax: number) => Math.floor(dataMax * 1.01),
+            ]}
+          />
           <Tooltip />
           <Legend />
           <Line type="monotone" dataKey="SPS1m" name="1M" stroke="#8884d8" />

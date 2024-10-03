@@ -53,7 +53,13 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={chartData}>
               <XAxis dataKey="timestamp" />
-              <YAxis domain={['auto', 'auto']} />
+              <YAxis
+                allowDataOverflow={true}
+                domain={[
+                  (dataMin: number) => Math.ceil(dataMin * 0.99),
+                  (dataMax: number) => Math.floor(dataMax * 1.01),
+                ]}
+              />
               <Tooltip />
               <Legend />
               <Line type="monotone" dataKey="workerCount" stroke="#8884d8" />
@@ -67,7 +73,13 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={chartData}>
             <XAxis dataKey="timestamp" />
-            <YAxis domain={['auto', 'auto']} />
+            <YAxis
+              allowDataOverflow={true}
+              domain={[
+                (dataMin: number) => Math.ceil(dataMin * 0.99),
+                (dataMax: number) => Math.floor(dataMax * 1.01),
+              ]}
+            />
             <Tooltip />
             <Legend 
               payload={legendPayload.map(item => ({
