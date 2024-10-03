@@ -3,6 +3,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function fetchPoolStats() {
+  console.log('Fetching pool stats...');
   const response = await fetch(process.env.API_URL);
   const data = await response.text();
   const jsonLines = data.split('\n').filter(Boolean);
