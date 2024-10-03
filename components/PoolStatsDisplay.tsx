@@ -16,7 +16,7 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
       return formatNumber(value);
     }
     else if (key === 'timestamp') {
-      return new Date(value).toLocaleString();
+      return new Date(value).toUTCString();
     }
     return String(value);
   };
