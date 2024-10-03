@@ -35,9 +35,9 @@ next-env.d.ts
 
 # Prisma
 /prisma/*.sqlite3
+/prisma/*.sqlite3-journal
 /prisma/*.db
 /prisma/*.db-journal
-/prisma/migrations
 
 # IDE-specific files
 .idea
