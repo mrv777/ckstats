@@ -7,7 +7,7 @@ const prismaClientSingleton = () => {
         async $allOperations({ args, query }) {
           // This runs the PRAGMA command every time a query is made
           // You might want to run this only once when the app starts instead
-          await query(`PRAGMA cache_size = -2000000;`) // Set to 2GB
+          //await query(`PRAGMA cache_size = -2000000;` as any) // Set to 2GB
           return query(args)
         },
       },

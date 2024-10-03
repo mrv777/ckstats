@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LegendType } from 'recharts';
 import { UserStats, WorkerStats } from '@prisma/client';
 
 interface UserStatsChartsProps {
@@ -70,7 +70,10 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
             <YAxis domain={['auto', 'auto']} />
             <Tooltip />
             <Legend 
-              payload={legendPayload}
+              payload={legendPayload.map(item => ({
+                ...item,
+                type: item.type as LegendType
+              }))}
               onClick={(e) => handleLegendClick(e.value)}
             />
             {visibleLines['1m'] && <Line type="monotone" dataKey="1m" stroke="#8884d8" />}

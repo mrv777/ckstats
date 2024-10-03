@@ -24,7 +24,7 @@ export async function GET(
       typeof value === 'bigint' ? value.toString() : value
     ));
 
-    return NextResponse.json(response);
+    return NextResponse.json(serializedUser);
   } catch (error) {
     console.error('Error fetching user data:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
