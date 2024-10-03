@@ -56,7 +56,7 @@ export async function getHistoricalPoolStats(
   limit: number = 100
 ): Promise<PoolStats[]> {
   return prisma.poolStats.findMany({
-    orderBy: { timestamp: 'desc' },
+    orderBy: { timestamp: 'asc' },
     take: limit,
   });
 }

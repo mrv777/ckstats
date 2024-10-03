@@ -11,7 +11,7 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
   // Format the data for the charts
   const formattedData = data.map(item => ({
     ...item,
-    timestamp: new Date(item.timestamp).toLocaleString(),
+    timestamp: new Date(item.timestamp).toLocaleTimeString(), // Only extract time
     hashrate1m: parseFloat(item.hashrate1m.replace('P', '')),
     hashrate5m: parseFloat(item.hashrate5m.replace('P', '')),
     hashrate15m: parseFloat(item.hashrate15m.replace('P', '')),

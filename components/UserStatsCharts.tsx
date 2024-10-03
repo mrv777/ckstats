@@ -16,7 +16,7 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
   };
 
   const chartData = userStats.map(stat => ({
-    timestamp: new Date(stat.timestamp).toLocaleString(),
+    timestamp: new Date(stat.timestamp).toLocaleTimeString(),
     workerCount: 'workerCount' in stat ? stat.workerCount : undefined,
     '1m': formatHashrate(stat.hashrate1m),
     '5m': formatHashrate(stat.hashrate5m),
