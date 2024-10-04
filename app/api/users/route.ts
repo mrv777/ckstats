@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '../../../lib/db';
 import { validateBitcoinAddress } from '../../../utils/validateBitcoinAddress';
+import { updateSingleUser } from '../../../lib/api';
 
 export async function POST(request: Request) {
   try {
@@ -10,11 +11,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid Bitcoin address' }, { status: 400 });
     }
 
+    // Check if user with the given address already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { address },
+    });
+
+    if (existingUser) {
+      return NextResponse.json({ message: 'Already in database' }, { status: 200 });
+    }
+
+    console.log('Adding user:', address);
+
     const user = await prisma.user.create({
       data: {
         address,
       },
     });
+
+    console.log(`User ${address} added to database, updating stats in background.`);
+    updateSingleUser(address);
 
     // Convert BigInt fields to strings for JSON serialization
     const serializedUser = JSON.parse(JSON.stringify(user, (key, value) =>

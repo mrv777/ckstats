@@ -29,14 +29,21 @@ export default function Header() {
       }
       return response.json();
     },
-    onSuccess: () => {
-      setAddress('');
-      setModalMessage('Address added successfully!');
-      setIsError(false);
-      modalRef.current?.showModal();
-      setTimeout(() => {
+    onSuccess: (response) => {
+      if (response?.message === 'Already in database') {
+        setAddress('');
+        setModalMessage('');
+        setIsError(false);
         router.push(`/users/${address}`);
-      }, 1500);
+      } else {
+        setAddress('');
+        setModalMessage('Address added successfully!');
+        setIsError(false);
+        modalRef.current?.showModal();
+        setTimeout(() => {
+          router.push(`/users/${address}`);
+        }, 1500);
+      }
     },
     onError: (error: Error) => {
       if (error.message === 'Bitcoin address already exists') {
@@ -78,8 +85,19 @@ export default function Header() {
           />
         </div>
         <button className="btn btn-primary" onClick={handleAddAddress}>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
         </button>
         <ThemeController />
@@ -88,7 +106,11 @@ export default function Header() {
       {/* DaisyUI Modal */}
       <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
         <form method="dialog" className="modal-box">
-          <h3 className={`font-bold text-lg ${isError ? 'text-error' : 'text-success'}`}>
+          <h3
+            className={`font-bold text-lg ${
+              isError ? 'text-error' : 'text-success'
+            }`}
+          >
             {isError ? 'Error' : 'Success'}
           </h3>
           <p className="py-4">{modalMessage}</p>
