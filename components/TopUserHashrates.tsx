@@ -9,7 +9,7 @@ export async function TopUserHashrates() {
     return (
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
-          <h2 className="card-title">Top 10 User Hashrates</h2>
+          <h2 className="card-title">Top User Hashrates</h2>
           <div className="overflow-x-auto">
             <table className="table w-full">
               <thead>

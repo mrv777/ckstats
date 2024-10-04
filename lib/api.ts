@@ -114,18 +114,18 @@ export async function getTopUserDifficulties(): Promise<{ address: string; diffi
   const topUsers = await prisma.userStats.findMany({
     select: {
       userAddress: true,
-      bestShare: true,
+      bestEver: true,
     },
     orderBy: {
-      bestShare: 'desc',
+      bestEver: 'desc',
     },
-    take: 10,
+    take: 20,
     distinct: ['userAddress'],
   });
 
   return topUsers.map(user => ({
     address: user.userAddress,
-    difficulty: user.bestShare.toString(),
+    difficulty: user.bestEver.toString(),
   }));
 }
 
@@ -138,7 +138,7 @@ export async function getTopUserHashrates(): Promise<{ address: string; hashrate
     orderBy: {
       hashrate1hr: 'desc',
     },
-    take: 10,
+    take: 20,
     distinct: ['userAddress'],
   });
 
