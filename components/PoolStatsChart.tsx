@@ -5,7 +5,6 @@ import {
   Line,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
   Legend,
   ResponsiveContainer,
@@ -34,6 +33,10 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
     SPS1h: item.SPS1h ?? 0,
   }));
 
+  const hashrateTooltipFormatter = (value: number, name: string) => [`${value.toFixed(0)} PH/s`, name];
+
+  const spsTooltipFormatter = (value: number, name: string) => [`${value.toFixed(0)} SPS`, name];
+
   const renderUsersChart = () => (
     <div className="h-80 w-full mb-8">
       <h2 className="text-xl font-bold mb-2">Users</h2>
@@ -57,6 +60,8 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
             dataKey="users"
             stroke="#8884d8"
             activeDot={{ r: 8 }}
+            name="Users"
+            dot={false}
           />
         </LineChart>
       </ResponsiveContainer>
@@ -65,7 +70,7 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
 
   const renderHashrateChart = () => (
     <div className="h-80 w-full mb-8">
-      <h2 className="text-xl font-bold mb-2">Hashrate</h2>
+      <h2 className="text-xl font-bold mb-2">Hashrate (PH/s)</h2>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={formattedData}
@@ -79,49 +84,56 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
               (dataMax: number) => Math.floor(dataMax * 1.01),
             ]}
           />
-          <Tooltip />
+          <Tooltip formatter={hashrateTooltipFormatter} />
           <Legend />
           <Line
             type="monotone"
             dataKey="hashrate1m"
             name="1M"
             stroke="#8884d8"
+            dot={false}
           />
           <Line
             type="monotone"
             dataKey="hashrate5m"
             name="5M"
             stroke="#82ca9d"
+            dot={false}
           />
           <Line
             type="monotone"
             dataKey="hashrate15m"
             name="15M"
             stroke="#ffc658"
+            dot={false}
           />
           <Line
             type="monotone"
             dataKey="hashrate1hr"
             name="1HR"
             stroke="#ff7300"
+            dot={false}
           />
           <Line
             type="monotone"
             dataKey="hashrate6hr"
             name="6HR"
             stroke="#00C49F"
+            dot={false}
           />
           <Line
             type="monotone"
             dataKey="hashrate1d"
             name="1D"
             stroke="#FFBB28"
+            dot={false}
           />
           <Line
             type="monotone"
             dataKey="hashrate7d"
             name="7D"
             stroke="#FF8042"
+            dot={false}
           />
         </LineChart>
       </ResponsiveContainer>
@@ -144,12 +156,12 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
               (dataMax: number) => Math.floor(dataMax * 1.01),
             ]}
           />
-          <Tooltip />
+          <Tooltip formatter={spsTooltipFormatter} />
           <Legend />
-          <Line type="monotone" dataKey="SPS1m" name="1M" stroke="#8884d8" />
-          <Line type="monotone" dataKey="SPS5m" name="5M" stroke="#82ca9d" />
-          <Line type="monotone" dataKey="SPS15m" name="15M" stroke="#ffc658" />
-          <Line type="monotone" dataKey="SPS1h" name="1H" stroke="#ff7300" />
+          <Line type="monotone" dataKey="SPS1m" name="1M" stroke="#8884d8" dot={false} />
+          <Line type="monotone" dataKey="SPS5m" name="5M" stroke="#82ca9d" dot={false} />
+          <Line type="monotone" dataKey="SPS15m" name="15M" stroke="#ffc658" dot={false} />
+          <Line type="monotone" dataKey="SPS1h" name="1H" stroke="#ff7300" dot={false} />
         </LineChart>
       </ResponsiveContainer>
     </div>
