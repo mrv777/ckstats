@@ -1,3 +1,5 @@
+export const revalidate = 60;
+
 import { getUserWithWorkersAndStats, getUserHistoricalStats } from '../../../lib/api';
 import { formatHashrate, formatNumber } from '../../../utils/formatNumber';
 import { notFound } from 'next/navigation';

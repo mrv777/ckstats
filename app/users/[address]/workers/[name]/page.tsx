@@ -1,3 +1,5 @@
+export const revalidate = 60;
+
 import { getWorkerWithStats } from '../../../../../lib/api';
 import { formatNumber } from '../../../../../utils/formatNumber';
 import { notFound } from 'next/navigation';

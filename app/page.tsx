@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 import { getLatestPoolStats, getHistoricalPoolStats } from '../lib/api';
 import PoolStatsDisplay from '../components/PoolStatsDisplay';
