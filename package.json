@@ -13,6 +13,7 @@
     "seed": "node scripts/seed.js",
     "update-stats": "ts-node scripts/updateStats.ts",
     "update-users": "node scripts/updateUsers.js",
+    "cleanup": "node scripts/cleanOldStats.js",
     "vacuum": "sqlite3 ./dev.sqlite3 'VACUUM;'"
   },
   "dependencies": {
