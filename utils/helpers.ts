@@ -37,7 +37,7 @@ export function formatHashrate(num: string | bigint | number): string {
   }
 }
 
-export function convertHashrate(value: string): BigInt {
+export function convertHashrate(value: string): bigint {
   const units = { P: 1e15, T: 1e12, G: 1e9, M: 1e6, K: 1e3 };
   // Updated regex to handle scientific notation
   const match = value.match(/^(\d+(\.\d+)?(?:e[+-]\d+)?)([PTGMK])$/i);
