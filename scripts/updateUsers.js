@@ -10,7 +10,7 @@ const convertHashrate = (value) => {
     const [, num, , unit] = match;
     // Parse the number, which now handles scientific notation
     const parsedNum = parseFloat(num);
-    return Math.round(parsedNum * units[unit.toUpperCase()]).toString();
+    return BigInt(Math.round(parsedNum * units[unit.toUpperCase()]));
   }
   return value;
 };
@@ -73,6 +73,11 @@ async function updateUser(address, userData) {
 }
 
 async function updateWorker(address, workerData) {
+  if (!workerData.workername) {
+    console.log(`Worker data for address ${address} is missing a valid name. Skipping.`);
+    return;
+  }
+
   const workerName = workerData.workername.split('.')[1];
   const worker = await prisma.worker.upsert({
     where: {
