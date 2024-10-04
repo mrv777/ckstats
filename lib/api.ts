@@ -12,13 +12,13 @@ export type PoolStatsType = {
   workers: number;
   idle: number;
   disconnected: number;
-  hashrate1m: string;
-  hashrate5m: string;
-  hashrate15m: string;
-  hashrate1hr: string;
-  hashrate6hr: string;
-  hashrate1d: string;
-  hashrate7d: string;
+  hashrate1m: bigint;
+  hashrate5m: bigint;
+  hashrate15m: bigint;
+  hashrate1hr: bigint;
+  hashrate6hr: bigint;
+  hashrate1d: bigint;
+  hashrate7d: bigint;
   diff: number;
   accepted: bigint;
   rejected: bigint;
@@ -101,4 +101,42 @@ export async function getWorkerWithStats(userAddress: string, workerName: string
       },
     },
   });
+}
+
+export async function getTopUserDifficulties(): Promise<{ address: string; difficulty: string }[]> {
+  const topUsers = await prisma.userStats.findMany({
+    select: {
+      userAddress: true,
+      bestShare: true,
+    },
+    orderBy: {
+      bestShare: 'desc',
+    },
+    take: 10,
+    distinct: ['userAddress'],
+  });
+
+  return topUsers.map(user => ({
+    address: user.userAddress,
+    difficulty: user.bestShare.toString(),
+  }));
+}
+
+export async function getTopUserHashrates(): Promise<{ address: string; hashrate: string }[]> {
+  const topUsers = await prisma.userStats.findMany({
+    select: {
+      userAddress: true,
+      hashrate1hr: true,
+    },
+    orderBy: {
+      hashrate1hr: 'desc',
+    },
+    take: 10,
+    distinct: ['userAddress'],
+  });
+
+  return topUsers.map(user => ({
+    address: user.userAddress,
+    hashrate: user.hashrate1hr.toString(),
+  }));
 }
