@@ -1,6 +1,8 @@
 import { getLatestPoolStats, getHistoricalPoolStats } from '../lib/api';
 import PoolStatsDisplay from '../components/PoolStatsDisplay';
 import PoolStatsChart from '../components/PoolStatsChart';
+import TopUserDifficulties from '../components/TopUserDifficulties';
+import TopUserHashrates from '../components/TopUserHashrates';
 
 export default async function Home() {
   try {
@@ -23,6 +25,10 @@ export default async function Home() {
         ) : (
           <p>Historical data is not available.</p>
         )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+          <TopUserDifficulties />
+          <TopUserHashrates />
+        </div>
       </main>
     );
   } catch (error) {
