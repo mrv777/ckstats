@@ -9,20 +9,14 @@ interface UserStatsChartsProps {
 }
 
 export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
-  const formatHashrate = (hashrate: string) => {
-    const value = parseFloat(hashrate);
-    const unit = hashrate.slice(-1);
-    return unit === 'P' ? value * 1000 : value;
-  };
-
   const chartData = userStats.map(stat => ({
     timestamp: new Date(stat.timestamp).toLocaleTimeString(),
     workerCount: 'workerCount' in stat ? stat.workerCount : undefined,
-    '1m': formatHashrate(stat.hashrate1m),
-    '5m': formatHashrate(stat.hashrate5m),
-    '1hr': formatHashrate(stat.hashrate1hr),
-    '1d': formatHashrate(stat.hashrate1d),
-    '7d': formatHashrate(stat.hashrate7d),
+    '1m':  ((Number(stat.hashrate1m))/1000000000000),
+    '5m': ((Number(stat.hashrate5m))/1000000000000),
+    '1hr': ((Number(stat.hashrate1hr))/1000000000000),
+    '1d': ((Number(stat.hashrate1d))/1000000000000),
+    '7d': ((Number(stat.hashrate7d))/1000000000000),
   }));
 
   const [visibleLines, setVisibleLines] = useState({

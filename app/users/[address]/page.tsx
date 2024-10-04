@@ -1,5 +1,5 @@
 import { getUserWithWorkersAndStats, getUserHistoricalStats } from '../../../lib/api';
-import { formatNumber } from '../../../utils/formatNumber';
+import { formatHashrate, formatNumber } from '../../../utils/formatNumber';
 import { notFound } from 'next/navigation';
 import UserStatsCharts from '../../../components/UserStatsCharts';
 import Link from 'next/link';
@@ -46,16 +46,16 @@ export default async function UserPage({ params }: { params: { address: string }
 
       <div className="stats shadow mt-4">
         <div className="stat">
-          <div className="stat-title">Hashrate (1m)</div>
-          <div className="stat-value">{latestStats.hashrate1m}</div>
+          <div className="stat-title">Hashrate (5m)</div>
+          <div className="stat-value">{formatHashrate(latestStats.hashrate5m)}</div>
         </div>
         <div className="stat">
           <div className="stat-title">Hashrate (1hr)</div>
-          <div className="stat-value">{latestStats.hashrate1hr}</div>
+          <div className="stat-value">{formatHashrate(latestStats.hashrate1hr)}</div>
         </div>
         <div className="stat">
           <div className="stat-title">Hashrate (1d)</div>
-          <div className="stat-value">{latestStats.hashrate1d}</div>
+          <div className="stat-value">{formatHashrate(latestStats.hashrate1d)}</div>
         </div>
       </div>
 
@@ -95,8 +95,8 @@ export default async function UserPage({ params }: { params: { address: string }
                 <td>
                     <Link className="link text-primary" href={`/users/${params.address}/workers/${worker.name}`}>{worker.name}</Link>
                 </td>
-                <td>{worker.hashrate1m}</td>
-                <td>{worker.hashrate1hr}</td>
+                <td>{formatHashrate(worker.hashrate1m)}</td>
+                <td>{formatHashrate(worker.hashrate1hr)}</td>
                 <td>{formatNumber(worker.shares)}</td>
                 <td>{formatNumber(worker.bestShare)}</td>
                 <td>{new Date(worker.lastUpdate).toLocaleString()}</td>

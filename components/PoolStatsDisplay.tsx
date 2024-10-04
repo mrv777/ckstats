@@ -1,5 +1,5 @@
 import { PoolStatsType } from '../lib/api';
-import { formatNumber } from '../utils/formatNumber';
+import { formatNumber, formatHashrate } from '../utils/formatNumber';
 
 interface PoolStatsDisplayProps {
   stats: PoolStatsType;
@@ -9,8 +9,7 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
   // Helper function to format values
   const formatValue = (key: string, value: any): string => {
     if (key.startsWith('hashrate')) {
-      // Assuming the value is a string like '138P'
-      return `${value}H/s`;
+      return formatHashrate(value);
     }
     else if (typeof value === 'bigint' || typeof value === 'number') {
       return formatNumber(value);
