@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '../../../lib/api';
+import { resetUserActive } from '../../../lib/api';
 
 export async function POST(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -10,11 +10,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    await prisma.user.update({
-      where: { address },
-      data: { isActive: true },
-    });
-
+    await resetUserActive(address);
     return NextResponse.json({ message: 'User reset successfully', user: address });
   } catch (error) {
     console.error('Error resetting user:', error);

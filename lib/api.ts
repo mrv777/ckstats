@@ -1,6 +1,12 @@
-import { PrismaClient, PoolStats, User, Worker, UserStats } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+declare global {
+  var prisma: PrismaClient | undefined;
+}
+
+export const prisma = global.prisma || new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') global.prisma = prisma;
 
 export type PoolStatsInput = Omit<PoolStats, 'id' | 'timestamp'>;
 
@@ -139,4 +145,11 @@ export async function getTopUserHashrates(): Promise<{ address: string; hashrate
     address: user.userAddress,
     hashrate: user.hashrate1hr.toString(),
   }));
+}
+
+export async function resetUserActive(address: string): Promise<void> {
+  await prisma.user.update({
+    where: { address },
+    data: { isActive: true },
+  });
 }
