@@ -45,8 +45,8 @@ export default async function UserPage({
           className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded"
           role="alert"
         >
-          <p className="font-bold">No Stats Available</p>
-          <p>Please wait for stats to be available.</p>
+          <p className="font-bold">No Stats Available Yet</p>
+          <p>User is queued to start updating stats soon.</p>
         </div>
       </div>
     );
@@ -99,9 +99,9 @@ export default async function UserPage({
         <div className="stat">
           <div className="stat-title">Last Share</div>
           <div className="stat-value">
-            {new Date(
-              Number(latestStats.lastShare) * 1000
-            ).toLocaleDateString()}
+            {new Date(Number(latestStats.lastShare) * 1000)
+              .toISOString()
+              .slice(11, 19)} UTC
           </div>
         </div>
         <div className="stat">
@@ -146,7 +146,7 @@ export default async function UserPage({
                 <td>{formatHashrate(worker.hashrate1hr)}</td>
                 <td>{formatNumber(worker.shares)}</td>
                 <td>{formatNumber(worker.bestShare)}</td>
-                <td>{new Date(worker.lastUpdate).toLocaleString()}</td>
+                <td>{new Date(worker.lastUpdate).toISOString().slice(0, 19)} UTC</td>
               </tr>
             ))}
           </tbody>
