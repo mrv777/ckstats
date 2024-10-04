@@ -52,7 +52,7 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
                 {group.keys.map((key) => (
                   <div key={key} className="stat">
                     <div className="stat-title">{formatKey(key)}</div>
-                    <div className="stat-value text-sm">{formatValue(key, stats[key])}</div>
+                    <div className="stat-value text-3xl">{formatValue(key, stats[key])}</div>
                   </div>
                 ))}
               </div>
@@ -65,11 +65,11 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
             <div className="stats shadow">
               <div className="stat">
                 <div className="stat-title">Runtime</div>
-                <div className="stat-value text-sm">{formatValue('runtime', stats.runtime)}</div>
+                <div className="stat-value text-3xl">{formatValue('runtime', stats.runtime)}</div>
               </div>
               <div className="stat">
                 <div className="stat-title">Last Update</div>
-                <div className="stat-value text-sm">{formatValue('timestamp', stats.timestamp)}</div>
+                <div className="stat-value text-3xl">{formatValue('timestamp', stats.timestamp)}</div>
               </div>
             </div>
           </div>
@@ -82,7 +82,7 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
             {hashrateGroup.keys.map((key) => (
               <div key={key} className="stat">
                 <div className="stat-title">{formatKey(key)}</div>
-                <div className="stat-value text-sm">{formatValue(key, stats[key])}</div>
+                <div className="stat-value text-3xl">{formatValue(key, stats[key])}</div>
               </div>
             ))}
           </div>

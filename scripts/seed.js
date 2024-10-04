@@ -24,7 +24,7 @@ async function seed() {
       const match = value.match(/^(\d+(\.\d+)?)([PTGMK])$/);
       if (match) {
         const [, num, , unit] = match;
-        return (parseFloat(num) * units[unit]).toString();
+        return Math.round(parseFloat(num) * units[unit]).toString();
       }
       return value;
     };
