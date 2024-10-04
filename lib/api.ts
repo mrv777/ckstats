@@ -2,8 +2,6 @@ import { PrismaClient, PoolStats, User, Worker, UserStats } from '@prisma/client
 
 const prisma = new PrismaClient();
 
-export const dynamic = 'force-dynamic';
-
 export type PoolStatsInput = Omit<PoolStats, 'id' | 'timestamp'>;
 
 export type PoolStatsType = {

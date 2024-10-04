@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { getLatestPoolStats, getHistoricalPoolStats } from '../lib/api';
 import PoolStatsDisplay from '../components/PoolStatsDisplay';
 import PoolStatsChart from '../components/PoolStatsChart';
