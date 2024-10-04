@@ -4,10 +4,13 @@ const prisma = new PrismaClient();
 
 const convertHashrate = (value) => {
   const units = { P: 1e15, T: 1e12, G: 1e9, M: 1e6, K: 1e3 };
-  const match = value.match(/^(\d+(\.\d+)?)([PTGMK])$/);
+  // Updated regex to handle scientific notation
+  const match = value.match(/^(\d+(\.\d+)?(?:e[+-]\d+)?)([PTGMK])$/i);
   if (match) {
     const [, num, , unit] = match;
-    return Math.round(parseFloat(num) * units[unit]).toString();
+    // Parse the number, which now handles scientific notation
+    const parsedNum = parseFloat(num);
+    return Math.round(parsedNum * units[unit.toUpperCase()]).toString();
   }
   return value;
 };
