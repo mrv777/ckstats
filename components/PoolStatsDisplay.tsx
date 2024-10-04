@@ -11,11 +11,20 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
     if (key.startsWith('hashrate')) {
       return formatHashrate(value);
     }
+    else if (key === 'diff') {
+      return `${value.toFixed(2)}T`;
+    }
+    else if (key === 'runtime') {
+      const days = Math.floor(value / 86400);
+      const hours = Math.floor((value % 86400) / 3600);
+      const minutes = Math.floor((value % 3600) / 60);
+      return `${days}d ${hours}h ${minutes}m`;
+    }
     else if (typeof value === 'bigint' || typeof value === 'number') {
       return formatNumber(value);
     }
     else if (key === 'timestamp') {
-      return new Date(value).toUTCString();
+      return new Date(value).toISOString().slice(0, 19) + ' UTC';
     }
     return String(value);
   };
@@ -25,6 +34,9 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
     // Handle hashrate and SPS cases
     if (key.startsWith('hashrate') || key.startsWith('SPS')) {
       return key.replace(/^(hashrate|SPS)/, '').toUpperCase();
+    }
+    else if (key === 'diff') {
+      return 'Network Difficulty';
     }
     // General case
     return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
