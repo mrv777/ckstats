@@ -1,23 +1,50 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LegendType } from 'recharts';
 import { UserStats, WorkerStats } from '@prisma/client';
+
+// Add this function at the top of the file, outside the component
+function getHashrateUnit(maxHashrate: number): [string, number] {
+  if (maxHashrate >= 1e17) return ['PH/s', 1e15];
+  if (maxHashrate >= 1e14) return ['TH/s', 1e12];
+  if (maxHashrate >= 1e11) return ['GH/s', 1e9];
+  if (maxHashrate >= 1e8) return ['MH/s', 1e6];
+  if (maxHashrate >= 1e5) return ['KH/s', 1e3];
+  return ['H/s', 1];
+}
 
 interface UserStatsChartsProps {
   userStats: (UserStats | WorkerStats)[];
 }
 
 export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
-  const chartData = userStats.map(stat => ({
-    timestamp: new Date(stat.timestamp).toLocaleTimeString(),
-    workerCount: 'workerCount' in stat ? stat.workerCount : undefined,
-    '1m':  ((Number(stat.hashrate1m))/1000000000000),
-    '5m': ((Number(stat.hashrate5m))/1000000000000),
-    '1hr': ((Number(stat.hashrate1hr))/1000000000000),
-    '1d': ((Number(stat.hashrate1d))/1000000000000),
-    '7d': ((Number(stat.hashrate7d))/1000000000000),
-  }));
+  const [hashrateUnit, setHashrateUnit] = useState<string>('PH/s');
+
+  const chartData = useMemo(() => {
+    const maxHashrate = Math.max(
+      ...userStats.flatMap(stat => [
+        Number(stat.hashrate1m),
+        Number(stat.hashrate5m),
+        Number(stat.hashrate1hr),
+        Number(stat.hashrate1d),
+        Number(stat.hashrate7d)
+      ])
+    );
+
+    const [unit, scaleFactor] = getHashrateUnit(maxHashrate);
+    setHashrateUnit(unit);
+
+    return userStats.map(stat => ({
+      timestamp: new Date(stat.timestamp).toLocaleTimeString(),
+      workerCount: 'workerCount' in stat ? stat.workerCount : undefined,
+      '1m': Number(stat.hashrate1m) / scaleFactor,
+      '5m': Number(stat.hashrate5m) / scaleFactor,
+      '1hr': Number(stat.hashrate1hr) / scaleFactor,
+      '1d': Number(stat.hashrate1d) / scaleFactor,
+      '7d': Number(stat.hashrate7d) / scaleFactor,
+    }));
+  }, [userStats]);
 
   const [visibleLines, setVisibleLines] = useState({
     '1m': false,
@@ -31,7 +58,10 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
     setVisibleLines(prev => ({ ...prev, [dataKey]: !prev[dataKey] }));
   };
 
-  const hashrateTooltipFormatter = (value: number, name: string) => [`${value.toFixed(0)} PH/s`, name];
+  const hashrateTooltipFormatter = (value: number, name: string) => [
+    `${value.toFixed(2)} ${hashrateUnit}`,
+    name
+  ];
 
   const legendPayload = [
     { value: '1m', type: 'line', color: visibleLines['1m'] ? '#8884d8' : '#aaaaaa' },
@@ -65,7 +95,7 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
       )}
 
       <div>
-        <h2 className="text-xl font-bold mb-4">Hashrate History (PH/s)</h2>
+        <h2 className="text-xl font-bold mb-4">Hashrate History ({hashrateUnit})</h2>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={chartData}>
             <XAxis dataKey="timestamp" />

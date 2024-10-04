@@ -1,7 +1,7 @@
 export const revalidate = 60;
 
 import { getWorkerWithStats } from '../../../../../lib/api';
-import { formatNumber } from '../../../../../utils/formatNumber';
+import { formatHashrate, formatNumber } from '../../../../../utils/formatNumber';
 import { notFound } from 'next/navigation';
 import UserStatsCharts from '../../../../../components/UserStatsCharts';
 import Link from 'next/link';
@@ -12,6 +12,8 @@ export default async function WorkerPage({ params }: { params: { address: string
   if (!worker) {
     notFound();
   }
+
+  const latestStats = worker.stats[0]; // Assuming stats are ordered by timestamp desc
 
   return (
     <div className="container mx-auto p-4">
@@ -25,15 +27,15 @@ export default async function WorkerPage({ params }: { params: { address: string
       <div className="stats shadow">
         <div className="stat">
           <div className="stat-title">Hashrate (1m)</div>
-          <div className="stat-value">{worker.hashrate1m}</div>
+          <div className="stat-value">{formatHashrate(latestStats.hashrate1m)}</div>
         </div>
         <div className="stat">
           <div className="stat-title">Hashrate (1hr)</div>
-          <div className="stat-value">{worker.hashrate1hr}</div>
+          <div className="stat-value">{formatHashrate(latestStats.hashrate1hr)}</div>
         </div>
         <div className="stat">
           <div className="stat-title">Hashrate (1d)</div>
-          <div className="stat-value">{worker.hashrate1d}</div>
+          <div className="stat-value">{formatHashrate(latestStats.hashrate1d)}</div>
         </div>
       </div>
 
