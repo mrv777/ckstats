@@ -12,12 +12,31 @@ const convertHashrate = (value) => {
   return value;
 };
 
-async function fetchUserData(address) {
-  const response = await fetch(`https://solo.ckpool.org/users/${address}`);
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+async function fetchUserDataWithRetry(address, maxRetries = 3, delay = 500) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`Fetching data for ${address}...`);
+      const response = await fetch(`https://solo.ckpool.org/users/${address}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      if (attempt === maxRetries) {
+        console.error(`Failed to fetch data for ${address} after ${maxRetries} attempts.`);
+        
+        // Set user's isActive status to false
+        await prisma.user.update({
+          where: { address },
+          data: { isActive: false },
+        });
+        
+        throw error;
+      }
+      console.log(`Attempt ${attempt} failed for ${address}. Retrying...`);
+      await new Promise(resolve => setTimeout(resolve, delay * attempt));
+    }
   }
-  return await response.json();
 }
 
 async function updateUser(address, userData) {
@@ -101,28 +120,28 @@ async function updateWorker(address, workerData) {
   });
 }
 
-async function updateUserAndWorkers(address, userData) {
-  await prisma.$transaction(async (prisma) => {
-    await updateUser(address, userData, prisma);
-    for (const workerData of userData.worker) {
-      await updateWorker(address, workerData, prisma);
-    }
-  });
+async function updateUserAndWorkers(address) {
+  try {
+    const userData = await fetchUserDataWithRetry(address);
+    await prisma.$transaction(async (prisma) => {
+      await updateUser(address, userData, prisma);
+      await Promise.all(userData.worker.map(w => updateWorker(address, w, prisma)));
+    });
+    console.log(`Updated user and workers for: ${address}`);
+  } catch (error) {
+    console.error(`Error updating user ${address}:`, error);
+  }
 }
 
 async function updateUsers() {
   try {
-    const users = await prisma.user.findMany();
-    const updates = [];
+    const users = await prisma.user.findMany({ where: { isActive: true } });
+    const batchSize = 5; // Adjust this value based on your API's rate limits
 
-    for (const user of users) {
-      console.log(`Fetching data for user: ${user.address}`);
-      const userData = await fetchUserData(user.address);
-      updates.push(updateUser(user.address, userData));
-      updates.push(...userData.worker.map(w => updateWorker(user.address, w)));
+    for (let i = 0; i < users.length; i += batchSize) {
+      const batch = users.slice(i, i + batchSize);
+      await Promise.all(batch.map(user => updateUserAndWorkers(user.address)));
     }
-
-    await Promise.all(updates);
 
     console.log('All users and workers updated successfully');
   } catch (error) {
