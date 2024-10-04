@@ -1,12 +1,20 @@
 export const revalidate = 60;
 
-import { getUserWithWorkersAndStats, getUserHistoricalStats } from '../../../lib/api';
+import {
+  getUserWithWorkersAndStats,
+  getUserHistoricalStats,
+} from '../../../lib/api';
 import { formatHashrate, formatNumber } from '../../../utils/formatNumber';
 import { notFound } from 'next/navigation';
 import UserStatsCharts from '../../../components/UserStatsCharts';
 import Link from 'next/link';
+import UserResetButton from '../../../components/UserResetButton';
 
-export default async function UserPage({ params }: { params: { address: string } }) {
+export default async function UserPage({
+  params,
+}: {
+  params: { address: string };
+}) {
   const user = await getUserWithWorkersAndStats(params.address);
   const historicalStats = await getUserHistoricalStats(params.address);
 
@@ -14,11 +22,29 @@ export default async function UserPage({ params }: { params: { address: string }
     notFound();
   }
 
+  if (user.isActive === false) {
+    return (
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4">{user.address} Details</h1>
+        <div
+          className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded"
+          role="alert"
+        >
+          <p className="font-bold">User is not active</p>
+          <UserResetButton address={user.address} />
+        </div>
+      </div>
+    );
+  }
+
   if (user.stats.length === 0) {
     return (
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">{user.address} Details</h1>
-        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded" role="alert">
+        <div
+          className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded"
+          role="alert"
+        >
           <p className="font-bold">No Stats Available</p>
           <p>Please wait for stats to be available.</p>
         </div>
@@ -42,37 +68,51 @@ export default async function UserPage({ params }: { params: { address: string }
         </div>
         <div className="stat">
           <div className="stat-title">Authorised</div>
-          <div className="stat-value">{new Date(Number(user.authorised) * 1000).toLocaleDateString()}</div>
+          <div className="stat-value">
+            {new Date(Number(user.authorised) * 1000).toLocaleDateString()}
+          </div>
         </div>
       </div>
 
       <div className="stats shadow mt-4">
         <div className="stat">
           <div className="stat-title">Hashrate (5m)</div>
-          <div className="stat-value">{formatHashrate(latestStats.hashrate5m)}</div>
+          <div className="stat-value">
+            {formatHashrate(latestStats.hashrate5m)}
+          </div>
         </div>
         <div className="stat">
           <div className="stat-title">Hashrate (1hr)</div>
-          <div className="stat-value">{formatHashrate(latestStats.hashrate1hr)}</div>
+          <div className="stat-value">
+            {formatHashrate(latestStats.hashrate1hr)}
+          </div>
         </div>
         <div className="stat">
           <div className="stat-title">Hashrate (1d)</div>
-          <div className="stat-value">{formatHashrate(latestStats.hashrate1d)}</div>
+          <div className="stat-value">
+            {formatHashrate(latestStats.hashrate1d)}
+          </div>
         </div>
       </div>
 
       <div className="stats shadow mt-4">
         <div className="stat">
-            <div className="stat-title">Last Share</div>
-            <div className="stat-value">{new Date(Number(latestStats.lastShare) * 1000).toLocaleDateString()}</div>
+          <div className="stat-title">Last Share</div>
+          <div className="stat-value">
+            {new Date(
+              Number(latestStats.lastShare) * 1000
+            ).toLocaleDateString()}
+          </div>
         </div>
         <div className="stat">
-            <div className="stat-title">Best Share</div>
-            <div className="stat-value">{formatNumber(latestStats.bestShare)}</div>
+          <div className="stat-title">Best Share</div>
+          <div className="stat-value">
+            {formatNumber(latestStats.bestShare)}
+          </div>
         </div>
         <div className="stat">
-            <div className="stat-title">Best Ever</div>
-            <div className="stat-value">{formatNumber(latestStats.bestEver)}</div>
+          <div className="stat-title">Best Ever</div>
+          <div className="stat-value">{formatNumber(latestStats.bestEver)}</div>
         </div>
       </div>
 
@@ -95,7 +135,12 @@ export default async function UserPage({ params }: { params: { address: string }
             {user.workers.map((worker) => (
               <tr key={worker.id}>
                 <td>
-                    <Link className="link text-primary" href={`/users/${params.address}/workers/${worker.name}`}>{worker.name}</Link>
+                  <Link
+                    className="link text-primary"
+                    href={`/users/${params.address}/workers/${worker.name}`}
+                  >
+                    {worker.name}
+                  </Link>
                 </td>
                 <td>{formatHashrate(worker.hashrate5m)}</td>
                 <td>{formatHashrate(worker.hashrate1hr)}</td>
