@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import Header from '../components/Header';
 import { Metadata } from 'next';
 import Providers from '../components/Providers';
+import LoadingOverlay from '../components/LoadingOverlay';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -21,6 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers>
+          <LoadingOverlay />
           <Header />
           {children}
         </Providers>
