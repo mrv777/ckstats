@@ -40,6 +40,7 @@ model User {
   authorised   BigInt   @default(0)
   workers      Worker[]
   stats        UserStats[]
+  isActive     Boolean  @default(true)
 }
 
 model UserStats {
