@@ -20,14 +20,17 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",
     ".next/types/**/*.ts",
     "**/*.ts",
-    "**/*.tsx"
-, "scripts/seed.js", "migrations/YYYYMMDDHHMMSS_create_pool_stats.js"  ],
+    "**/*.tsx",
+    "scripts/seed.js",
+    "migrations/YYYYMMDDHHMMSS_create_pool_stats.js"
+  ],
   "exclude": [
     "node_modules"
   ]

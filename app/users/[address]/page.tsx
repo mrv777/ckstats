@@ -84,7 +84,7 @@ export default async function UserPage({ params }: { params: { address: string }
           <thead>
             <tr>
               <th>Name</th>
-              <th>Hashrate (1m)</th>
+              <th>Hashrate (5m)</th>
               <th>Hashrate (1hr)</th>
               <th>Shares</th>
               <th>Best Share</th>
@@ -97,7 +97,7 @@ export default async function UserPage({ params }: { params: { address: string }
                 <td>
                     <Link className="link text-primary" href={`/users/${params.address}/workers/${worker.name}`}>{worker.name}</Link>
                 </td>
-                <td>{formatHashrate(worker.hashrate1m)}</td>
+                <td>{formatHashrate(worker.hashrate5m)}</td>
                 <td>{formatHashrate(worker.hashrate1hr)}</td>
                 <td>{formatNumber(worker.shares)}</td>
                 <td>{formatNumber(worker.bestShare)}</td>

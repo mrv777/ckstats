@@ -1,12 +1,19 @@
 export const revalidate = 60;
 
 import { getWorkerWithStats } from '../../../../../lib/api';
-import { formatHashrate, formatNumber } from '../../../../../utils/formatNumber';
+import {
+  formatHashrate,
+  formatNumber,
+} from '../../../../../utils/formatNumber';
 import { notFound } from 'next/navigation';
 import UserStatsCharts from '../../../../../components/UserStatsCharts';
 import Link from 'next/link';
 
-export default async function WorkerPage({ params }: { params: { address: string; name: string } }) {
+export default async function WorkerPage({
+  params,
+}: {
+  params: { address: string; name: string };
+}) {
   const worker = await getWorkerWithStats(params.address, params.name);
 
   if (!worker) {
@@ -17,25 +24,63 @@ export default async function WorkerPage({ params }: { params: { address: string
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">
-        Worker: {worker.name}
-        <Link href={`/users/${params.address}`} className="text-sm ml-4 btn btn-ghost">
+      <div className="flex items-center gap-2">
+        <Link
+          href={`/users/${params.address}`}
+          className="text-sm btn"
+        >
+          {/* Inline SVG for Arrow Left Icon */}
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
           Back to User
         </Link>
-      </h1>
-      
+        <h1 className="text-3xl font-bold">Worker: {worker.name}</h1>
+      </div>
+
       <div className="stats shadow">
         <div className="stat">
           <div className="stat-title">Hashrate (1m)</div>
-          <div className="stat-value">{formatHashrate(latestStats.hashrate1m)}</div>
+          <div className="stat-value">
+            {formatHashrate(latestStats.hashrate1m)}
+          </div>
         </div>
+
+        <div className="stat">
+          <div className="stat-title">Hashrate (5m) </div>
+          <div className="stat-value">
+            {formatHashrate(latestStats.hashrate5m)}
+          </div>
+        </div>
+
         <div className="stat">
           <div className="stat-title">Hashrate (1hr)</div>
-          <div className="stat-value">{formatHashrate(latestStats.hashrate1hr)}</div>
+          <div className="stat-value">
+            {formatHashrate(latestStats.hashrate1hr)}
+          </div>
         </div>
         <div className="stat">
           <div className="stat-title">Hashrate (1d)</div>
-          <div className="stat-value">{formatHashrate(latestStats.hashrate1d)}</div>
+          <div className="stat-value">
+            {formatHashrate(latestStats.hashrate1d)}
+          </div>
+        </div>
+        <div className="stat">
+          <div className="stat-title">Hashrate (7d)</div>
+          <div className="stat-value">
+            {formatHashrate(latestStats.hashrate7d)}
+          </div>
         </div>
       </div>
 
@@ -55,7 +100,6 @@ export default async function WorkerPage({ params }: { params: { address: string
       </div>
 
       <div className="mt-8">
-        <h2 className="text-xl font-bold mb-4">Worker Statistics</h2>
         <UserStatsCharts userStats={worker.stats} />
       </div>
     </div>
