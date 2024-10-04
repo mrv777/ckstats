@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useIsFetching, useIsMutating } from '@tanstack/react-query';
+import { Suspense } from 'react';
 
-const LoadingOverlay: React.FC = () => {
+const LoadingOverlayContent: React.FC = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
@@ -36,6 +37,14 @@ const LoadingOverlay: React.FC = () => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white"></div>
     </div>
+  );
+};
+
+const LoadingOverlay: React.FC = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoadingOverlayContent />
+    </Suspense>
   );
 };
 
