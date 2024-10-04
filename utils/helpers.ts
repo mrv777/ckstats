@@ -36,3 +36,16 @@ export function formatHashrate(num: string | bigint | number): string {
     return num.toLocaleString();
   }
 }
+
+export function convertHashrate(value: string): string {
+  const units = { P: 1e15, T: 1e12, G: 1e9, M: 1e6, K: 1e3 };
+  // Updated regex to handle scientific notation
+  const match = value.match(/^(\d+(\.\d+)?(?:e[+-]\d+)?)([PTGMK])$/i);
+  if (match) {
+    const [, num, , unit] = match;
+    // Parse the number, which now handles scientific notation
+    const parsedNum = parseFloat(num);
+    return Math.round(parsedNum * units[unit.toUpperCase()]).toString();
+  }
+  return value;
+};

@@ -1,6 +1,6 @@
 import React from 'react';
 import { getTopUserDifficulties } from '../lib/api';
-import { formatNumber } from '../utils/formatNumber';
+import { formatNumber } from '../utils/helpers';
 // Add this helper function
 const formatValue = (value: string): string => {
   return formatNumber(Number(value));

@@ -1,6 +1,6 @@
 import React from 'react';
 import { getTopUserHashrates } from '../lib/api';
-import { formatHashrate } from '../utils/formatNumber';
+import { formatHashrate } from '../utils/helpers';
 
 export async function TopUserHashrates() {
   try {

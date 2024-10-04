@@ -1,5 +1,5 @@
 import { PoolStatsType } from '../lib/api';
-import { formatNumber, formatHashrate } from '../utils/formatNumber';
+import { formatNumber, formatHashrate } from '../utils/helpers';
 
 interface PoolStatsDisplayProps {
   stats: PoolStatsType;

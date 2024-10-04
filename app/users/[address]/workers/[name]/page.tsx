@@ -4,7 +4,7 @@ import { getWorkerWithStats } from '../../../../../lib/api';
 import {
   formatHashrate,
   formatNumber,
-} from '../../../../../utils/formatNumber';
+} from '../../../../../utils/helpers';
 import { notFound } from 'next/navigation';
 import UserStatsCharts from '../../../../../components/UserStatsCharts';
 import Link from 'next/link';
