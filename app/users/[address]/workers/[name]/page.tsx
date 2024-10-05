@@ -20,7 +20,7 @@ export default async function WorkerPage({
     notFound();
   }
 
-  const latestStats = worker.stats[0]; // Assuming stats are ordered by timestamp desc
+  const latestStats = worker.stats[worker.stats.length - 1]; // Assuming stats are ordered by timestamp desc
 
   return (
     <div className="container mx-auto p-4">
