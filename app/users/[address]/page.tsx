@@ -30,7 +30,9 @@ export default async function UserPage({
   if (user.isActive === false) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">{user.address} Details</h1>
+        <h1 className="text-2xl font-bold mb-4 break-words text-accent">
+          {user.address}
+        </h1>
         <div
           className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded"
           role="alert"
@@ -45,7 +47,9 @@ export default async function UserPage({
   if (user.stats.length === 0) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">{user.address} Details</h1>
+        <h1 className="text-2xl font-bold mb-4 break-words text-accent">
+          {user.address}
+        </h1>
         <div
           className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded"
           role="alert"
@@ -61,7 +65,7 @@ export default async function UserPage({
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4 break-words text-primary">
+      <h1 className="text-2xl font-bold mb-4 break-words text-accent">
         {user.address}
       </h1>
       <div className="stats stats-vertical sm:stats-horizontal shadow">

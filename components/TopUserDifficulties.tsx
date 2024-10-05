@@ -1,27 +1,49 @@
 import React from 'react';
 
-import { getTopUserDifficulties } from '../lib/api';
-import { formatNumber } from '../utils/helpers';
-// Add this helper function
-const formatValue = (value: string): string => {
-  return formatNumber(Number(value));
-};
+import Link from 'next/link';
 
-export default async function TopUserDifficulties() {
+import { getTopUserDifficulties } from '../lib/api';
+import { formatHashrate, formatNumber } from '../utils/helpers';
+
+interface TopUserDifficultiesProps {
+  limit?: number;
+}
+
+const SMALL_LIMIT = 10;
+
+export default async function TopUserDifficulties({
+  limit = SMALL_LIMIT,
+}: TopUserDifficultiesProps) {
   try {
-    const difficulties = await getTopUserDifficulties();
+    const difficulties = await getTopUserDifficulties(limit);
 
     return (
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
-          <h2 className="card-title">Top User Difficulties Ever</h2>
+          <h2 className="card-title">
+            {limit > SMALL_LIMIT ? (
+              `Top ${limit} User Difficulties Ever`
+            ) : (
+              <Link href="/top-difficulties" className="link text-primary">
+                Top {limit} User Difficulties Ever
+              </Link>
+            )}
+          </h2>
           <div className="overflow-x-auto">
             <table className="table w-full">
               <thead>
                 <tr>
                   <th>Rank</th>
                   <th>Address</th>
-                  <th>Difficulty</th>
+                  <th>Best Diff</th>
+                  {limit > SMALL_LIMIT && (
+                    <>
+                      <th>Session Diff</th>
+                      <th>Hashrate 1hr</th>
+                      <th>Hashrate 1d</th>
+                      <th>Hashrate 7d</th>
+                    </>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -31,7 +53,17 @@ export default async function TopUserDifficulties() {
                     <td>
                       {user.address.slice(0, 6)}...{user.address.slice(-4)}
                     </td>
-                    <td>{formatValue(user.difficulty)}</td>
+                    <td className="text-accent">
+                      {formatNumber(Number(user.difficulty))}
+                    </td>
+                    {limit > SMALL_LIMIT && (
+                      <>
+                        <td>{formatNumber(Number(user.bestShare))}</td>
+                        <td>{formatHashrate(user.hashrate1hr)}</td>
+                        <td>{formatHashrate(user.hashrate1d)}</td>
+                        <td>{formatHashrate(user.hashrate7d)}</td>
+                      </>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -45,7 +77,7 @@ export default async function TopUserDifficulties() {
     return (
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
-          <h2 className="card-title">Top User Difficulties</h2>
+          <h2 className="card-title">Top {limit} User Difficulties</h2>
           <p className="text-error">
             Error loading top user difficulties. Please try again later.
           </p>

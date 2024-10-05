@@ -125,45 +125,75 @@ export async function getWorkerWithStats(
   });
 }
 
-export async function getTopUserDifficulties(): Promise<
-  { address: string; difficulty: string }[]
+export async function getTopUserDifficulties(limit: number = 10): Promise<
+  {
+    address: string;
+    difficulty: string;
+    hashrate1hr: string;
+    hashrate1d: string;
+    hashrate7d: string;
+    bestShare: string;
+  }[]
 > {
   const topUsers = await prisma.userStats.findMany({
     select: {
       userAddress: true,
       bestEver: true,
+      bestShare: true,
+      hashrate1hr: true,
+      hashrate1d: true,
+      hashrate7d: true,
     },
     orderBy: {
       bestEver: 'desc',
     },
-    take: 20,
+    take: limit,
     distinct: ['userAddress'],
   });
 
   return topUsers.map((user) => ({
     address: user.userAddress,
     difficulty: user.bestEver.toString(),
+    hashrate1hr: user.hashrate1hr.toString(),
+    hashrate1d: user.hashrate1d.toString(),
+    hashrate7d: user.hashrate7d.toString(),
+    bestShare: user.bestShare.toString(),
   }));
 }
 
-export async function getTopUserHashrates(): Promise<
-  { address: string; hashrate: string }[]
+export async function getTopUserHashrates(limit: number = 10): Promise<
+  {
+    address: string;
+    hashrate1hr: string;
+    hashrate1d: string;
+    hashrate7d: string;
+    bestShare: string;
+    bestEver: string;
+  }[]
 > {
   const topUsers = await prisma.userStats.findMany({
     select: {
       userAddress: true,
       hashrate1hr: true,
+      hashrate1d: true,
+      hashrate7d: true,
+      bestShare: true,
+      bestEver: true,
     },
     orderBy: {
       hashrate1hr: 'desc',
     },
-    take: 20,
+    take: limit,
     distinct: ['userAddress'],
   });
 
   return topUsers.map((user) => ({
     address: user.userAddress,
-    hashrate: user.hashrate1hr.toString(),
+    hashrate1hr: user.hashrate1hr.toString(),
+    hashrate1d: user.hashrate1d.toString(),
+    hashrate7d: user.hashrate7d.toString(),
+    bestShare: user.bestShare.toString(),
+    bestEver: user.bestEver.toString(),
   }));
 }
 

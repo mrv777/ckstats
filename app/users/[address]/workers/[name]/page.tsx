@@ -41,7 +41,7 @@ export default async function WorkerPage({
           </svg>
           Back to User
         </Link>
-        <h1 className="text-3xl font-bold text-primary">{worker.name}</h1>
+        <h1 className="text-3xl font-bold text-accent">{worker.name}</h1>
       </div>
 
       <div className="stats stats-vertical lg:stats-horizontal shadow">
