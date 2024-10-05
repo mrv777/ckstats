@@ -130,45 +130,49 @@ export default async function UserPage({
       <div className="bg-base-200 p-4 rounded-lg mt-8">
         <h2 className="text-xl font-bold mb-4">Workers</h2>
         <div className="overflow-x-auto">
-        <table className="table w-full">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Hashrate (5m)</th>
-              <th>Hashrate (1hr)</th>
-              <th>Hashrate (1d)</th>
-              <th>Best Share</th>
-              <th>Best Ever</th>
-              <th>Last Update</th>
-            </tr>
-          </thead>
-          <tbody>
-            {user.workers.map((worker) => (
-              <tr key={worker.id}>
-                <td>
-                  <Link
-                    className="link text-primary"
-                    href={`/users/${params.address}/workers/${worker.name}`}
-                  >
-                    {worker.name}
-                  </Link>
-                </td>
-                <td
-                  className={`${worker.hashrate5m < 1 ? 'text-error' : 'text-accent'}`}
-                >
-                  {formatHashrate(worker.hashrate5m)}
-                </td>
-                <td className={`${worker.hashrate1hr < 1 ? 'text-error' : ''}`}>
-                  {formatHashrate(worker.hashrate1hr)}
-                </td>
-                <td className={`${worker.hashrate1d < 1 ? 'text-error' : ''}`}>
-                  {formatHashrate(worker.hashrate1d)}
-                </td>
-                <td>{formatNumber(worker.bestShare)}</td>
-                <td>{formatNumber(worker.bestEver)}</td>
-                <td>{formatTimeAgo(worker.lastUpdate)}</td>
+          <table className="table w-full">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Hashrate (5m)</th>
+                <th>Hashrate (1hr)</th>
+                <th>Hashrate (1d)</th>
+                <th>Best Share</th>
+                <th>Best Ever</th>
+                <th>Last Update</th>
               </tr>
-            ))}
+            </thead>
+            <tbody>
+              {user.workers.map((worker) => (
+                <tr key={worker.id}>
+                  <td>
+                    <Link
+                      className="link text-primary"
+                      href={`/users/${params.address}/workers/${worker.name}`}
+                    >
+                      {worker.name}
+                    </Link>
+                  </td>
+                  <td
+                    className={`${worker.hashrate5m < 1 ? 'text-error' : 'text-accent'}`}
+                  >
+                    {formatHashrate(worker.hashrate5m)}
+                  </td>
+                  <td
+                    className={`${worker.hashrate1hr < 1 ? 'text-error' : ''}`}
+                  >
+                    {formatHashrate(worker.hashrate1hr)}
+                  </td>
+                  <td
+                    className={`${worker.hashrate1d < 1 ? 'text-error' : ''}`}
+                  >
+                    {formatHashrate(worker.hashrate1d)}
+                  </td>
+                  <td>{formatNumber(worker.bestShare)}</td>
+                  <td>{formatNumber(worker.bestEver)}</td>
+                  <td>{formatTimeAgo(worker.lastUpdate)}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
