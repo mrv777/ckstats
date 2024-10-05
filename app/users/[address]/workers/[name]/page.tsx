@@ -46,10 +46,10 @@ export default async function WorkerPage({
           </svg>
           Back to User
         </Link>
-        <h1 className="text-3xl font-bold">Worker: {worker.name}</h1>
+        <h1 className="text-3xl font-bold text-primary">{worker.name}</h1>
       </div>
 
-      <div className="stats shadow">
+      <div className="stats stats-vertical lg:stats-horizontal shadow">
         <div className="stat">
           <div className="stat-title">Hashrate (1m)</div>
           <div className="stat-value">
@@ -84,7 +84,7 @@ export default async function WorkerPage({
         </div>
       </div>
 
-      <div className="stats shadow mt-4">
+      <div className="stats stats-vertical lg:stats-horizontal shadow mt-4">
         <div className="stat">
           <div className="stat-title">Shares</div>
           <div className="stat-value">{formatNumber(worker.shares)}</div>

@@ -57,7 +57,7 @@ export default async function UserPage({
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">{user.address} Details</h1>
-      <div className="stats shadow">
+      <div className="stats stats-vertical sm:stats-horizontal shadow">
         <div className="stat">
           <div className="stat-title">Worker Count</div>
           <div className="stat-value">{user.workers.length}</div>
@@ -74,7 +74,7 @@ export default async function UserPage({
         </div>
       </div>
 
-      <div className="stats shadow mt-4">
+      <div className="stats stats-vertical sm:stats-horizontal shadow mt-4">
         <div className="stat">
           <div className="stat-title">Hashrate (5m)</div>
           <div className="stat-value">
@@ -95,7 +95,7 @@ export default async function UserPage({
         </div>
       </div>
 
-      <div className="stats shadow mt-4">
+      <div className="stats stats-vertical sm:stats-horizontal shadow mt-4">
         <div className="stat">
           <div className="stat-title">Last Share</div>
           <div className="stat-value">

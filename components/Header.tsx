@@ -69,22 +69,22 @@ export default function Header() {
 
   return (
     <header className="navbar bg-base-100">
-      <div className="flex-1">
+      <div className="flex-1 hidden md:inline-flex">
         <Link href="/" className="btn btn-ghost normal-case text-xl">
           CKPool Stats
         </Link>
       </div>
-      <div className="flex-none gap-2">
-        <div className="form-control">
+      <div className="flex-none gap-2 flex-grow md:flex-grow-0">
+        <div className="form-control flex-grow md:flex-grow-0">
           <input
             type="text"
             placeholder="Enter Bitcoin address"
-            className="input input-bordered w-96 text-sm"
+            className="input input-bordered w-full md:w-96 text-sm"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
           />
         </div>
-        <button className="btn btn-primary" onClick={handleAddAddress}>
+        <button className="btn p-3 btn-primary" onClick={handleAddAddress}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6"
