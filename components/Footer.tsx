@@ -9,6 +9,7 @@ const Footer: React.FC = () => {
             href="https://x.com/MrV_777"
             target="_blank"
             rel="noopener noreferrer"
+            className="hover:text-primary"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -24,6 +25,7 @@ const Footer: React.FC = () => {
             href="https://github.com/mrv777/ckstats"
             target="_blank"
             rel="noopener noreferrer"
+            className="hover:text-primary"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
