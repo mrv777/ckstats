@@ -132,8 +132,8 @@ export default async function UserPage({
               <th>Hashrate (5m)</th>
               <th>Hashrate (1hr)</th>
               <th>Hashrate (1d)</th>
-              <th>Shares</th>
               <th>Best Share</th>
+              <th>Best Ever</th>
               <th>Last Update</th>
             </tr>
           </thead>
@@ -157,8 +157,8 @@ export default async function UserPage({
                 <td className={`${worker.hashrate1d < 1 ? 'text-error' : ''}`}>
                   {formatHashrate(worker.hashrate1d)}
                 </td>
-                <td>{formatNumber(worker.shares)}</td>
                 <td>{formatNumber(worker.bestShare)}</td>
+                <td>{formatNumber(worker.bestEver)}</td>
                 <td>{formatTimeAgo(worker.lastUpdate)}</td>
               </tr>
             ))}
