@@ -36,9 +36,9 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
     SPS15m: item.SPS15m ?? 0,
     SPS1h: item.SPS1h ?? 0,
   }));
-
+  
   const hashrateTooltipFormatter = (value: number, name: string) => [
-    `${value.toFixed(0)} PH/s`,
+    `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })} PH/s`,
     name,
   ];
 

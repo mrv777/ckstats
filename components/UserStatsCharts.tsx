@@ -69,7 +69,7 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
   };
 
   const hashrateTooltipFormatter = (value: number, name: string) => [
-    `${value.toFixed(2)} ${hashrateUnit}`,
+    `${value.toLocaleString(undefined, { maximumFractionDigits: 2 })} ${hashrateUnit}`,
     name,
   ];
 
