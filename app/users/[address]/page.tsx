@@ -56,7 +56,7 @@ export default async function UserPage({
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">{user.address} Details</h1>
+      <h1 className="text-2xl font-bold mb-4 break-words text-primary">{user.address}</h1>
       <div className="stats stats-vertical sm:stats-horizontal shadow">
         <div className="stat">
           <div className="stat-title">Worker Count</div>
