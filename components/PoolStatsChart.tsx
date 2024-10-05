@@ -135,14 +135,14 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
             type="monotone"
             dataKey="hashrate1d"
             name="1D"
-            stroke="#FFBB28"
+            stroke="#0088FE"
             dot={false}
           />
           <Line
             type="monotone"
             dataKey="hashrate7d"
             name="7D"
-            stroke="#FF8042"
+            stroke="#FF1493"
             dot={false}
           />
         </LineChart>
