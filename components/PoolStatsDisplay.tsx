@@ -31,7 +31,7 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
     if (key.startsWith('hashrate') || key.startsWith('SPS')) {
       return key.replace(/^(hashrate|SPS)/, '').toUpperCase();
     } else if (key === 'diff') {
-      return 'Network Difficulty';
+      return 'Network Diff';
     } else if (key === 'bestshare') {
       return 'Best';
     }
@@ -65,20 +65,20 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
 
   return (
     <div className="grid grid-cols-1 gap-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <h2 className="card-title">General Info</h2>
-            <div className="stats shadow">
+            <div className="stats stats-vertical xl:stats-horizontal shadow">
               <div className="stat">
                 <div className="stat-title">Runtime</div>
-                <div className="stat-value text-3xl">
+                <div className="stat-value text-2xl">
                   {formatValue('runtime', stats.runtime)}
                 </div>
               </div>
               <div className="stat">
                 <div className="stat-title">Last Update</div>
-                <div className="stat-value text-3xl">
+                <div className="stat-value text-2xl">
                   {formatValue('timestamp', stats.timestamp)}
                 </div>
               </div>
@@ -89,11 +89,11 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
           <div key={group.title} className="card bg-base-100 shadow-xl">
             <div className="card-body">
               <h2 className="card-title">{group.title}</h2>
-              <div className="stats shadow">
+              <div className="stats stats-vertical lg:stats-horizontal shadow">
                 {group.keys.map((key) => (
                   <div key={key} className="stat">
                     <div className="stat-title">{formatKey(key)}</div>
-                    <div className="stat-value text-3xl">
+                    <div className="stat-value text-2xl">
                       {formatValue(key, stats[key])}
                     </div>
                   </div>
@@ -106,11 +106,11 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
           <h2 className="card-title">{hashrateGroup.title}</h2>
-          <div className="stats shadow">
+          <div className="stats stats-vertical lg:stats-horizontal shadow">
             {hashrateGroup.keys.map((key) => (
               <div key={key} className="stat">
                 <div className="stat-title">{formatKey(key)}</div>
-                <div className="stat-value text-3xl">
+                <div className="stat-value text-2xl">
                   {formatValue(key, stats[key])}
                 </div>
               </div>
