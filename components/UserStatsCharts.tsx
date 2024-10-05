@@ -73,27 +73,6 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
 
   return (
     <div className="space-y-8">
-      {('workerCount' in userStats[0]) && (
-        <div>
-          <h2 className="text-xl font-bold mb-4">Worker Count History</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartData}>
-              <XAxis dataKey="timestamp" />
-              <YAxis
-                allowDataOverflow={true}
-                domain={[
-                  (dataMin: number) => Math.ceil(dataMin * 0.99),
-                  (dataMax: number) => Math.floor(dataMax * 1.01),
-                ]}
-              />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="workerCount" stroke="#8884d8" name="Workers" dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-
       <div>
         <h2 className="text-xl font-bold mb-4">Hashrate History ({hashrateUnit})</h2>
         <ResponsiveContainer width="100%" height={300}>
@@ -122,6 +101,27 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
           </LineChart>
         </ResponsiveContainer>
       </div>
+
+      {('workerCount' in userStats[0]) && (
+        <div>
+          <h2 className="text-xl font-bold mb-4">Worker Count History</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={chartData}>
+              <XAxis dataKey="timestamp" />
+              <YAxis
+                allowDataOverflow={true}
+                domain={[
+                  (dataMin: number) => Math.ceil(dataMin * 0.99),
+                  (dataMax: number) => Math.floor(dataMax * 1.01),
+                ]}
+              />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="workerCount" stroke="#8884d8" name="Workers" dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
     </div>
   );
 }
