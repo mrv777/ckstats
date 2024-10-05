@@ -24,6 +24,7 @@
     "react/prop-types": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "jsx-a11y/label-has-associated-control": "off",
+    "jsx-a11y/no-noninteractive-tabindex": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "import/order": [
       "error",

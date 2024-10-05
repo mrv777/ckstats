@@ -54,7 +54,7 @@ export default function ThemeController() {
 
   return (
     <div className="dropdown dropdown-end">
-      <label className="btn m-1">
+      <label tabIndex={0} className="btn m-1">
         Theme
         <svg
           width="12px"
@@ -66,7 +66,10 @@ export default function ThemeController() {
           <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
         </svg>
       </label>
-      <ul className="dropdown-content z-[1] p-2 shadow-2xl bg-base-200 rounded-box w-52 max-h-96 overflow-y-auto">
+      <ul
+        tabIndex={0}
+        className="dropdown-content z-[1] p-2 shadow-2xl bg-base-200 rounded-box w-52 max-h-96 overflow-y-auto"
+      >
         {themes.map((t) => (
           <li key={t}>
             <input

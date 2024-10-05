@@ -33,7 +33,7 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
     } else if (key === 'diff') {
       return 'Network Diff';
     } else if (key === 'bestshare') {
-      return 'Best';
+      return 'Best Diff';
     }
     // General case
     return key
