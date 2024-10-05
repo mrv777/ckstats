@@ -17,10 +17,13 @@ interface PoolStatsChartProps {
 }
 
 export default function PoolStatsChart({ data }: PoolStatsChartProps) {
-  // Format the data for the charts
-  const formattedData = data.map((item) => ({
+  // Reverse the data array
+  const reversedData = [...data].reverse();
+
+  // Format the reversed data for the charts
+  const formattedData = reversedData.map((item) => ({
     ...item,
-    timestamp: new Date(item.timestamp).toLocaleTimeString(), // Only extract time
+    timestamp: new Date(item.timestamp).toLocaleString(),
     hashrate1m: Number(item.hashrate1m) / 1000000000000000,
     hashrate5m: Number(item.hashrate5m) / 1000000000000000,
     hashrate15m: Number(item.hashrate15m) / 1000000000000000,
@@ -52,7 +55,7 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
           data={formattedData}
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
-          <XAxis dataKey="timestamp" />
+          <XAxis dataKey="timestamp" minTickGap={50} />
           <YAxis
             allowDataOverflow={true}
             domain={[
@@ -83,7 +86,7 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
           data={formattedData}
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
-          <XAxis dataKey="timestamp" />
+          <XAxis dataKey="timestamp" minTickGap={50} />
           <YAxis
             allowDataOverflow={true}
             domain={[
@@ -155,7 +158,7 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
           data={formattedData}
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
-          <XAxis dataKey="timestamp" />
+          <XAxis dataKey="timestamp" minTickGap={50} />
           <YAxis
             allowDataOverflow={true}
             domain={[

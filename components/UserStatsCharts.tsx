@@ -46,7 +46,7 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
     setHashrateUnit(unit);
 
     return userStats.map((stat) => ({
-      timestamp: new Date(stat.timestamp).toLocaleTimeString(),
+      timestamp: new Date(stat.timestamp).toLocaleString(),
       workerCount: 'workerCount' in stat ? stat.workerCount : undefined,
       '1m': Number(stat.hashrate1m) / scaleFactor,
       '5m': Number(stat.hashrate5m) / scaleFactor,
@@ -109,7 +109,7 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
         </h2>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={chartData}>
-            <XAxis dataKey="timestamp" />
+            <XAxis dataKey="timestamp" minTickGap={50} />
             <YAxis
               allowDataOverflow={true}
               domain={[
@@ -154,7 +154,7 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
           <h2 className="text-xl font-bold mb-4">Worker Count History</h2>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={chartData}>
-              <XAxis dataKey="timestamp" />
+              <XAxis dataKey="timestamp" minTickGap={50} />
               <YAxis
                 allowDataOverflow={true}
                 domain={[

@@ -8,6 +8,8 @@ import {
 
 import { convertHashrate } from '../utils/helpers';
 
+const HISTORICAL_DATA_POINTS = 240;
+
 declare global {
   // eslint-disable-next-line no-var
   var prisma: PrismaClient | undefined;
@@ -68,11 +70,10 @@ export async function getLatestPoolStats(): Promise<PoolStats | null> {
 }
 
 export async function getHistoricalPoolStats(
-  limit: number = 100
 ): Promise<PoolStats[]> {
   return prisma.poolStats.findMany({
-    orderBy: { timestamp: 'asc' },
-    take: limit,
+    orderBy: { timestamp: 'desc' },
+    take: HISTORICAL_DATA_POINTS,
   });
 }
 
@@ -99,7 +100,7 @@ export async function getUserHistoricalStats(
   return prisma.userStats.findMany({
     where: { userAddress: address },
     orderBy: { timestamp: 'asc' },
-    take: 288,
+    take: HISTORICAL_DATA_POINTS,
   });
 }
 
@@ -119,7 +120,7 @@ export async function getWorkerWithStats(
         orderBy: {
           timestamp: 'asc',
         },
-        take: 288, // Last 24 hours if updated every 5 minutes
+        take: HISTORICAL_DATA_POINTS,
       },
     },
   });
