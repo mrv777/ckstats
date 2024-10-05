@@ -4,7 +4,7 @@ import {
   getUserWithWorkersAndStats,
   getUserHistoricalStats,
 } from '../../../lib/api';
-import { formatHashrate, formatNumber } from '../../../utils/helpers';
+import { formatHashrate, formatNumber, formatTimeAgo } from '../../../utils/helpers';
 import { notFound } from 'next/navigation';
 import UserStatsCharts from '../../../components/UserStatsCharts';
 import Link from 'next/link';
@@ -99,9 +99,7 @@ export default async function UserPage({
         <div className="stat">
           <div className="stat-title">Last Share</div>
           <div className="stat-value">
-            {new Date(Number(latestStats.lastShare) * 1000)
-              .toISOString()
-              .slice(11, 19)} UTC
+            {formatTimeAgo(Number(latestStats.lastShare) * 1000)}
           </div>
         </div>
         <div className="stat">
@@ -142,11 +140,11 @@ export default async function UserPage({
                     {worker.name}
                   </Link>
                 </td>
-                <td>{formatHashrate(worker.hashrate5m)}</td>
-                <td>{formatHashrate(worker.hashrate1hr)}</td>
+                <td className={`${worker.hashrate5m < 1 ? 'text-error' : ''}`}>{formatHashrate(worker.hashrate5m)}</td>
+                <td className={`${worker.hashrate1hr < 1 ? 'text-error' : ''}`}>{formatHashrate(worker.hashrate1hr)}</td>
                 <td>{formatNumber(worker.shares)}</td>
                 <td>{formatNumber(worker.bestShare)}</td>
-                <td>{new Date(worker.lastUpdate).toISOString().slice(0, 19)} UTC</td>
+                <td>{formatTimeAgo(worker.lastUpdate)}</td>
               </tr>
             ))}
           </tbody>

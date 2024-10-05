@@ -1,5 +1,5 @@
 import { PoolStatsType } from '../lib/api';
-import { formatNumber, formatHashrate } from '../utils/helpers';
+import { formatNumber, formatHashrate, formatTimeAgo } from '../utils/helpers';
 
 interface PoolStatsDisplayProps {
   stats: PoolStatsType;
@@ -79,7 +79,7 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
               <div className="stat">
                 <div className="stat-title">Last Update</div>
                 <div className="stat-value text-2xl">
-                  {formatValue('timestamp', stats.timestamp)}
+                  {formatTimeAgo(stats.timestamp)}
                 </div>
               </div>
             </div>
