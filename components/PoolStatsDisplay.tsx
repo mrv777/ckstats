@@ -100,7 +100,7 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
                   {stats.hashrate1hr && stats.diff
                     ? formatDuration(
                         calculateAverageTimeToBlock(
-                          stats.hashrate1d,
+                          stats.hashrate6hr,
                           Number(stats.diff)
                         )
                       )
