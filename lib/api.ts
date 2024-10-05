@@ -69,8 +69,7 @@ export async function getLatestPoolStats(): Promise<PoolStats | null> {
   });
 }
 
-export async function getHistoricalPoolStats(
-): Promise<PoolStats[]> {
+export async function getHistoricalPoolStats(): Promise<PoolStats[]> {
   return prisma.poolStats.findMany({
     orderBy: { timestamp: 'desc' },
     take: HISTORICAL_DATA_POINTS,
