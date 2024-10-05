@@ -3,3 +3,9 @@
 @tailwind utilities;
 
 /* Add any global styles below this line */
+
+@layer components {
+  .card-body {
+    @apply p-4 sm:p-8;
+  }
+}
