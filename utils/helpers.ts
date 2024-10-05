@@ -21,20 +21,24 @@ export function formatNumber(num: number | bigint): string {
 }
 
 export function formatHashrate(num: string | bigint | number): string {
-  const absNum = Math.abs(Number(num));
-  if (absNum >= 1e15) {
-    return (Number(num) / 1e15).toFixed(0) + ' PH/s';
-  } else if (absNum >= 1e12) {
-    return (Number(num) / 1e12).toFixed(0) + ' TH/s';
-  } else if (absNum >= 1e9) {
-    return (Number(num) / 1e9).toFixed(0) + ' GH/s';
-  } else if (absNum >= 1e6) {
-    return (Number(num) / 1e6).toFixed(0) + ' MH/s';
-  } else if (absNum >= 1e3) {
-    return (Number(num) / 1e3).toFixed(0) + ' KH/s';
-  } else {
-    return num.toLocaleString();
+  const numberValue = Number(num);
+  const absNum = Math.abs(numberValue);
+  
+  const units: { threshold: number; suffix: string }[] = [
+    { threshold: 1e15, suffix: ' PH/s' },
+    { threshold: 1e12, suffix: ' TH/s' },
+    { threshold: 1e9, suffix: ' GH/s' },
+    { threshold: 1e6, suffix: ' MH/s' },
+    { threshold: 1e3, suffix: ' KH/s' }
+  ];
+
+  for (const unit of units) {
+    if (absNum >= unit.threshold) {
+      return (numberValue / unit.threshold).toLocaleString(undefined, { maximumFractionDigits: 2 }) + unit.suffix;
+    }
   }
+
+  return numberValue.toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' H/s';
 }
 
 export function convertHashrate(value: string): bigint {
