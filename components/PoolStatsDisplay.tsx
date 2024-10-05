@@ -1,5 +1,12 @@
+import Link from 'next/link';
+
 import { PoolStatsType } from '../lib/api';
-import { formatNumber, formatHashrate, formatTimeAgo } from '../utils/helpers';
+import {
+  formatNumber,
+  formatHashrate,
+  formatTimeAgo,
+  formatDuration,
+} from '../utils/helpers';
 
 interface PoolStatsDisplayProps {
   stats: PoolStatsType;
@@ -12,11 +19,6 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
       return formatHashrate(value);
     } else if (key === 'diff') {
       return `${value.toFixed(2)}T`;
-    } else if (key === 'runtime') {
-      const days = Math.floor(value / 86400);
-      const hours = Math.floor((value % 86400) / 3600);
-      const minutes = Math.floor((value % 3600) / 60);
-      return `${days}d ${hours}h ${minutes}m`;
     } else if (typeof value === 'bigint' || typeof value === 'number') {
       return formatNumber(value);
     } else if (key === 'timestamp') {
@@ -42,7 +44,7 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
   };
 
   const statGroups = [
-    { title: 'Users', keys: ['users', 'workers', 'idle', 'disconnected'] },
+    { title: 'Users', keys: ['users', 'disconnected', 'workers'] },
     {
       title: 'Shares',
       keys: ['accepted', 'rejected', 'bestshare', 'diff'],
@@ -63,6 +65,16 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
     ],
   };
 
+  // Updated function to handle bigint
+  const calculateAverageTimeToBlock = (
+    hashRate: bigint,
+    difficulty: number
+  ): number => {
+    const hashesPerDifficulty = BigInt(Math.pow(2, 32));
+    const convertedDifficulty = BigInt(Math.round(difficulty * 1e12)); // Convert T to hashes
+    return Number((convertedDifficulty * hashesPerDifficulty) / hashRate);
+  };
+
   return (
     <div className="grid grid-cols-1 gap-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -73,13 +85,35 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
               <div className="stat">
                 <div className="stat-title">Runtime</div>
                 <div className="stat-value text-2xl">
-                  {formatValue('runtime', stats.runtime)}
+                  {formatDuration(stats.runtime)}
                 </div>
               </div>
               <div className="stat">
                 <div className="stat-title">Last Update</div>
                 <div className="stat-value text-2xl">
                   {formatTimeAgo(stats.timestamp)}
+                </div>
+              </div>
+              <div className="stat">
+                <div className="stat-title">Avg Time to Find a Block</div>
+                <div className="stat-value text-2xl">
+                  {stats.hashrate1hr && stats.diff
+                    ? formatDuration(
+                        calculateAverageTimeToBlock(
+                          stats.hashrate1d,
+                          Number(stats.diff)
+                        )
+                      )
+                    : 'N/A'}
+                </div>
+                <div className="stat-desc">
+                  <Link
+                    href="https://btc.com/stats/pool/Solo%20CK"
+                    target="_blank"
+                    className="link text-primary"
+                  >
+                    Found Blocks
+                  </Link>
                 </div>
               </div>
             </div>
@@ -96,6 +130,11 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
                     <div className="stat-value text-2xl">
                       {formatValue(key, stats[key])}
                     </div>
+                    {key === 'users' && (
+                      <div className="stat-desc">
+                        Idle: {formatNumber(stats.idle)}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

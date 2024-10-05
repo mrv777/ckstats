@@ -59,15 +59,32 @@ export function formatTimeAgo(date: Date | number | string): string {
   if (diffMinutes < 1) {
     return "Recently";
   } else if (diffMinutes < 60) {
-    return `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''} ago`;
+    return `${diffMinutes} min${diffMinutes > 1 ? 's' : ''} ago`;
   } else if (diffMinutes < 1440) { // Less than 24 hours
     const hours = Math.floor(diffMinutes / 60);
     const minutes = diffMinutes % 60;
-    return `${hours} hour${hours > 1 ? 's' : ''} ${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    return `${hours} hour${hours > 1 ? 's' : ''} ${minutes} min${minutes > 1 ? 's' : ''} ago`;
   } else {
     const days = Math.floor(diffMinutes / 1440);
     const hours = Math.floor((diffMinutes % 1440) / 60);
     const minutes = diffMinutes % 60;
-    return `${days} day${days > 1 ? 's' : ''} ${hours} hour${hours > 1 ? 's' : ''} ${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    return `${days} day${days > 1 ? 's' : ''} ${hours} hour${hours > 1 ? 's' : ''} ${minutes} min${minutes > 1 ? 's' : ''} ago`;
   }
+}
+
+export function formatDuration(seconds: number): string {
+  if (seconds > 8000000000000) {
+    return '~∞';
+  }
+
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+
+  const parts: string[] = [];
+  if (days > 0) parts.push(`${days}d`);
+  if (hours > 0) parts.push(`${hours}h`);
+  if (minutes > 0) parts.push(`${minutes}m`);
+
+  return parts.join(' ');
 }
