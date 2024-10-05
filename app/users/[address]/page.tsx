@@ -13,6 +13,8 @@ import {
   formatHashrate,
   formatNumber,
   formatTimeAgo,
+  calculatePercentageChange,
+  getPercentageChangeColor,
 } from '../../../utils/helpers';
 
 export default async function UserPage({
@@ -63,6 +65,27 @@ export default async function UserPage({
 
   const latestStats = user.stats[0]; // Assuming stats are ordered by timestamp desc
 
+  const renderPercentageChange = (key: string) => {
+    if (historicalStats.length < 120) return 'N/A';
+
+    const currentValue = Number(latestStats[key]);
+    const pastValue = Number(
+      historicalStats[historicalStats.length - 120][key]
+    );
+
+    const change = calculatePercentageChange(currentValue, pastValue);
+    const color = getPercentageChangeColor(change);
+
+    return (
+      <div
+        className={`stat-desc tooltip text-left ${color}`}
+        data-tip="24 hour % change"
+      >
+        {change === 'N/A' ? 'N/A' : `${change}%`}
+      </div>
+    );
+  };
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4 break-words text-accent">
@@ -91,18 +114,21 @@ export default async function UserPage({
           <div className="stat-value">
             {formatHashrate(latestStats.hashrate5m)}
           </div>
+          {renderPercentageChange('hashrate5m')}
         </div>
         <div className="stat">
           <div className="stat-title">Hashrate (1hr)</div>
           <div className="stat-value">
             {formatHashrate(latestStats.hashrate1hr)}
           </div>
+          {renderPercentageChange('hashrate1hr')}
         </div>
         <div className="stat">
           <div className="stat-title">Hashrate (1d)</div>
           <div className="stat-value">
             {formatHashrate(latestStats.hashrate1d)}
           </div>
+          {renderPercentageChange('hashrate1d')}
         </div>
       </div>
 

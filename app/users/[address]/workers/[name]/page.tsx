@@ -5,7 +5,12 @@ import { notFound } from 'next/navigation';
 
 import UserStatsCharts from '../../../../../components/UserStatsCharts';
 import { getWorkerWithStats } from '../../../../../lib/api';
-import { formatHashrate, formatNumber } from '../../../../../utils/helpers';
+import {
+  formatHashrate,
+  formatNumber,
+  calculatePercentageChange,
+  getPercentageChangeColor,
+} from '../../../../../utils/helpers';
 
 export default async function WorkerPage({
   params,
@@ -19,6 +24,25 @@ export default async function WorkerPage({
   }
 
   const latestStats = worker.stats[worker.stats.length - 1]; // Assuming stats are ordered by timestamp desc
+
+  const renderPercentageChange = (key: string) => {
+    if (worker.stats.length < 120) return 'N/A';
+
+    const currentValue = Number(latestStats[key]);
+    const pastValue = Number(worker.stats[worker.stats.length - 120][key]);
+
+    const change = calculatePercentageChange(currentValue, pastValue);
+    const color = getPercentageChangeColor(change);
+
+    return (
+      <div
+        className={`stat-desc tooltip text-left ${color}`}
+        data-tip="24 hour % change"
+      >
+        {change === 'N/A' ? 'N/A' : `${change}%`}
+      </div>
+    );
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -50,6 +74,7 @@ export default async function WorkerPage({
           <div className="stat-value">
             {formatHashrate(latestStats.hashrate1m)}
           </div>
+          {renderPercentageChange('hashrate1m')}
         </div>
 
         <div className="stat">
@@ -57,6 +82,7 @@ export default async function WorkerPage({
           <div className="stat-value">
             {formatHashrate(latestStats.hashrate5m)}
           </div>
+          {renderPercentageChange('hashrate5m')}
         </div>
 
         <div className="stat">
@@ -64,18 +90,21 @@ export default async function WorkerPage({
           <div className="stat-value">
             {formatHashrate(latestStats.hashrate1hr)}
           </div>
+          {renderPercentageChange('hashrate1hr')}
         </div>
         <div className="stat">
           <div className="stat-title">Hashrate (1d)</div>
           <div className="stat-value">
             {formatHashrate(latestStats.hashrate1d)}
           </div>
+          {renderPercentageChange('hashrate1d')}
         </div>
         <div className="stat">
           <div className="stat-title">Hashrate (7d)</div>
           <div className="stat-value">
             {formatHashrate(latestStats.hashrate7d)}
           </div>
+          {renderPercentageChange('hashrate7d')}
         </div>
       </div>
 

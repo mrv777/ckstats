@@ -6,13 +6,19 @@ import {
   formatHashrate,
   formatTimeAgo,
   formatDuration,
+  calculatePercentageChange,
+  getPercentageChangeColor,
 } from '../utils/helpers';
 
 interface PoolStatsDisplayProps {
   stats: PoolStatsType;
+  historicalStats: PoolStatsType[];
 }
 
-export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
+export default function PoolStatsDisplay({
+  stats,
+  historicalStats,
+}: PoolStatsDisplayProps) {
   // Helper function to format values
   const formatValue = (key: string, value: any): string => {
     if (key.startsWith('hashrate')) {
@@ -73,6 +79,27 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
     const hashesPerDifficulty = BigInt(Math.pow(2, 32));
     const convertedDifficulty = BigInt(Math.round(difficulty * 1e12)); // Convert T to hashes
     return Number((convertedDifficulty * hashesPerDifficulty) / hashRate);
+  };
+
+  const renderPercentageChange = (key: string) => {
+    if (historicalStats.length < 120) return 'N/A';
+
+    const currentValue = Number(stats[key]);
+    const pastValue = Number(
+      historicalStats[historicalStats.length - 120][key]
+    );
+
+    const change = calculatePercentageChange(currentValue, pastValue);
+    const color = getPercentageChangeColor(change);
+
+    return (
+      <div
+        className={`stat-desc tooltip text-left ${color}`}
+        data-tip="24 hour % change"
+      >
+        {change === 'N/A' ? 'N/A' : `${change}%`}
+      </div>
+    );
   };
 
   return (
@@ -152,6 +179,7 @@ export default function PoolStatsDisplay({ stats }: PoolStatsDisplayProps) {
                 <div className="stat-value text-2xl">
                   {formatValue(key, stats[key])}
                 </div>
+                {renderPercentageChange(key)}
               </div>
             ))}
           </div>

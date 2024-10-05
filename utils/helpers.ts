@@ -92,3 +92,15 @@ export function formatDuration(seconds: number): string {
 
   return parts.join(' ');
 }
+
+export function calculatePercentageChange(currentValue: number, pastValue: number): number | 'N/A' {
+  if (pastValue === 0) return 'N/A';
+
+  const percentageChange = ((currentValue - pastValue) / pastValue) * 100;
+  return Number(percentageChange.toFixed(2));
+}
+
+export function getPercentageChangeColor(change: number | 'N/A'): string {
+  if (change === 'N/A') return 'text-base-content';
+  return change > 0 ? 'text-success' : 'text-error';
+}

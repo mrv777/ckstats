@@ -23,7 +23,10 @@ export default async function Home() {
 
     return (
       <main className="container mx-auto p-4">
-        <PoolStatsDisplay stats={latestStats} />
+        <PoolStatsDisplay
+          stats={latestStats}
+          historicalStats={historicalStats}
+        />
         {historicalStats && historicalStats.length > 0 ? (
           <PoolStatsChart data={historicalStats} />
         ) : (
