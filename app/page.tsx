@@ -1,22 +1,24 @@
 export const revalidate = 60;
 
-import { getLatestPoolStats, getHistoricalPoolStats } from '../lib/api';
-import PoolStatsDisplay from '../components/PoolStatsDisplay';
 import PoolStatsChart from '../components/PoolStatsChart';
+import PoolStatsDisplay from '../components/PoolStatsDisplay';
 import TopUserDifficulties from '../components/TopUserDifficulties';
 import TopUserHashrates from '../components/TopUserHashrates';
+import { getLatestPoolStats, getHistoricalPoolStats } from '../lib/api';
 
 export default async function Home() {
   try {
     const [latestStats, historicalStats] = await Promise.all([
       getLatestPoolStats(),
-      getHistoricalPoolStats()
+      getHistoricalPoolStats(),
     ]);
 
     if (!latestStats) {
-      return <main className="container mx-auto p-4">
-        <p>No stats available at the moment. Please try again later.</p>
-      </main>;
+      return (
+        <main className="container mx-auto p-4">
+          <p>No stats available at the moment. Please try again later.</p>
+        </main>
+      );
     }
 
     return (
@@ -35,8 +37,12 @@ export default async function Home() {
     );
   } catch (error) {
     console.error('Error fetching pool stats:', error);
-    return <main className="container mx-auto p-4">
-      <p>An error occurred while fetching the stats. Please try again later.</p>
-    </main>;
+    return (
+      <main className="container mx-auto p-4">
+        <p>
+          An error occurred while fetching the stats. Please try again later.
+        </p>
+      </main>
+    );
   }
 }

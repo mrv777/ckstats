@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+
 import { useMutation } from '@tanstack/react-query';
 
 interface UserResetButtonProps {
@@ -18,8 +19,11 @@ const UserResetButton: React.FC<UserResetButtonProps> = ({ address }) => {
           throw new Error('Failed to reset user');
         }
         return response.json();
-      } catch (err: any) {
-        throw new Error(err.message || 'Failed to reset user');
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          throw new Error(err.message || 'Failed to reset user');
+        }
+        throw new Error('Failed to reset user');
       }
     },
     onSuccess: () => {
@@ -39,7 +43,11 @@ const UserResetButton: React.FC<UserResetButtonProps> = ({ address }) => {
         onClick={() => mutation.mutate()}
         disabled={mutation.isPending || mutation.isSuccess}
       >
-        {mutation.isPending ? 'Resetting...' : mutation.isSuccess ? 'Reset Success' : 'Reset User'}
+        {mutation.isPending
+          ? 'Resetting...'
+          : mutation.isSuccess
+            ? 'Reset Success'
+            : 'Reset User'}
       </button>
       {mutation.isError && (
         <p className="text-error mt-2">

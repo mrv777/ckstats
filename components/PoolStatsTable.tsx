@@ -21,7 +21,9 @@ export default function PoolStatsTable({ stats }: PoolStatsTableProps) {
 
   // Helper function to format keys
   const formatKey = (key: string): string => {
-    return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+    return key
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, (str) => str.toUpperCase());
   };
 
   return (

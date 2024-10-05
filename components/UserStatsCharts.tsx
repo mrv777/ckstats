@@ -1,8 +1,18 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LegendType } from 'recharts';
+
 import { UserStats, WorkerStats } from '@prisma/client';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LegendType,
+} from 'recharts';
 
 // Add this function at the top of the file, outside the component
 function getHashrateUnit(maxHashrate: number): [string, number] {
@@ -23,19 +33,19 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
 
   const chartData = useMemo(() => {
     const maxHashrate = Math.max(
-      ...userStats.flatMap(stat => [
+      ...userStats.flatMap((stat) => [
         Number(stat.hashrate1m),
         Number(stat.hashrate5m),
         Number(stat.hashrate1hr),
         Number(stat.hashrate1d),
-        Number(stat.hashrate7d)
+        Number(stat.hashrate7d),
       ])
     );
 
     const [unit, scaleFactor] = getHashrateUnit(maxHashrate);
     setHashrateUnit(unit);
 
-    return userStats.map(stat => ({
+    return userStats.map((stat) => ({
       timestamp: new Date(stat.timestamp).toLocaleTimeString(),
       workerCount: 'workerCount' in stat ? stat.workerCount : undefined,
       '1m': Number(stat.hashrate1m) / scaleFactor,
@@ -55,26 +65,48 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
   });
 
   const handleLegendClick = (dataKey: string) => {
-    setVisibleLines(prev => ({ ...prev, [dataKey]: !prev[dataKey] }));
+    setVisibleLines((prev) => ({ ...prev, [dataKey]: !prev[dataKey] }));
   };
 
   const hashrateTooltipFormatter = (value: number, name: string) => [
     `${value.toFixed(2)} ${hashrateUnit}`,
-    name
+    name,
   ];
 
   const legendPayload = [
-    { value: '1m', type: 'line', color: visibleLines['1m'] ? '#8884d8' : '#aaaaaa' },
-    { value: '5m', type: 'line', color: visibleLines['5m'] ? '#82ca9d' : '#aaaaaa' },
-    { value: '1hr', type: 'line', color: visibleLines['1hr'] ? '#ffc658' : '#aaaaaa' },
-    { value: '1d', type: 'line', color: visibleLines['1d'] ? '#ff7300' : '#aaaaaa' },
-    { value: '7d', type: 'line', color: visibleLines['7d'] ? '#a4de6c' : '#aaaaaa' },
+    {
+      value: '1m',
+      type: 'line',
+      color: visibleLines['1m'] ? '#8884d8' : '#aaaaaa',
+    },
+    {
+      value: '5m',
+      type: 'line',
+      color: visibleLines['5m'] ? '#82ca9d' : '#aaaaaa',
+    },
+    {
+      value: '1hr',
+      type: 'line',
+      color: visibleLines['1hr'] ? '#ffc658' : '#aaaaaa',
+    },
+    {
+      value: '1d',
+      type: 'line',
+      color: visibleLines['1d'] ? '#ff7300' : '#aaaaaa',
+    },
+    {
+      value: '7d',
+      type: 'line',
+      color: visibleLines['7d'] ? '#a4de6c' : '#aaaaaa',
+    },
   ];
 
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-bold mb-4">Hashrate History ({hashrateUnit})</h2>
+        <h2 className="text-xl font-bold mb-4">
+          Hashrate History ({hashrateUnit})
+        </h2>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={chartData}>
             <XAxis dataKey="timestamp" />
@@ -86,23 +118,38 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
               ]}
             />
             <Tooltip formatter={hashrateTooltipFormatter} />
-            <Legend 
-              payload={legendPayload.map(item => ({
+            <Legend
+              payload={legendPayload.map((item) => ({
                 ...item,
-                type: item.type as LegendType
+                type: item.type as LegendType,
               }))}
               onClick={(e) => handleLegendClick(e.value)}
             />
-            {visibleLines['1m'] && <Line type="monotone" dataKey="1m" stroke="#8884d8" dot={false} />}
-            {visibleLines['5m'] && <Line type="monotone" dataKey="5m" stroke="#82ca9d" dot={false} />}
-            {visibleLines['1hr'] && <Line type="monotone" dataKey="1hr" stroke="#ffc658" dot={false} />}
-            {visibleLines['1d'] && <Line type="monotone" dataKey="1d" stroke="#ff7300" dot={false} />}
-            {visibleLines['7d'] && <Line type="monotone" dataKey="7d" stroke="#a4de6c" dot={false} />}
+            {visibleLines['1m'] && (
+              <Line type="monotone" dataKey="1m" stroke="#8884d8" dot={false} />
+            )}
+            {visibleLines['5m'] && (
+              <Line type="monotone" dataKey="5m" stroke="#82ca9d" dot={false} />
+            )}
+            {visibleLines['1hr'] && (
+              <Line
+                type="monotone"
+                dataKey="1hr"
+                stroke="#ffc658"
+                dot={false}
+              />
+            )}
+            {visibleLines['1d'] && (
+              <Line type="monotone" dataKey="1d" stroke="#ff7300" dot={false} />
+            )}
+            {visibleLines['7d'] && (
+              <Line type="monotone" dataKey="7d" stroke="#a4de6c" dot={false} />
+            )}
           </LineChart>
         </ResponsiveContainer>
       </div>
 
-      {('workerCount' in userStats[0]) && (
+      {'workerCount' in userStats[0] && (
         <div>
           <h2 className="text-xl font-bold mb-4">Worker Count History</h2>
           <ResponsiveContainer width="100%" height={300}>
@@ -117,7 +164,13 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
               />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="workerCount" stroke="#8884d8" name="Workers" dot={false} />
+              <Line
+                type="monotone"
+                dataKey="workerCount"
+                stroke="#8884d8"
+                name="Workers"
+                dot={false}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>

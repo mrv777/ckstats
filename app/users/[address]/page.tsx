@@ -1,14 +1,19 @@
 export const revalidate = 60;
 
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+
+import UserResetButton from '../../../components/UserResetButton';
+import UserStatsCharts from '../../../components/UserStatsCharts';
 import {
   getUserWithWorkersAndStats,
   getUserHistoricalStats,
 } from '../../../lib/api';
-import { formatHashrate, formatNumber, formatTimeAgo } from '../../../utils/helpers';
-import { notFound } from 'next/navigation';
-import UserStatsCharts from '../../../components/UserStatsCharts';
-import Link from 'next/link';
-import UserResetButton from '../../../components/UserResetButton';
+import {
+  formatHashrate,
+  formatNumber,
+  formatTimeAgo,
+} from '../../../utils/helpers';
 
 export default async function UserPage({
   params,
@@ -56,7 +61,9 @@ export default async function UserPage({
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4 break-words text-primary">{user.address}</h1>
+      <h1 className="text-2xl font-bold mb-4 break-words text-primary">
+        {user.address}
+      </h1>
       <div className="stats stats-vertical sm:stats-horizontal shadow">
         <div className="stat">
           <div className="stat-title">Worker Count</div>
@@ -140,8 +147,12 @@ export default async function UserPage({
                     {worker.name}
                   </Link>
                 </td>
-                <td className={`${worker.hashrate5m < 1 ? 'text-error' : ''}`}>{formatHashrate(worker.hashrate5m)}</td>
-                <td className={`${worker.hashrate1hr < 1 ? 'text-error' : ''}`}>{formatHashrate(worker.hashrate1hr)}</td>
+                <td className={`${worker.hashrate5m < 1 ? 'text-error' : ''}`}>
+                  {formatHashrate(worker.hashrate5m)}
+                </td>
+                <td className={`${worker.hashrate1hr < 1 ? 'text-error' : ''}`}>
+                  {formatHashrate(worker.hashrate1hr)}
+                </td>
                 <td>{formatNumber(worker.shares)}</td>
                 <td>{formatNumber(worker.bestShare)}</td>
                 <td>{formatTimeAgo(worker.lastUpdate)}</td>

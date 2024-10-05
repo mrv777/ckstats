@@ -1,13 +1,11 @@
 export const revalidate = 60;
 
-import { getWorkerWithStats } from '../../../../../lib/api';
-import {
-  formatHashrate,
-  formatNumber,
-} from '../../../../../utils/helpers';
-import { notFound } from 'next/navigation';
-import UserStatsCharts from '../../../../../components/UserStatsCharts';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
+
+import UserStatsCharts from '../../../../../components/UserStatsCharts';
+import { getWorkerWithStats } from '../../../../../lib/api';
+import { formatHashrate, formatNumber } from '../../../../../utils/helpers';
 
 export default async function WorkerPage({
   params,
@@ -25,10 +23,7 @@ export default async function WorkerPage({
   return (
     <div className="container mx-auto p-4">
       <div className="flex items-center gap-2">
-        <Link
-          href={`/users/${params.address}`}
-          className="text-sm btn"
-        >
+        <Link href={`/users/${params.address}`} className="text-sm btn">
           {/* Inline SVG for Arrow Left Icon */}
           <svg
             className="w-4 h-4"

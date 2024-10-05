@@ -1,11 +1,13 @@
 'use client';
 
-import Link from 'next/link';
-import ThemeController from './ThemeController';
 import { useState, useRef } from 'react';
-import { validateBitcoinAddress } from '../utils/validateBitcoinAddress';
-import { useRouter } from 'next/navigation';
+
 import { useMutation } from '@tanstack/react-query';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+import ThemeController from './ThemeController';
+import { validateBitcoinAddress } from '../utils/validateBitcoinAddress';
 
 export default function Header() {
   const [address, setAddress] = useState('');

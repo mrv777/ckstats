@@ -1,7 +1,15 @@
-import { PoolStats, PrismaClient, User, UserStats, Worker } from '@prisma/client';
+import {
+  PoolStats,
+  PrismaClient,
+  User,
+  UserStats,
+  Worker,
+} from '@prisma/client';
+
 import { convertHashrate } from '../utils/helpers';
 
 declare global {
+  // eslint-disable-next-line no-var
   var prisma: PrismaClient | undefined;
 }
 
@@ -68,22 +76,26 @@ export async function getHistoricalPoolStats(
   });
 }
 
-export async function getUserWithWorkersAndStats(address: string): Promise<(User & { workers: Worker[], stats: UserStats[] }) | null> {
+export async function getUserWithWorkersAndStats(
+  address: string
+): Promise<(User & { workers: Worker[]; stats: UserStats[] }) | null> {
   return prisma.user.findUnique({
     where: { address },
     include: {
       workers: {
-        orderBy: { lastUpdate: 'desc' }
+        orderBy: { lastUpdate: 'desc' },
       },
       stats: {
         orderBy: { timestamp: 'desc' },
         take: 1,
-      }
-    }
+      },
+    },
   });
 }
 
-export async function getUserHistoricalStats(address: string): Promise<UserStats[]> {
+export async function getUserHistoricalStats(
+  address: string
+): Promise<UserStats[]> {
   return prisma.userStats.findMany({
     where: { userAddress: address },
     orderBy: { timestamp: 'asc' },
@@ -91,7 +103,10 @@ export async function getUserHistoricalStats(address: string): Promise<UserStats
   });
 }
 
-export async function getWorkerWithStats(userAddress: string, workerName: string) {
+export async function getWorkerWithStats(
+  userAddress: string,
+  workerName: string
+) {
   return prisma.worker.findUnique({
     where: {
       userAddress_name: {
@@ -110,7 +125,9 @@ export async function getWorkerWithStats(userAddress: string, workerName: string
   });
 }
 
-export async function getTopUserDifficulties(): Promise<{ address: string; difficulty: string }[]> {
+export async function getTopUserDifficulties(): Promise<
+  { address: string; difficulty: string }[]
+> {
   const topUsers = await prisma.userStats.findMany({
     select: {
       userAddress: true,
@@ -123,13 +140,15 @@ export async function getTopUserDifficulties(): Promise<{ address: string; diffi
     distinct: ['userAddress'],
   });
 
-  return topUsers.map(user => ({
+  return topUsers.map((user) => ({
     address: user.userAddress,
     difficulty: user.bestEver.toString(),
   }));
 }
 
-export async function getTopUserHashrates(): Promise<{ address: string; hashrate: string }[]> {
+export async function getTopUserHashrates(): Promise<
+  { address: string; hashrate: string }[]
+> {
   const topUsers = await prisma.userStats.findMany({
     select: {
       userAddress: true,
@@ -142,7 +161,7 @@ export async function getTopUserHashrates(): Promise<{ address: string; hashrate
     distinct: ['userAddress'],
   });
 
-  return topUsers.map(user => ({
+  return topUsers.map((user) => ({
     address: user.userAddress,
     hashrate: user.hashrate1hr.toString(),
   }));

@@ -9,6 +9,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
+
 import { PoolStatsType } from '../lib/api';
 
 interface PoolStatsChartProps {
@@ -20,22 +21,28 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
   const formattedData = data.map((item) => ({
     ...item,
     timestamp: new Date(item.timestamp).toLocaleTimeString(), // Only extract time
-    hashrate1m: ((Number(item.hashrate1m))/1000000000000000),
-    hashrate5m: ((Number(item.hashrate5m))/1000000000000000),
-    hashrate15m: ((Number(item.hashrate15m))/1000000000000000),
-    hashrate1hr: ((Number(item.hashrate1hr))/1000000000000000),
-    hashrate6hr: ((Number(item.hashrate6hr))/1000000000000000),
-    hashrate1d: ((Number(item.hashrate1d))/1000000000000000),
-    hashrate7d: ((Number(item.hashrate7d))/1000000000000000),
+    hashrate1m: Number(item.hashrate1m) / 1000000000000000,
+    hashrate5m: Number(item.hashrate5m) / 1000000000000000,
+    hashrate15m: Number(item.hashrate15m) / 1000000000000000,
+    hashrate1hr: Number(item.hashrate1hr) / 1000000000000000,
+    hashrate6hr: Number(item.hashrate6hr) / 1000000000000000,
+    hashrate1d: Number(item.hashrate1d) / 1000000000000000,
+    hashrate7d: Number(item.hashrate7d) / 1000000000000000,
     SPS1m: item.SPS1m ?? 0,
     SPS5m: item.SPS5m ?? 0,
     SPS15m: item.SPS15m ?? 0,
     SPS1h: item.SPS1h ?? 0,
   }));
 
-  const hashrateTooltipFormatter = (value: number, name: string) => [`${value.toFixed(0)} PH/s`, name];
+  const hashrateTooltipFormatter = (value: number, name: string) => [
+    `${value.toFixed(0)} PH/s`,
+    name,
+  ];
 
-  const spsTooltipFormatter = (value: number, name: string) => [`${value.toFixed(0)} SPS`, name];
+  const spsTooltipFormatter = (value: number, name: string) => [
+    `${value.toFixed(0)} SPS`,
+    name,
+  ];
 
   const renderUsersChart = () => (
     <div className="h-80 w-full mb-8">
@@ -158,10 +165,34 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
           />
           <Tooltip formatter={spsTooltipFormatter} />
           <Legend />
-          <Line type="monotone" dataKey="SPS1m" name="1M" stroke="#8884d8" dot={false} />
-          <Line type="monotone" dataKey="SPS5m" name="5M" stroke="#82ca9d" dot={false} />
-          <Line type="monotone" dataKey="SPS15m" name="15M" stroke="#ffc658" dot={false} />
-          <Line type="monotone" dataKey="SPS1h" name="1H" stroke="#ff7300" dot={false} />
+          <Line
+            type="monotone"
+            dataKey="SPS1m"
+            name="1M"
+            stroke="#8884d8"
+            dot={false}
+          />
+          <Line
+            type="monotone"
+            dataKey="SPS5m"
+            name="5M"
+            stroke="#82ca9d"
+            dot={false}
+          />
+          <Line
+            type="monotone"
+            dataKey="SPS15m"
+            name="15M"
+            stroke="#ffc658"
+            dot={false}
+          />
+          <Line
+            type="monotone"
+            dataKey="SPS1h"
+            name="1H"
+            stroke="#ff7300"
+            dot={false}
+          />
         </LineChart>
       </ResponsiveContainer>
     </div>

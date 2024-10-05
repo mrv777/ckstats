@@ -1,8 +1,9 @@
 import './globals.css';
-import { Inter } from 'next/font/google';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+
+import Footer from '../components/Footer';
+import Header from '../components/Header';
 import Providers from '../components/Providers';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -24,9 +25,7 @@ export default function RootLayout({
         <Providers>
           <div className="flex flex-col min-h-screen">
             <Header />
-            <main className="flex-grow">
-              {children}
-            </main>
+            <main className="flex-grow">{children}</main>
             <Footer />
           </div>
         </Providers>
