@@ -37,6 +37,7 @@ export default async function TopUserHashrates({
                   <th>Address</th>
                   {limit > SMALL_LIMIT ? (
                     <>
+                      <th>Active Workers</th>
                       <th>Hashrate 1hr</th>
                       <th>Hashrate 1d</th>
                       <th>Hashrate 7d</th>
@@ -55,17 +56,23 @@ export default async function TopUserHashrates({
                     <td>
                       {user.address.slice(0, 6)}...{user.address.slice(-4)}
                     </td>
-                    <td className="text-accent">
-                      {formatHashrate(user.hashrate1hr)}
-                    </td>
+
                     {limit > SMALL_LIMIT ? (
                       <>
+                        <td>{user.workerCount}</td>
+                        <td className="text-accent">
+                          {formatHashrate(user.hashrate1hr)}
+                        </td>
                         <td>{formatHashrate(user.hashrate1d)}</td>
                         <td>{formatHashrate(user.hashrate7d)}</td>
                         <td>{formatNumber(Number(user.bestShare))}</td>
                         <td>{formatNumber(Number(user.bestEver))}</td>
                       </>
-                    ) : null}
+                    ) : (
+                      <td className="text-accent">
+                        {formatHashrate(user.hashrate1hr)}
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

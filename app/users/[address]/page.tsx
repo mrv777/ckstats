@@ -152,7 +152,9 @@ export default async function UserPage({
                     {worker.name}
                   </Link>
                 </td>
-                <td className={`${worker.hashrate5m < 1 ? 'text-error' : ''}`}>
+                <td
+                  className={`${worker.hashrate5m < 1 ? 'text-error' : 'text-accent'}`}
+                >
                   {formatHashrate(worker.hashrate5m)}
                 </td>
                 <td className={`${worker.hashrate1hr < 1 ? 'text-error' : ''}`}>

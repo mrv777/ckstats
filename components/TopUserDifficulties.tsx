@@ -35,14 +35,18 @@ export default async function TopUserDifficulties({
                 <tr>
                   <th>Rank</th>
                   <th>Address</th>
-                  <th>Best Diff</th>
-                  {limit > SMALL_LIMIT && (
+
+                  {limit > SMALL_LIMIT ? (
                     <>
+                      <th>Active Workers</th>
+                      <th>Best Diff</th>
                       <th>Session Diff</th>
                       <th>Hashrate 1hr</th>
                       <th>Hashrate 1d</th>
                       <th>Hashrate 7d</th>
                     </>
+                  ) : (
+                    <th>Best Diff</th>
                   )}
                 </tr>
               </thead>
@@ -53,16 +57,22 @@ export default async function TopUserDifficulties({
                     <td>
                       {user.address.slice(0, 6)}...{user.address.slice(-4)}
                     </td>
-                    <td className="text-accent">
-                      {formatNumber(Number(user.difficulty))}
-                    </td>
-                    {limit > SMALL_LIMIT && (
+
+                    {limit > SMALL_LIMIT ? (
                       <>
+                        <td>{user.workerCount}</td>
+                        <td className="text-accent">
+                          {formatNumber(Number(user.difficulty))}
+                        </td>
                         <td>{formatNumber(Number(user.bestShare))}</td>
                         <td>{formatHashrate(user.hashrate1hr)}</td>
                         <td>{formatHashrate(user.hashrate1d)}</td>
                         <td>{formatHashrate(user.hashrate7d)}</td>
                       </>
+                    ) : (
+                      <td className="text-accent">
+                        {formatNumber(Number(user.difficulty))}
+                      </td>
                     )}
                   </tr>
                 ))}

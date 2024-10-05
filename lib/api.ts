@@ -83,7 +83,7 @@ export async function getUserWithWorkersAndStats(
     where: { address },
     include: {
       workers: {
-        orderBy: { lastUpdate: 'desc' },
+        orderBy: { hashrate5m: 'desc' },
       },
       stats: {
         orderBy: { timestamp: 'desc' },
@@ -128,6 +128,7 @@ export async function getWorkerWithStats(
 export async function getTopUserDifficulties(limit: number = 10): Promise<
   {
     address: string;
+    workerCount: number;
     difficulty: string;
     hashrate1hr: string;
     hashrate1d: string;
@@ -138,6 +139,7 @@ export async function getTopUserDifficulties(limit: number = 10): Promise<
   const topUsers = await prisma.userStats.findMany({
     select: {
       userAddress: true,
+      workerCount: true,
       bestEver: true,
       bestShare: true,
       hashrate1hr: true,
@@ -153,6 +155,7 @@ export async function getTopUserDifficulties(limit: number = 10): Promise<
 
   return topUsers.map((user) => ({
     address: user.userAddress,
+    workerCount: user.workerCount,
     difficulty: user.bestEver.toString(),
     hashrate1hr: user.hashrate1hr.toString(),
     hashrate1d: user.hashrate1d.toString(),
@@ -164,6 +167,7 @@ export async function getTopUserDifficulties(limit: number = 10): Promise<
 export async function getTopUserHashrates(limit: number = 10): Promise<
   {
     address: string;
+    workerCount: number;
     hashrate1hr: string;
     hashrate1d: string;
     hashrate7d: string;
@@ -174,6 +178,7 @@ export async function getTopUserHashrates(limit: number = 10): Promise<
   const topUsers = await prisma.userStats.findMany({
     select: {
       userAddress: true,
+      workerCount: true,
       hashrate1hr: true,
       hashrate1d: true,
       hashrate7d: true,
@@ -189,6 +194,7 @@ export async function getTopUserHashrates(limit: number = 10): Promise<
 
   return topUsers.map((user) => ({
     address: user.userAddress,
+    workerCount: user.workerCount,
     hashrate1hr: user.hashrate1hr.toString(),
     hashrate1d: user.hashrate1d.toString(),
     hashrate7d: user.hashrate7d.toString(),
