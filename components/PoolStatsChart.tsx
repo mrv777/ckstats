@@ -202,7 +202,7 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
   );
 
   return (
-    <div>
+    <div className='mt-4'>
       {renderUsersChart()}
       {renderHashrateChart()}
       {renderSPSChart()}
