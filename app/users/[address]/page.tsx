@@ -106,7 +106,7 @@ export default async function UserPage({
         </div>
       </div>
 
-      <div className="stats stats-vertical sm:stats-horizontal shadow mt-4">
+      <div className="stats stats-vertical sm:stats-horizontal shadow mt-4 mb-8">
         <div className="stat">
           <div className="stat-title">Last Share</div>
           <div className="stat-value">
@@ -127,8 +127,9 @@ export default async function UserPage({
 
       <UserStatsCharts userStats={historicalStats} />
 
-      <h2 className="text-xl font-bold mt-8 mb-4">Workers</h2>
-      <div className="overflow-x-auto">
+      <div className="bg-base-200 p-4 rounded-lg mt-8">
+        <h2 className="text-xl font-bold mb-4">Workers</h2>
+        <div className="overflow-x-auto">
         <table className="table w-full">
           <thead>
             <tr>
@@ -168,8 +169,9 @@ export default async function UserPage({
                 <td>{formatTimeAgo(worker.lastUpdate)}</td>
               </tr>
             ))}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
