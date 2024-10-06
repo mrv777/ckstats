@@ -115,7 +115,7 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
   }, [userStats]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 mt-4">
       <div>
         <h2 className="text-xl font-bold mb-4">
           Hashrate History ({hashrateUnit})

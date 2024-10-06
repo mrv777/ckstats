@@ -68,7 +68,7 @@ export default async function WorkerPage({
         <h1 className="text-3xl font-bold text-accent">{worker.name}</h1>
       </div>
 
-      <div className="stats stats-vertical lg:stats-horizontal shadow">
+      <div className="stats stats-vertical lg:stats-horizontal shadow-lg my-2">
         <div className="stat">
           <div className="stat-title">Hashrate (1m)</div>
           <div className="stat-value">
@@ -108,7 +108,7 @@ export default async function WorkerPage({
         </div>
       </div>
 
-      <div className="stats stats-vertical lg:stats-horizontal shadow mt-4">
+      <div className="stats stats-vertical lg:stats-horizontal shadow-lg my-2">
         <div className="stat">
           <div className="stat-title">Shares</div>
           <div className="stat-value">{formatNumber(worker.shares)}</div>

@@ -96,10 +96,10 @@ export default function PoolStatsDisplay({
   return (
     <div className="grid grid-cols-1 gap-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-        <div className="card bg-base-100 shadow-xl">
+        <div className="card card-compact">
           <div className="card-body">
             <h2 className="card-title">General Info</h2>
-            <div className="stats stats-vertical xl:stats-horizontal shadow">
+            <div className="stats stats-vertical xl:stats-horizontal shadow-lg my-2">
               <div className="stat">
                 <div className="stat-title">Uptime</div>
                 <div className="stat-value text-2xl">
@@ -138,10 +138,10 @@ export default function PoolStatsDisplay({
           </div>
         </div>
         {statGroups.map((group) => (
-          <div key={group.title} className="card bg-base-100 shadow-xl">
+          <div key={group.title} className="card card-compact">
             <div className="card-body">
               <h2 className="card-title">{group.title}</h2>
-              <div className="stats stats-vertical lg:stats-horizontal shadow">
+              <div className="stats stats-vertical lg:stats-horizontal shadow-lg my-2">
                 {group.keys.map((key) => (
                   <div key={key} className="stat">
                     <div className="stat-title">{formatKey(key)}</div>
@@ -160,10 +160,10 @@ export default function PoolStatsDisplay({
           </div>
         ))}
       </div>
-      <div className="card bg-base-100 shadow-xl">
+      <div className="card card-compact">
         <div className="card-body">
           <h2 className="card-title">{hashrateGroup.title}</h2>
-          <div className="stats stats-vertical lg:stats-horizontal shadow">
+          <div className="stats stats-vertical lg:stats-horizontal shadow-lg my-2">
             {hashrateGroup.keys.map((key) => (
               <div key={key} className="stat">
                 <div className="stat-title">{formatKey(key)}</div>
