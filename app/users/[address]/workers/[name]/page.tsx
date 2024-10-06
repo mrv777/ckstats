@@ -23,7 +23,7 @@ export default async function WorkerPage({
     notFound();
   }
 
-  const latestStats = worker.stats[worker.stats.length - 1]; // Assuming stats are ordered by timestamp desc
+  const latestStats = worker.stats[0]; // Assuming stats are ordered by timestamp desc
 
   const renderPercentageChange = (key: string) => {
     if (worker.stats.length < 120) return 'N/A';
