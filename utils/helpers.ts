@@ -54,13 +54,13 @@ export function convertHashrate(value: string): bigint {
   return BigInt(value);
 };
 
-export function formatTimeAgo(date: Date | number | string): string {
+export function formatTimeAgo(date: Date | number | string, minDiff: number = 1): string {
   const now = new Date();
   const lastUpdate = new Date(date);
   const diffMs = now.getTime() - lastUpdate.getTime();
   const diffMinutes = Math.floor(diffMs / 60000);
   
-  if (diffMinutes < 1) {
+  if (diffMinutes < minDiff) {
     return "Recently";
   } else if (diffMinutes < 60) {
     return `${diffMinutes} min${diffMinutes > 1 ? 's' : ''} ago`;
@@ -107,8 +107,36 @@ export function getPercentageChangeColor(change: number | 'N/A'): string {
   return change > 0 ? 'text-success' : 'text-error';
 }
 
+// Difficulty is assumed to be in T, hashrate in H/s
 export function calculateAverageTimeToBlock(hashRate: bigint, difficulty: number): number {
-  const hashesPerDifficulty = BigInt(Math.pow(2, 32));
+  const hashesPerDifficulty = BigInt(2 ** 32);
   const convertedDifficulty = BigInt(Math.round(difficulty * 1e12)); // Convert T to hashes
   return Number((convertedDifficulty * hashesPerDifficulty) / hashRate);
+}
+
+// Difficulty is assumed to be in T, hashrate in H/s
+export function calculateBlockChances(hashRate: bigint, difficulty: number): { [key: string]: string } {
+  const hashesPerDifficulty = BigInt(2 ** 32);
+  const convertedDifficulty = BigInt(Math.round(difficulty * 1e12));
+  const probabilityPerHash = 1 / Number(convertedDifficulty * hashesPerDifficulty);
+  const hashesPerSecond = Number(hashRate);
+
+  const periodsInSeconds = {
+    '1h': 3600,
+    '1d': 86400,
+    '1w': 604800,
+    '1m': 2592000,  // 30 days
+    '1y': 31536000  // 365 days
+  };
+
+  return Object.entries(periodsInSeconds).reduce((chances, [period, seconds]) => {
+    const lambda = hashesPerSecond * seconds * probabilityPerHash;
+    const probability = 1 - Math.exp(-lambda);
+    if (probability * 100 > 0.001) {
+      chances[period] = `${(probability * 100).toFixed(3)}%`;
+    } else {
+      chances[period] = `<0.001%`;
+    }
+    return chances;
+  }, {} as { [key: string]: string });
 }
