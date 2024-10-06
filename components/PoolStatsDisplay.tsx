@@ -8,6 +8,7 @@ import {
   formatDuration,
   calculatePercentageChange,
   getPercentageChangeColor,
+  calculateAverageTimeToBlock,
 } from '../utils/helpers';
 
 interface PoolStatsDisplayProps {
@@ -71,16 +72,6 @@ export default function PoolStatsDisplay({
     ],
   };
 
-  // Updated function to handle bigint
-  const calculateAverageTimeToBlock = (
-    hashRate: bigint,
-    difficulty: number
-  ): number => {
-    const hashesPerDifficulty = BigInt(Math.pow(2, 32));
-    const convertedDifficulty = BigInt(Math.round(difficulty * 1e12)); // Convert T to hashes
-    return Number((convertedDifficulty * hashesPerDifficulty) / hashRate);
-  };
-
   const renderPercentageChange = (key: string) => {
     if (historicalStats.length < 120) return 'N/A';
 
@@ -124,7 +115,7 @@ export default function PoolStatsDisplay({
               <div className="stat">
                 <div className="stat-title">Avg Time to Find a Block</div>
                 <div className="stat-value text-2xl">
-                  {stats.hashrate1hr && stats.diff
+                  {stats.hashrate6hr && stats.diff
                     ? formatDuration(
                         calculateAverageTimeToBlock(
                           stats.hashrate6hr,

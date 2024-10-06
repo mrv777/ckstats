@@ -81,16 +81,18 @@ export function formatDuration(seconds: number): string {
     return '~∞';
   }
 
-  const days = Math.floor(seconds / 86400);
+  const years = Math.floor(seconds / 31536000); // 365 days in a year
+  const days = Math.floor((seconds % 31536000) / 86400);
   const hours = Math.floor((seconds % 86400) / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
 
   const parts: string[] = [];
+  if (years > 0) parts.push(`${years}y`);
   if (days > 0) parts.push(`${days}d`);
   if (hours > 0) parts.push(`${hours}h`);
-  if (minutes > 0) parts.push(`${minutes}m`);
+  if (minutes > 0 && years === 0) parts.push(`${minutes}m`);
 
-  return parts.join(' ');
+  return parts.length > 0 ? parts.join(' ') : '0m';
 }
 
 export function calculatePercentageChange(currentValue: number, pastValue: number): number | 'N/A' {
@@ -103,4 +105,10 @@ export function calculatePercentageChange(currentValue: number, pastValue: numbe
 export function getPercentageChangeColor(change: number | 'N/A'): string {
   if (change === 'N/A') return 'text-base-content';
   return change > 0 ? 'text-success' : 'text-error';
+}
+
+export function calculateAverageTimeToBlock(hashRate: bigint, difficulty: number): number {
+  const hashesPerDifficulty = BigInt(Math.pow(2, 32));
+  const convertedDifficulty = BigInt(Math.round(difficulty * 1e12)); // Convert T to hashes
+  return Number((convertedDifficulty * hashesPerDifficulty) / hashRate);
 }

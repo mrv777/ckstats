@@ -8,6 +8,7 @@ import UserStatsCharts from '../../../components/UserStatsCharts';
 import {
   getUserWithWorkersAndStats,
   getUserHistoricalStats,
+  getLatestPoolStats,
 } from '../../../lib/api';
 import {
   formatHashrate,
@@ -15,6 +16,8 @@ import {
   formatTimeAgo,
   calculatePercentageChange,
   getPercentageChangeColor,
+  formatDuration,
+  calculateAverageTimeToBlock,
 } from '../../../utils/helpers';
 
 export default async function UserPage({
@@ -22,8 +25,11 @@ export default async function UserPage({
 }: {
   params: { address: string };
 }) {
-  const user = await getUserWithWorkersAndStats(params.address);
-  const historicalStats = await getUserHistoricalStats(params.address);
+  const [user, stats, historicalStats] = await Promise.all([
+    getUserWithWorkersAndStats(params.address),
+    getLatestPoolStats(),
+    getUserHistoricalStats(params.address),
+  ]);
 
   if (!user) {
     notFound();
@@ -149,6 +155,20 @@ export default async function UserPage({
           <div className="stat-title">Best Ever</div>
           <div className="stat-value">{formatNumber(latestStats.bestEver)}</div>
         </div>
+      </div>
+
+      <div className="stats stats-vertical sm:stats-horizontal shadow mt-4 mb-8">
+        <div className="stat">
+          <div className="stat-title">Avg Time to Find a Block</div>
+          <div className="stat-value">{latestStats.hashrate1hr && stats?.diff
+                    ? formatDuration(
+                        calculateAverageTimeToBlock(
+                          latestStats.hashrate1hr,
+                          Number(stats.diff)
+                        )
+                      )
+                    : 'N/A'}</div>
+        </div>        
       </div>
 
       <UserStatsCharts userStats={historicalStats} />
