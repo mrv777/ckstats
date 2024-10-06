@@ -18,7 +18,7 @@ const convertHashrate = (value) => {
 async function fetchUserDataWithRetry(address, maxRetries = 3, delay = 500) {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      console.log(`Fetching data for ${address}...`);
+      // console.log(`Fetching data for ${address}...`);
       const response = await fetch(`https://solo.ckpool.org/users/${address}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
