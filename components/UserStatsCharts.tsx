@@ -109,7 +109,9 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
   const workerCountChanged = useMemo(() => {
     if (!('workerCount' in userStats[0])) return false;
     const firstWorkerCount = userStats[0].workerCount;
-    return userStats.some(stat => 'workerCount' in stat && stat.workerCount !== firstWorkerCount);
+    return userStats.some(
+      (stat) => 'workerCount' in stat && stat.workerCount !== firstWorkerCount
+    );
   }, [userStats]);
 
   return (
