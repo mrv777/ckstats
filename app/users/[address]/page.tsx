@@ -178,7 +178,7 @@ export default async function UserPage({
       <div className="bg-base-200 p-4 rounded-lg mt-8">
         <h2 className="text-xl font-bold mb-4">Workers</h2>
         <div className="overflow-x-auto">
-          <table className="table w-full">
+          <table className="table w-full table-sm sm:table-md">
             <thead>
               <tr>
                 <th>Name</th>

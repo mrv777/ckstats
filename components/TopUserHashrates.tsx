@@ -30,7 +30,7 @@ export default async function TopUserHashrates({
             )}
           </h2>
           <div className="overflow-x-auto">
-            <table className="table w-full">
+            <table className="table w-full table-sm sm:table-md">
               <thead>
                 <tr>
                   <th>Rank</th>
