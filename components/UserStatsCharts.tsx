@@ -121,7 +121,7 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
           Hashrate History ({hashrateUnit})
         </h2>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={chartData}>
+          <LineChart data={chartData} margin={{ top: 5, right: 0, left: 0, bottom: 5 }}>
             <XAxis dataKey="timestamp" minTickGap={50} />
             <YAxis
               allowDataOverflow={true}
@@ -166,7 +166,7 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
         <div>
           <h2 className="text-xl font-bold mb-4">Worker Count History</h2>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartData}>
+            <LineChart data={chartData} margin={{ top: 5, right: 0, left: 0, bottom: 5 }}>
               <XAxis dataKey="timestamp" minTickGap={50} />
               <YAxis
                 allowDataOverflow={true}
