@@ -160,15 +160,17 @@ export default async function UserPage({
       <div className="stats stats-vertical sm:stats-horizontal shadow mt-4 mb-8">
         <div className="stat">
           <div className="stat-title">Avg Time to Find a Block</div>
-          <div className="stat-value">{latestStats.hashrate1hr && stats?.diff
-                    ? formatDuration(
-                        calculateAverageTimeToBlock(
-                          latestStats.hashrate1hr,
-                          Number(stats.diff)
-                        )
-                      )
-                    : 'N/A'}</div>
-        </div>        
+          <div className="stat-value">
+            {latestStats.hashrate1hr && stats?.diff
+              ? formatDuration(
+                  calculateAverageTimeToBlock(
+                    latestStats.hashrate1hr,
+                    Number(stats.diff)
+                  )
+                )
+              : 'N/A'}
+          </div>
+        </div>
       </div>
 
       <UserStatsCharts userStats={historicalStats} />
