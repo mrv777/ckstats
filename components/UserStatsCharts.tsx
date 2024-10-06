@@ -46,7 +46,12 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
     setHashrateUnit(unit);
 
     return userStats.map((stat) => ({
-      timestamp: new Date(stat.timestamp).toLocaleString(),
+      timestamp: new Date(stat.timestamp).toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
       workerCount: 'workerCount' in stat ? stat.workerCount : undefined,
       '1m': Number(stat.hashrate1m) / scaleFactor,
       '5m': Number(stat.hashrate5m) / scaleFactor,

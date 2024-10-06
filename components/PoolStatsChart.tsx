@@ -23,7 +23,12 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
   // Format the reversed data for the charts
   const formattedData = reversedData.map((item) => ({
     ...item,
-    timestamp: new Date(item.timestamp).toLocaleString(),
+    timestamp: new Date(item.timestamp).toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
     hashrate1m: Number(item.hashrate1m) / 1000000000000000,
     hashrate5m: Number(item.hashrate5m) / 1000000000000000,
     hashrate15m: Number(item.hashrate15m) / 1000000000000000,
@@ -49,14 +54,24 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
 
   const renderUsersChart = () => (
     <div className="h-80 w-full mb-8">
-      <h2 className="text-xl font-bold mb-2">Users</h2>
+      <h2 className="text-xl font-bold mb-2">Users and Workers</h2>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={formattedData}
-          margin={{ top: 5, right: 30, left: 5, bottom: 5 }}
+          margin={{ top: 5, right: 0, left: 0, bottom: 5 }}
         >
-          <XAxis dataKey="timestamp" minTickGap={50} />
+          <XAxis dataKey="timestamp" minTickGap={40} />
           <YAxis
+            yAxisId="left"
+            allowDataOverflow={true}
+            domain={[
+              (dataMin: number) => Math.ceil(dataMin * 0.99),
+              (dataMax: number) => Math.floor(dataMax * 1.01),
+            ]}
+          />
+          <YAxis
+            yAxisId="right"
+            orientation="right"
             allowDataOverflow={true}
             domain={[
               (dataMin: number) => Math.ceil(dataMin * 0.99),
@@ -66,11 +81,21 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
           <Tooltip />
           <Legend />
           <Line
+            yAxisId="left"
             type="monotone"
             dataKey="users"
             stroke="#8884d8"
             activeDot={{ r: 8 }}
             name="Users"
+            dot={false}
+          />
+          <Line
+            yAxisId="right"
+            type="monotone"
+            dataKey="workers"
+            stroke="#82ca9d"
+            activeDot={{ r: 8 }}
+            name="Workers"
             dot={false}
           />
         </LineChart>
@@ -84,9 +109,9 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={formattedData}
-          margin={{ top: 5, right: 30, left: 5, bottom: 5 }}
+          margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
         >
-          <XAxis dataKey="timestamp" minTickGap={50} />
+          <XAxis dataKey="timestamp" minTickGap={40} />
           <YAxis
             allowDataOverflow={true}
             domain={[
@@ -156,9 +181,9 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={formattedData}
-          margin={{ top: 5, right: 30, left: 5, bottom: 5 }}
+          margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
         >
-          <XAxis dataKey="timestamp" minTickGap={50} />
+          <XAxis dataKey="timestamp" minTickGap={40} />
           <YAxis
             allowDataOverflow={true}
             domain={[

@@ -110,7 +110,7 @@ export default function PoolStatsDisplay({
             <h2 className="card-title">General Info</h2>
             <div className="stats stats-vertical xl:stats-horizontal shadow">
               <div className="stat">
-                <div className="stat-title">Runtime</div>
+                <div className="stat-title">Uptime</div>
                 <div className="stat-value text-2xl">
                   {formatDuration(stats.runtime)}
                 </div>
