@@ -16,11 +16,11 @@ import {
 
 // Add this function at the top of the file, outside the component
 function getHashrateUnit(maxHashrate: number): [string, number] {
-  if (maxHashrate >= 1e17) return ['PH/s', 1e15];
-  if (maxHashrate >= 1e14) return ['TH/s', 1e12];
-  if (maxHashrate >= 1e11) return ['GH/s', 1e9];
-  if (maxHashrate >= 1e8) return ['MH/s', 1e6];
-  if (maxHashrate >= 1e5) return ['KH/s', 1e3];
+  if (maxHashrate >= 1e16) return ['PH/s', 1e15];
+  if (maxHashrate >= 1e13) return ['TH/s', 1e12];
+  if (maxHashrate >= 1e10) return ['GH/s', 1e9];
+  if (maxHashrate >= 1e7) return ['MH/s', 1e6];
+  if (maxHashrate >= 1e4) return ['KH/s', 1e3];
   return ['H/s', 1];
 }
 
@@ -129,8 +129,8 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
             <YAxis
               allowDataOverflow={true}
               domain={[
-                (dataMin: number) => Math.ceil(dataMin * 0.99),
-                (dataMax: number) => Math.floor(dataMax * 1.01),
+                (dataMin: number) => Math.floor(dataMin * 0.99),
+                (dataMax: number) => Math.ceil(dataMax * 1.01),
               ]}
             />
             <Tooltip formatter={hashrateTooltipFormatter} />
@@ -177,8 +177,8 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
               <YAxis
                 allowDataOverflow={true}
                 domain={[
-                  (dataMin: number) => Math.ceil(dataMin * 0.99),
-                  (dataMax: number) => Math.floor(dataMax * 1.01),
+                  (dataMin: number) => Math.floor(dataMin * 0.99),
+                  (dataMax: number) => Math.ceil(dataMax * 1.01),
                 ]}
               />
               <Tooltip />

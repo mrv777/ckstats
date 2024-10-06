@@ -65,8 +65,8 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
             yAxisId="left"
             allowDataOverflow={true}
             domain={[
-              (dataMin: number) => Math.ceil(dataMin * 0.99),
-              (dataMax: number) => Math.floor(dataMax * 1.01),
+              (dataMin: number) => Math.floor(dataMin * 0.99),
+              (dataMax: number) => Math.ceil(dataMax * 1.01),
             ]}
           />
           <YAxis
@@ -74,8 +74,8 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
             orientation="right"
             allowDataOverflow={true}
             domain={[
-              (dataMin: number) => Math.ceil(dataMin * 0.99),
-              (dataMax: number) => Math.floor(dataMax * 1.01),
+              (dataMin: number) => Math.floor(dataMin * 0.99),
+              (dataMax: number) => Math.ceil(dataMax * 1.01),
             ]}
           />
           <Tooltip />
@@ -115,8 +115,8 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
           <YAxis
             allowDataOverflow={true}
             domain={[
-              (dataMin: number) => Math.ceil(dataMin * 0.99),
-              (dataMax: number) => Math.floor(dataMax * 1.01),
+              (dataMin: number) => Math.floor(dataMin * 0.99),
+              (dataMax: number) => Math.ceil(dataMax * 1.01),
             ]}
           />
           <Tooltip formatter={hashrateTooltipFormatter} />
@@ -187,8 +187,8 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
           <YAxis
             allowDataOverflow={true}
             domain={[
-              (dataMin: number) => Math.ceil(dataMin * 0.99),
-              (dataMax: number) => Math.floor(dataMax * 1.01),
+              (dataMin: number) => Math.floor(dataMin * 0.99),
+              (dataMax: number) => Math.ceil(dataMax * 1.01),
             ]}
           />
           <Tooltip formatter={spsTooltipFormatter} />
