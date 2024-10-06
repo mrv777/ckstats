@@ -175,6 +175,12 @@ export async function getTopUserHashrates(limit: number = 10): Promise<
     bestEver: string;
   }[]
 > {
+  const userStats = await prisma.userStats.groupBy({
+    by: ["userAddress"],
+    _max: {
+      id: true,
+    },
+  });
   const topUsers = await prisma.userStats.findMany({
     select: {
       userAddress: true,
@@ -184,6 +190,11 @@ export async function getTopUserHashrates(limit: number = 10): Promise<
       hashrate7d: true,
       bestShare: true,
       bestEver: true,
+    },
+    where: {
+      id: {
+        in: userStats.map((user) => user._max.id).filter((id): id is number => id !== null),
+      },
     },
     orderBy: {
       hashrate1hr: 'desc',
