@@ -27,6 +27,23 @@ export async function POST(request: Request) {
       );
     }
 
+    // Check the number of new users created in the last 3 minutes
+    const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000);
+    const recentUsersCount = await prisma.user.count({
+      where: {
+        createdAt: {
+          gte: threeMinutesAgo,
+        },
+      },
+    });
+
+    if (recentUsersCount >= 10) {
+      return NextResponse.json(
+        { error: 'Too many users created recently, please try again later.' },
+        { status: 429 }
+      );
+    }
+
     console.log('Adding user:', address);
 
     const user = await prisma.user.create({
