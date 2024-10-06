@@ -98,7 +98,7 @@ export async function getUserHistoricalStats(
 ): Promise<UserStats[]> {
   return prisma.userStats.findMany({
     where: { userAddress: address },
-    orderBy: { timestamp: 'asc' },
+    orderBy: { timestamp: 'desc' },
     take: HISTORICAL_DATA_POINTS,
   });
 }
@@ -117,7 +117,7 @@ export async function getWorkerWithStats(
     include: {
       stats: {
         orderBy: {
-          timestamp: 'asc',
+          timestamp: 'desc',
         },
         take: HISTORICAL_DATA_POINTS,
       },

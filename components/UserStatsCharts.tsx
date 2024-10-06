@@ -32,8 +32,11 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
   const [hashrateUnit, setHashrateUnit] = useState<string>('PH/s');
 
   const chartData = useMemo(() => {
+    // Reverse the userStats array
+    const reversedStats = [...userStats].reverse();
+
     const maxHashrate = Math.max(
-      ...userStats.flatMap((stat) => [
+      ...reversedStats.flatMap((stat) => [
         Number(stat.hashrate1m),
         Number(stat.hashrate5m),
         Number(stat.hashrate1hr),
@@ -45,7 +48,7 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
     const [unit, scaleFactor] = getHashrateUnit(maxHashrate);
     setHashrateUnit(unit);
 
-    return userStats.map((stat) => ({
+    return reversedStats.map((stat) => ({
       timestamp: new Date(stat.timestamp).toLocaleString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -108,9 +111,9 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
 
   const workerCountChanged = useMemo(() => {
     if (!('workerCount' in userStats[0])) return false;
-    const firstWorkerCount = userStats[0].workerCount;
+    const lastWorkerCount = userStats[userStats.length - 1].workerCount;
     return userStats.some(
-      (stat) => 'workerCount' in stat && stat.workerCount !== firstWorkerCount
+      (stat) => 'workerCount' in stat && stat.workerCount !== lastWorkerCount
     );
   }, [userStats]);
 
