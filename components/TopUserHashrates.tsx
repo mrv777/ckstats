@@ -25,7 +25,7 @@ export default async function TopUserHashrates({
               `Top ${limit} User Hashrates`
             ) : (
               <Link href="/top-hashrates" className="link text-primary">
-                Top {limit} User Hashrates Ever
+                Top {limit} User Hashrates
               </Link>
             )}
           </h2>
