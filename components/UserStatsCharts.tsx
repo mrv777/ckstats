@@ -106,6 +106,12 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
     },
   ];
 
+  const workerCountChanged = useMemo(() => {
+    if (!('workerCount' in userStats[0])) return false;
+    const firstWorkerCount = userStats[0].workerCount;
+    return userStats.some(stat => 'workerCount' in stat && stat.workerCount !== firstWorkerCount);
+  }, [userStats]);
+
   return (
     <div className="space-y-8">
       <div>
@@ -154,7 +160,7 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
         </ResponsiveContainer>
       </div>
 
-      {'workerCount' in userStats[0] && (
+      {'workerCount' in userStats[0] && workerCountChanged && (
         <div>
           <h2 className="text-xl font-bold mb-4">Worker Count History</h2>
           <ResponsiveContainer width="100%" height={300}>
