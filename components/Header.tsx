@@ -84,6 +84,12 @@ export default function Header() {
             className="input input-bordered w-full md:w-96 text-sm"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleAddAddress();
+              }
+            }}
           />
         </div>
         <button className="btn p-3 btn-primary" onClick={handleAddAddress}>
