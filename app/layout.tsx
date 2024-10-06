@@ -1,12 +1,12 @@
 import './globals.css';
 import { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Lato } from 'next/font/google';
 
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import Providers from '../components/Providers';
 
-const inter = Inter({ subsets: ['latin'] });
+const lato = Lato({ subsets: ['latin'], weight: ['400', '700'] });
 
 export const metadata: Metadata = {
   title: 'CKstats',
@@ -21,7 +21,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={lato.className}>
         <Providers>
           <div className="flex flex-col min-h-screen">
             <Header />
