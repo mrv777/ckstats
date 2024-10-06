@@ -71,7 +71,7 @@ export default async function WorkerPage({
       <div className="stats stats-vertical lg:stats-horizontal shadow-lg my-2">
         <div className="stat">
           <div className="stat-title">Hashrate (1m)</div>
-          <div className="stat-value">
+          <div className="stat-value text-3xl">
             {formatHashrate(latestStats.hashrate1m)}
           </div>
           {renderPercentageChange('hashrate1m')}
@@ -79,7 +79,7 @@ export default async function WorkerPage({
 
         <div className="stat">
           <div className="stat-title">Hashrate (5m) </div>
-          <div className="stat-value">
+          <div className="stat-value text-3xl">
             {formatHashrate(latestStats.hashrate5m)}
           </div>
           {renderPercentageChange('hashrate5m')}
@@ -87,21 +87,21 @@ export default async function WorkerPage({
 
         <div className="stat">
           <div className="stat-title">Hashrate (1hr)</div>
-          <div className="stat-value">
+          <div className="stat-value text-3xl">
             {formatHashrate(latestStats.hashrate1hr)}
           </div>
           {renderPercentageChange('hashrate1hr')}
         </div>
         <div className="stat">
           <div className="stat-title">Hashrate (1d)</div>
-          <div className="stat-value">
+          <div className="stat-value text-3xl">
             {formatHashrate(latestStats.hashrate1d)}
           </div>
           {renderPercentageChange('hashrate1d')}
         </div>
         <div className="stat">
           <div className="stat-title">Hashrate (7d)</div>
-          <div className="stat-value">
+          <div className="stat-value text-3xl">
             {formatHashrate(latestStats.hashrate7d)}
           </div>
           {renderPercentageChange('hashrate7d')}
@@ -111,15 +111,21 @@ export default async function WorkerPage({
       <div className="stats stats-vertical lg:stats-horizontal shadow-lg my-2">
         <div className="stat">
           <div className="stat-title">Shares</div>
-          <div className="stat-value">{formatNumber(worker.shares)}</div>
+          <div className="stat-value text-3xl">
+            {formatNumber(worker.shares)}
+          </div>
         </div>
         <div className="stat">
           <div className="stat-title">Best Share</div>
-          <div className="stat-value">{formatNumber(worker.bestShare)}</div>
+          <div className="stat-value text-3xl">
+            {formatNumber(worker.bestShare)}
+          </div>
         </div>
         <div className="stat">
           <div className="stat-title">Best Ever</div>
-          <div className="stat-value">{formatNumber(worker.bestEver)}</div>
+          <div className="stat-value text-3xl">
+            {formatNumber(worker.bestEver)}
+          </div>
         </div>
       </div>
 

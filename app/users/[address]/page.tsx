@@ -99,17 +99,17 @@ export default async function UserPage({
       <div className="stats stats-vertical sm:stats-horizontal shadow-lg my-2">
         <div className="stat">
           <div className="stat-title">Worker Count</div>
-          <div className="stat-value">{user.workers.length}</div>
+          <div className="stat-value text-3xl">{user.workers.length}</div>
         </div>
         <div className="stat">
           <div className="stat-title">Authorised</div>
-          <div className="stat-value">
+          <div className="stat-value text-3xl">
             {new Date(Number(user.authorised) * 1000).toLocaleDateString()}
           </div>
         </div>
         <div className="stat">
           <div className="stat-title">Last Share</div>
-          <div className="stat-value">
+          <div className="stat-value text-3xl">
             {/* We only update every 10 minutes, so show 'Recently' if less than 11 minutes */}
             {formatTimeAgo(Number(latestStats.lastShare) * 1000, 11)}
           </div>
@@ -119,45 +119,49 @@ export default async function UserPage({
       <div className="stats stats-vertical sm:stats-horizontal shadow-lg my-2">
         <div className="stat">
           <div className="stat-title">Total Shares</div>
-          <div className="stat-value">{formatNumber(latestStats.shares)}</div>
+          <div className="stat-value text-3xl">
+            {formatNumber(latestStats.shares)}
+          </div>
         </div>
         <div className="stat">
           <div className="stat-title">Best Share</div>
-          <div className="stat-value">
+          <div className="stat-value text-3xl">
             {formatNumber(latestStats.bestShare)}
           </div>
         </div>
         <div className="stat">
           <div className="stat-title">Best Ever</div>
-          <div className="stat-value">{formatNumber(latestStats.bestEver)}</div>
+          <div className="stat-value text-3xl">
+            {formatNumber(latestStats.bestEver)}
+          </div>
         </div>
       </div>
 
       <div className="stats stats-vertical sm:stats-horizontal shadow-lg my-2">
         <div className="stat">
           <div className="stat-title">Hashrate (5m)</div>
-          <div className="stat-value">
+          <div className="stat-value text-3xl">
             {formatHashrate(latestStats.hashrate5m)}
           </div>
           {renderPercentageChange('hashrate5m')}
         </div>
         <div className="stat">
           <div className="stat-title">Hashrate (1hr)</div>
-          <div className="stat-value">
+          <div className="stat-value text-3xl">
             {formatHashrate(latestStats.hashrate1hr)}
           </div>
           {renderPercentageChange('hashrate1hr')}
         </div>
         <div className="stat">
           <div className="stat-title">Hashrate (1d)</div>
-          <div className="stat-value">
+          <div className="stat-value text-3xl">
             {formatHashrate(latestStats.hashrate1d)}
           </div>
           {renderPercentageChange('hashrate1d')}
         </div>
         <div className="stat">
           <div className="stat-title">Hashrate (7d)</div>
-          <div className="stat-value">
+          <div className="stat-value text-3xl">
             {formatHashrate(latestStats.hashrate7d)}
           </div>
           {renderPercentageChange('hashrate7d')}
@@ -168,7 +172,7 @@ export default async function UserPage({
       <div className="stats stats-vertical sm:stats-horizontal shadow-lg my-2">
         <div className="stat">
           <div className="stat-title">1 Day</div>
-          <div className="stat-value">
+          <div className="stat-value text-3xl">
             {latestStats.hashrate1hr && stats?.diff
               ? calculateBlockChances(
                   latestStats.hashrate1hr,
@@ -179,7 +183,7 @@ export default async function UserPage({
         </div>
         <div className="stat">
           <div className="stat-title">1 Week</div>
-          <div className="stat-value">
+          <div className="stat-value text-3xl">
             {latestStats.hashrate1hr && stats?.diff
               ? calculateBlockChances(
                   latestStats.hashrate1hr,
@@ -190,7 +194,7 @@ export default async function UserPage({
         </div>
         <div className="stat">
           <div className="stat-title">1 Month</div>
-          <div className="stat-value">
+          <div className="stat-value text-3xl">
             {latestStats.hashrate1hr && stats?.diff
               ? calculateBlockChances(
                   latestStats.hashrate1hr,
@@ -201,7 +205,7 @@ export default async function UserPage({
         </div>
         <div className="stat">
           <div className="stat-title">1 Year</div>
-          <div className="stat-value">
+          <div className="stat-value text-3xl">
             {latestStats.hashrate1hr && stats?.diff
               ? calculateBlockChances(
                   latestStats.hashrate1hr,
