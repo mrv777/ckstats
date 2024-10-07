@@ -86,26 +86,66 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
       value: '1m',
       type: 'line',
       color: visibleLines['1m'] ? '#8884d8' : '#aaaaaa',
+      formatter: (value: string) =>
+        visibleLines['1m'] ? (
+          <span style={{ cursor: 'pointer' }}>{value}</span>
+        ) : (
+          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
+            {value}
+          </span>
+        ),
     },
     {
       value: '5m',
       type: 'line',
       color: visibleLines['5m'] ? '#82ca9d' : '#aaaaaa',
+      formatter: (value: string) =>
+        visibleLines['5m'] ? (
+          <span style={{ cursor: 'pointer' }}>{value}</span>
+        ) : (
+          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
+            {value}
+          </span>
+        ),
     },
     {
       value: '1hr',
       type: 'line',
       color: visibleLines['1hr'] ? '#ffc658' : '#aaaaaa',
+      formatter: (value: string) =>
+        visibleLines['1hr'] ? (
+          <span style={{ cursor: 'pointer' }}>{value}</span>
+        ) : (
+          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
+            {value}
+          </span>
+        ),
     },
     {
       value: '1d',
       type: 'line',
       color: visibleLines['1d'] ? '#ff7300' : '#aaaaaa',
+      formatter: (value: string) =>
+        visibleLines['1d'] ? (
+          <span style={{ cursor: 'pointer' }}>{value}</span>
+        ) : (
+          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
+            {value}
+          </span>
+        ),
     },
     {
       value: '7d',
       type: 'line',
       color: visibleLines['7d'] ? '#a4de6c' : '#aaaaaa',
+      formatter: (value: string) =>
+        visibleLines['7d'] ? (
+          <span style={{ cursor: 'pointer' }}>{value}</span>
+        ) : (
+          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
+            {value}
+          </span>
+        ),
     },
   ];
 
@@ -145,10 +185,22 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
               onClick={(e) => handleLegendClick(e.value)}
             />
             {visibleLines['1m'] && (
-              <Line type="monotone" dataKey="1m" stroke="#8884d8" dot={false} />
+              <Line
+                type="monotone"
+                dataKey="1m"
+                stroke="#8884d8"
+                dot={false}
+                isAnimationActive={false}
+              />
             )}
             {visibleLines['5m'] && (
-              <Line type="monotone" dataKey="5m" stroke="#82ca9d" dot={false} />
+              <Line
+                type="monotone"
+                dataKey="5m"
+                stroke="#82ca9d"
+                dot={false}
+                isAnimationActive={false}
+              />
             )}
             {visibleLines['1hr'] && (
               <Line
@@ -156,13 +208,26 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
                 dataKey="1hr"
                 stroke="#ffc658"
                 dot={false}
+                isAnimationActive={false}
               />
             )}
             {visibleLines['1d'] && (
-              <Line type="monotone" dataKey="1d" stroke="#ff7300" dot={false} />
+              <Line
+                type="monotone"
+                dataKey="1d"
+                stroke="#ff7300"
+                dot={false}
+                isAnimationActive={false}
+              />
             )}
             {visibleLines['7d'] && (
-              <Line type="monotone" dataKey="7d" stroke="#a4de6c" dot={false} />
+              <Line
+                type="monotone"
+                dataKey="7d"
+                stroke="#a4de6c"
+                dot={false}
+                isAnimationActive={false}
+              />
             )}
           </LineChart>
         </ResponsiveContainer>

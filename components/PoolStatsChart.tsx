@@ -1,5 +1,7 @@
 'use client';
 
+import { styleText } from 'util';
+
 import { useState } from 'react';
 
 import {
@@ -39,36 +41,92 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
       value: '1m',
       type: 'line',
       color: visibleLines['1m'] ? '#8884d8' : '#aaaaaa',
+      formatter: (value: string) =>
+        visibleLines['1m'] ? (
+          <span style={{ cursor: 'pointer' }}>{value}</span>
+        ) : (
+          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
+            {value}
+          </span>
+        ),
     },
     {
       value: '5m',
       type: 'line',
       color: visibleLines['5m'] ? '#82ca9d' : '#aaaaaa',
+      formatter: (value: string) =>
+        visibleLines['5m'] ? (
+          <span style={{ cursor: 'pointer' }}>{value}</span>
+        ) : (
+          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
+            {value}
+          </span>
+        ),
     },
     {
       value: '15m',
       type: 'line',
       color: visibleLines['15m'] ? '#ffc658' : '#aaaaaa',
+      formatter: (value: string) =>
+        visibleLines['15m'] ? (
+          <span style={{ cursor: 'pointer' }}>{value}</span>
+        ) : (
+          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
+            {value}
+          </span>
+        ),
     },
     {
       value: '1hr',
       type: 'line',
       color: visibleLines['1hr'] ? '#ff7300' : '#aaaaaa',
+      formatter: (value: string) =>
+        visibleLines['1hr'] ? (
+          <span style={{ cursor: 'pointer' }}>{value}</span>
+        ) : (
+          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
+            {value}
+          </span>
+        ),
     },
     {
       value: '6hr',
       type: 'line',
       color: visibleLines['6hr'] ? '#00C49F' : '#aaaaaa',
+      formatter: (value: string) =>
+        visibleLines['6hr'] ? (
+          <span style={{ cursor: 'pointer' }}>{value}</span>
+        ) : (
+          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
+            {value}
+          </span>
+        ),
     },
     {
       value: '1d',
       type: 'line',
       color: visibleLines['1d'] ? '#0088FE' : '#aaaaaa',
+      formatter: (value: string) =>
+        visibleLines['1d'] ? (
+          <span style={{ cursor: 'pointer' }}>{value}</span>
+        ) : (
+          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
+            {value}
+          </span>
+        ),
     },
     {
       value: '7d',
       type: 'line',
       color: visibleLines['7d'] ? '#FF1493' : '#aaaaaa',
+      formatter: (value: string) =>
+        visibleLines['7d'] ? (
+          <span style={{ cursor: 'pointer' }}>{value}</span>
+        ) : (
+          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
+            {value}
+          </span>
+        ),
     },
   ];
 
