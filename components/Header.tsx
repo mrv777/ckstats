@@ -59,14 +59,15 @@ export default function Header() {
   });
 
   const handleAddAddress = async () => {
-    if (!validateBitcoinAddress(address)) {
+    const trimmedAddress = address.trim();
+    if (!validateBitcoinAddress(trimmedAddress)) {
       setModalMessage('Invalid Bitcoin address');
       setIsError(true);
       modalRef.current?.showModal();
       return;
     }
 
-    addUserMutation.mutate(address);
+    addUserMutation.mutate(trimmedAddress);
   };
 
   return (
@@ -83,7 +84,7 @@ export default function Header() {
             placeholder="Enter Bitcoin address"
             className="input input-bordered w-full md:w-96 text-sm"
             value={address}
-            onChange={(e) => setAddress(e.target.value)}
+            onChange={(e) => setAddress(e.target.value.trim())}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
