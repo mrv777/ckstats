@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 import {
   LineChart,
   Line,
@@ -8,6 +10,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  LegendType,
 } from 'recharts';
 
 import { PoolStatsType } from '../lib/api';
@@ -17,6 +20,58 @@ interface PoolStatsChartProps {
 }
 
 export default function PoolStatsChart({ data }: PoolStatsChartProps) {
+  const [visibleLines, setVisibleLines] = useState({
+    '1m': false,
+    '5m': true,
+    '15m': true,
+    '1hr': true,
+    '6hr': true,
+    '1d': true,
+    '7d': true,
+  });
+
+  const handleLegendClick = (dataKey: string) => {
+    setVisibleLines((prev) => ({ ...prev, [dataKey]: !prev[dataKey] }));
+  };
+
+  const legendPayload = [
+    {
+      value: '1m',
+      type: 'line',
+      color: visibleLines['1m'] ? '#8884d8' : '#aaaaaa',
+    },
+    {
+      value: '5m',
+      type: 'line',
+      color: visibleLines['5m'] ? '#82ca9d' : '#aaaaaa',
+    },
+    {
+      value: '15m',
+      type: 'line',
+      color: visibleLines['15m'] ? '#ffc658' : '#aaaaaa',
+    },
+    {
+      value: '1hr',
+      type: 'line',
+      color: visibleLines['1hr'] ? '#ff7300' : '#aaaaaa',
+    },
+    {
+      value: '6hr',
+      type: 'line',
+      color: visibleLines['6hr'] ? '#00C49F' : '#aaaaaa',
+    },
+    {
+      value: '1d',
+      type: 'line',
+      color: visibleLines['1d'] ? '#0088FE' : '#aaaaaa',
+    },
+    {
+      value: '7d',
+      type: 'line',
+      color: visibleLines['7d'] ? '#FF1493' : '#aaaaaa',
+    },
+  ];
+
   // Reverse the data array
   const reversedData = [...data].reverse();
 
@@ -120,56 +175,83 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
             ]}
           />
           <Tooltip formatter={hashrateTooltipFormatter} />
-          <Legend />
-          <Line
-            type="monotone"
-            dataKey="hashrate1m"
-            name="1M"
-            stroke="#8884d8"
-            dot={false}
+          <Legend
+            payload={legendPayload.map((item) => ({
+              ...item,
+              type: item.type as LegendType,
+            }))}
+            onClick={(e) => handleLegendClick(e.value)}
           />
-          <Line
-            type="monotone"
-            dataKey="hashrate5m"
-            name="5M"
-            stroke="#82ca9d"
-            dot={false}
-          />
-          <Line
-            type="monotone"
-            dataKey="hashrate15m"
-            name="15M"
-            stroke="#ffc658"
-            dot={false}
-          />
-          <Line
-            type="monotone"
-            dataKey="hashrate1hr"
-            name="1HR"
-            stroke="#ff7300"
-            dot={false}
-          />
-          <Line
-            type="monotone"
-            dataKey="hashrate6hr"
-            name="6HR"
-            stroke="#00C49F"
-            dot={false}
-          />
-          <Line
-            type="monotone"
-            dataKey="hashrate1d"
-            name="1D"
-            stroke="#0088FE"
-            dot={false}
-          />
-          <Line
-            type="monotone"
-            dataKey="hashrate7d"
-            name="7D"
-            stroke="#FF1493"
-            dot={false}
-          />
+          {visibleLines['1m'] && (
+            <Line
+              type="monotone"
+              dataKey="hashrate1m"
+              name="1M"
+              stroke="#8884d8"
+              dot={false}
+              isAnimationActive={false}
+            />
+          )}
+          {visibleLines['5m'] && (
+            <Line
+              type="monotone"
+              dataKey="hashrate5m"
+              name="5M"
+              stroke="#82ca9d"
+              dot={false}
+              isAnimationActive={false}
+            />
+          )}
+          {visibleLines['15m'] && (
+            <Line
+              type="monotone"
+              dataKey="hashrate15m"
+              name="15M"
+              stroke="#ffc658"
+              dot={false}
+              isAnimationActive={false}
+            />
+          )}
+          {visibleLines['1hr'] && (
+            <Line
+              type="monotone"
+              dataKey="hashrate1hr"
+              name="1HR"
+              stroke="#ff7300"
+              dot={false}
+              isAnimationActive={false}
+            />
+          )}
+          {visibleLines['6hr'] && (
+            <Line
+              type="monotone"
+              dataKey="hashrate6hr"
+              name="6HR"
+              stroke="#00C49F"
+              dot={false}
+              isAnimationActive={false}
+            />
+          )}
+          {visibleLines['1d'] && (
+            <Line
+              type="monotone"
+              dataKey="hashrate1d"
+              name="1D"
+              stroke="#0088FE"
+              dot={false}
+              isAnimationActive={false}
+            />
+          )}
+          {visibleLines['7d'] && (
+            <Line
+              type="monotone"
+              dataKey="hashrate7d"
+              name="7D"
+              stroke="#FF1493"
+              dot={false}
+              isAnimationActive={false}
+            />
+          )}
         </LineChart>
       </ResponsiveContainer>
     </div>
@@ -199,6 +281,7 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
             name="1M"
             stroke="#8884d8"
             dot={false}
+            isAnimationActive={false}
           />
           <Line
             type="monotone"
@@ -206,6 +289,7 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
             name="5M"
             stroke="#82ca9d"
             dot={false}
+            isAnimationActive={false}
           />
           <Line
             type="monotone"
@@ -213,6 +297,7 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
             name="15M"
             stroke="#ffc658"
             dot={false}
+            isAnimationActive={false}
           />
           <Line
             type="monotone"
@@ -220,6 +305,7 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
             name="1H"
             stroke="#ff7300"
             dot={false}
+            isAnimationActive={false}
           />
         </LineChart>
       </ResponsiveContainer>
