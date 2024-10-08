@@ -1,3 +1,7 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+
 import Link from 'next/link';
 
 import { PoolStatsType } from '../lib/api';
@@ -98,7 +102,10 @@ export default function PoolStatsDisplay({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
         <div className="card card-compact">
           <div className="card-body">
-            <h2 className="card-title">General Info</h2>
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="card-title">General Info</h2>
+              <CountdownTimer initialSeconds={60} />
+            </div>
             <div className="stats stats-vertical xl:stats-horizontal shadow-lg my-2">
               <div className="stat">
                 <div className="stat-title">Uptime</div>
@@ -176,6 +183,34 @@ export default function PoolStatsDisplay({
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function CountdownTimer({ initialSeconds }: { initialSeconds: number }) {
+  const [seconds, setSeconds] = useState(initialSeconds);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSeconds((prevSeconds) => {
+        if (prevSeconds <= 1) {
+          clearInterval(timer);
+          window.location.reload();
+          return 0;
+        }
+        return prevSeconds - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [initialSeconds]);
+
+  if (seconds === 0) {
+    return <div className="badge badge-primary">Updating Now</div>;
+  }
+  return (
+    <div className="badge badge-primary whitespace-nowrap">
+      Updating in {seconds}s
     </div>
   );
 }

@@ -77,7 +77,7 @@ export default function Header() {
           CKPool Stats
         </Link>
       </div>
-      <div className="flex-none gap-2 flex-grow md:flex-grow-0">
+      <div className="flex-none gap-1 sm:gap-2 flex-grow md:flex-grow-0">
         <div className="form-control flex-grow md:flex-grow-0">
           <input
             type="text"

@@ -1,7 +1,5 @@
 export const revalidate = 60;
 
-import Script from 'next/script';
-
 import PoolStatsChart from '../components/PoolStatsChart';
 import PoolStatsDisplay from '../components/PoolStatsDisplay';
 import TopUserDifficulties from '../components/TopUserDifficulties';
@@ -24,31 +22,21 @@ export default async function Home() {
     }
 
     return (
-      <>
-        {/* Hack script to reload every 2 minutes to update for now */}
-        <Script id="page-reload">
-          {`
-            setTimeout(function(){
-              window.location.reload(1);
-            }, 120000);
-          `}
-        </Script>
-        <main className="container mx-auto p-4">
-          <PoolStatsDisplay
-            stats={latestStats}
-            historicalStats={historicalStats}
-          />
-          {historicalStats && historicalStats.length > 0 ? (
-            <PoolStatsChart data={historicalStats} />
-          ) : (
-            <p>Historical data is not available.</p>
-          )}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-            <TopUserDifficulties />
-            <TopUserHashrates />
-          </div>
-        </main>
-      </>
+      <main className="container mx-auto p-4">
+        <PoolStatsDisplay
+          stats={latestStats}
+          historicalStats={historicalStats}
+        />
+        {historicalStats && historicalStats.length > 0 ? (
+          <PoolStatsChart data={historicalStats} />
+        ) : (
+          <p>Historical data is not available.</p>
+        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+          <TopUserDifficulties />
+          <TopUserHashrates />
+        </div>
+      </main>
     );
   } catch (error) {
     console.error('Error fetching pool stats:', error);
