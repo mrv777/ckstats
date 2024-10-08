@@ -126,7 +126,7 @@ export default function PoolStatsDisplay({
                 </div>
                 <div className="stat-desc">
                   <Link
-                    href="https://btc.com/stats/pool/Solo%20CK"
+                    href="https://mempool.space/mining/pool/solock"
                     target="_blank"
                     className="link text-primary"
                   >
