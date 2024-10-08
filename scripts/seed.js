@@ -4,7 +4,8 @@ const prisma = new PrismaClient();
 
 async function fetchPoolStats() {
   console.log('Fetching pool stats...');
-  const response = await fetch(process.env.API_URL);
+  const apiUrl = process.env.API_URL || 'https://solo.ckpool.org';
+  const response = await fetch(`${apiUrl}/pool/pool.status`);
   const data = await response.text();
   const jsonLines = data.split('\n').filter(Boolean);
   const parsedData = jsonLines.reduce((acc, line) => ({ ...acc, ...JSON.parse(line) }), {});

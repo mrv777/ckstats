@@ -46,17 +46,6 @@ export type PoolStatsType = {
   SPS1h: number;
 };
 
-export async function fetchPoolStats(): Promise<PoolStatsInput> {
-  const response = await fetch(process.env.API_URL as string);
-  const data = await response.text();
-  const jsonLines = data.split('\n').filter(Boolean);
-  const parsedData = jsonLines.reduce(
-    (acc, line) => ({ ...acc, ...JSON.parse(line) }),
-    {}
-  );
-  return parsedData as PoolStatsInput;
-}
-
 export async function savePoolStats(stats: PoolStatsInput): Promise<PoolStats> {
   return prisma.poolStats.create({
     data: stats,
@@ -224,7 +213,7 @@ export async function resetUserActive(address: string): Promise<void> {
 }
 
 export async function updateSingleUser(address: string): Promise<void> {
-  const apiUrl = process.env.API_URL;
+  const apiUrl = process.env.API_URL || 'https://solo.ckpool.org';
   if (!apiUrl) {
     throw new Error('API_URL is not defined in environment variables');
   }
