@@ -46,9 +46,7 @@ const PrivacyToggle: React.FC<PrivacyToggleProps> = ({
         {isPublic ? 'Make Private' : 'Make Public'}
       </button>
       {mutation.isError && (
-        <p className="text-error mt-2">
-          Failed to privacy setting.
-        </p>
+        <p className="text-error mt-2">Failed to privacy setting.</p>
       )}
     </div>
   );
