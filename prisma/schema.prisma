@@ -41,6 +41,7 @@ model User {
   workers      Worker[]
   stats        UserStats[]
   isActive     Boolean  @default(true)
+  isPublic     Boolean  @default(true)
 }
 
 model UserStats {
