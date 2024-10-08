@@ -1,6 +1,7 @@
 export const revalidate = 60;
 
 import Script from 'next/script';
+
 import PoolStatsChart from '../components/PoolStatsChart';
 import PoolStatsDisplay from '../components/PoolStatsDisplay';
 import TopUserDifficulties from '../components/TopUserDifficulties';
@@ -24,6 +25,7 @@ export default async function Home() {
 
     return (
       <>
+        {/* Hack script to reload every 2 minutes to update for now */}
         <Script id="page-reload">
           {`
             setTimeout(function(){
