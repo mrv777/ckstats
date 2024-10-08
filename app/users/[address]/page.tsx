@@ -3,6 +3,7 @@ export const revalidate = 60;
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import PrivacyToggle from '../../../components/PrivacyToggle';
 import UserResetButton from '../../../components/UserResetButton';
 import UserStatsCharts from '../../../components/UserStatsCharts';
 import {
@@ -93,9 +94,12 @@ export default async function UserPage({
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4 break-words text-accent">
-        {user.address}
-      </h1>
+      <div className="flex flex-col md:flex-row justify-between gap-2 mb-4">
+        <h1 className="text-2xl font-bold break-words text-accent">
+          {user.address}
+        </h1>
+        <PrivacyToggle address={user.address} initialIsPublic={user.isPublic} />
+      </div>
       <div className="stats stats-vertical sm:stats-horizontal shadow-lg my-2">
         <div className="stat">
           <div className="stat-title">Worker Count</div>

@@ -135,6 +135,11 @@ export async function getTopUserDifficulties(limit: number = 10): Promise<
       hashrate1d: true,
       hashrate7d: true,
     },
+    where: {
+      user: {
+        isPublic: true,
+      },
+    },
     orderBy: {
       bestEver: 'desc',
     },
@@ -169,6 +174,11 @@ export async function getTopUserHashrates(limit: number = 10): Promise<
     _max: {
       id: true,
     },
+    where: {
+      user: {
+        isPublic: true,
+      },
+    },
   });
   const topUsers = await prisma.userStats.findMany({
     select: {
@@ -185,6 +195,9 @@ export async function getTopUserHashrates(limit: number = 10): Promise<
         in: userStats
           .map((user) => user._max.id)
           .filter((id): id is number => id !== null),
+      },
+      user: {
+        isPublic: true,
       },
     },
     orderBy: {
@@ -302,4 +315,26 @@ export async function updateSingleUser(address: string): Promise<void> {
     console.error(`Error updating user ${address}:`, error);
     throw error;
   }
+}
+
+export async function toggleUserStatsPrivacy(
+  address: string
+): Promise<{ isPublic: boolean }> {
+  const user = await prisma.user.findUnique({
+    where: { address },
+    select: { isPublic: true },
+  });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const newIsPublic = !user.isPublic;
+
+  await prisma.user.update({
+    where: { address },
+    data: { isPublic: newIsPublic },
+  });
+
+  return { isPublic: newIsPublic };
 }
