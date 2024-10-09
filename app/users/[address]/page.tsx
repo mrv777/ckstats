@@ -243,9 +243,9 @@ export default async function UserPage({
                   <td>
                     <Link
                       className="link text-primary"
-                      href={`/users/${params.address}/workers/${worker.name}`}
+                      href={`/users/${params.address}/workers/${encodeURIComponent(worker.name)}`}
                     >
-                      {worker.name}
+                      {worker.name || <span className="italic">Unnamed</span>}
                     </Link>
                   </td>
                   <td

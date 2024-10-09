@@ -96,6 +96,8 @@ export async function getWorkerWithStats(
   userAddress: string,
   workerName: string
 ) {
+  workerName = workerName.trim();
+  
   return prisma.worker.findUnique({
     where: {
       userAddress_name: {
