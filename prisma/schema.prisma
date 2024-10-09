@@ -64,7 +64,7 @@ model UserStats {
 
 model Worker {
   id           Int      @id @default(autoincrement())
-  name         String
+  name         String   @default("")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   hashrate1m   BigInt   @default(0)

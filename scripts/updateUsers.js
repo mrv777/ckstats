@@ -79,12 +79,7 @@ async function updateWorker(address, workerData) {
     return;
   }
 
-  const workerName = workerData.workername.split('.')[1];
-
-  if (!workerName) {
-    console.log(`Worker data for address ${address} only has address, no name. Skipping.`);
-    return;
-  }
+  const workerName = workerData.workername.split('.')[1] ?? '';
 
   const worker = await prisma.worker.upsert({
     where: {
