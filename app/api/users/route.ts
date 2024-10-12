@@ -38,6 +38,7 @@ export async function POST(request: Request) {
     });
 
     if (recentUsersCount >= 10) {
+      console.log('Too many users created recently, user must wait.');
       return NextResponse.json(
         { error: 'Too many users created recently, please try again later.' },
         { status: 429 }

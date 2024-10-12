@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 
 import { UserStats, WorkerStats } from '@prisma/client';
 import {
@@ -12,6 +12,7 @@ import {
   Legend,
   ResponsiveContainer,
   LegendType,
+  Brush,
 } from 'recharts';
 
 // Add this function at the top of the file, outside the component
@@ -63,6 +64,26 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
       '7d': Number(stat.hashrate7d) / scaleFactor,
     }));
   }, [userStats]);
+
+  const [dateRange, setDateRange] = useState<[Date, Date] | null>(null);
+
+  useEffect(() => {
+    if (chartData.length > 0 && !dateRange) {
+      const endDate = new Date(chartData[chartData.length - 1].timestamp);
+      const startDate = new Date(endDate);
+      startDate.setDate(startDate.getDate() - 2); // Set to 2 days ago
+      setDateRange([startDate, endDate]);
+    }
+  }, [chartData, dateRange]);
+
+  const handleBrushChange = (newRange: any) => {
+    if (newRange.startIndex !== undefined && newRange.endIndex !== undefined) {
+      setDateRange([
+        new Date(chartData[newRange.startIndex].timestamp),
+        new Date(chartData[newRange.endIndex].timestamp),
+      ]);
+    }
+  };
 
   const [visibleLines, setVisibleLines] = useState({
     '1m': false,
@@ -184,6 +205,26 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
               }))}
               onClick={(e) => handleLegendClick(e.value)}
             />
+            <Brush
+              dataKey="timestamp"
+              height={30}
+              alwaysShowText={true}
+              onChange={handleBrushChange}
+              startIndex={
+                dateRange
+                  ? chartData.findIndex(
+                      (d) => new Date(d.timestamp) >= dateRange[0]
+                    )
+                  : undefined
+              }
+              endIndex={
+                dateRange
+                  ? chartData.findIndex(
+                      (d) => new Date(d.timestamp) >= dateRange[1]
+                    )
+                  : undefined
+              }
+            />
             {visibleLines['1m'] && (
               <Line
                 type="monotone"
@@ -257,6 +298,27 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
                 stroke="#8884d8"
                 name="Workers"
                 dot={false}
+                isAnimationActive={false}
+              />
+              <Brush
+                dataKey="timestamp"
+                height={30}
+                alwaysShowText={true}
+                onChange={handleBrushChange}
+                startIndex={
+                  dateRange
+                    ? chartData.findIndex(
+                        (d) => new Date(d.timestamp) >= dateRange[0]
+                      )
+                    : undefined
+                }
+                endIndex={
+                  dateRange
+                    ? chartData.findIndex(
+                        (d) => new Date(d.timestamp) >= dateRange[1]
+                      )
+                    : undefined
+                }
               />
             </LineChart>
           </ResponsiveContainer>
