@@ -189,7 +189,9 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
               dataKey="timestamp"
               height={30}
               alwaysShowText={true}
-              startIndex={chartData.length - 1440 > 0 ? chartData.length - 1440 : 0}
+              startIndex={
+                chartData.length - 1440 > 0 ? chartData.length - 1440 : 0
+              }
             />
             {visibleLines['1m'] && (
               <Line
@@ -270,7 +272,9 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
                 dataKey="timestamp"
                 height={30}
                 alwaysShowText={true}
-                startIndex={chartData.length - 1440 > 0 ? chartData.length - 1440 : 0}
+                startIndex={
+                  chartData.length - 1440 > 0 ? chartData.length - 1440 : 0
+                }
               />
             </LineChart>
           </ResponsiveContainer>

@@ -196,7 +196,9 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
             dataKey="timestamp"
             height={30}
             alwaysShowText={true}
-            startIndex={formattedData.length - 1440 > 0 ? formattedData.length - 1440 : 0}
+            startIndex={
+              formattedData.length - 1440 > 0 ? formattedData.length - 1440 : 0
+            }
           />
           <Line
             yAxisId="left"
@@ -251,7 +253,9 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
             dataKey="timestamp"
             height={30}
             alwaysShowText={true}
-            startIndex={formattedData.length - 1440 > 0 ? formattedData.length - 1440 : 0}
+            startIndex={
+              formattedData.length - 1440 > 0 ? formattedData.length - 1440 : 0
+            }
           />
           {visibleLines['1m'] && (
             <Line
@@ -350,7 +354,9 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
             dataKey="timestamp"
             height={30}
             alwaysShowText={true}
-            startIndex={formattedData.length - 1440 > 0 ? formattedData.length - 1440 : 0}
+            startIndex={
+              formattedData.length - 1440 > 0 ? formattedData.length - 1440 : 0
+            }
           />
           <Line
             type="monotone"
