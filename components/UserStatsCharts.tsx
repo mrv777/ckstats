@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 
 import { UserStats, WorkerStats } from '@prisma/client';
 import {
@@ -64,26 +64,6 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
       '7d': Number(stat.hashrate7d) / scaleFactor,
     }));
   }, [userStats]);
-
-  const [dateRange, setDateRange] = useState<[Date, Date] | null>(null);
-
-  useEffect(() => {
-    if (chartData.length > 0 && !dateRange) {
-      const endDate = new Date(chartData[chartData.length - 1].timestamp);
-      const startDate = new Date(endDate);
-      startDate.setDate(startDate.getDate() - 2); // Set to 2 days ago
-      setDateRange([startDate, endDate]);
-    }
-  }, [chartData, dateRange]);
-
-  const handleBrushChange = (newRange: any) => {
-    if (newRange.startIndex !== undefined && newRange.endIndex !== undefined) {
-      setDateRange([
-        new Date(chartData[newRange.startIndex].timestamp),
-        new Date(chartData[newRange.endIndex].timestamp),
-      ]);
-    }
-  };
 
   const [visibleLines, setVisibleLines] = useState({
     '1m': false,
@@ -209,21 +189,7 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
               dataKey="timestamp"
               height={30}
               alwaysShowText={true}
-              onChange={handleBrushChange}
-              startIndex={
-                dateRange
-                  ? chartData.findIndex(
-                      (d) => new Date(d.timestamp) >= dateRange[0]
-                    )
-                  : undefined
-              }
-              endIndex={
-                dateRange
-                  ? chartData.findIndex(
-                      (d) => new Date(d.timestamp) >= dateRange[1]
-                    )
-                  : undefined
-              }
+              startIndex={chartData.length - 1440 > 0 ? chartData.length - 1440 : 0}
             />
             {visibleLines['1m'] && (
               <Line
@@ -304,21 +270,7 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
                 dataKey="timestamp"
                 height={30}
                 alwaysShowText={true}
-                onChange={handleBrushChange}
-                startIndex={
-                  dateRange
-                    ? chartData.findIndex(
-                        (d) => new Date(d.timestamp) >= dateRange[0]
-                      )
-                    : undefined
-                }
-                endIndex={
-                  dateRange
-                    ? chartData.findIndex(
-                        (d) => new Date(d.timestamp) >= dateRange[1]
-                      )
-                    : undefined
-                }
+                startIndex={chartData.length - 1440 > 0 ? chartData.length - 1440 : 0}
               />
             </LineChart>
           </ResponsiveContainer>

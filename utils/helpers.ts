@@ -108,9 +108,18 @@ export function getPercentageChangeColor(change: number | 'N/A'): string {
 }
 
 // Difficulty is assumed to be in T, hashrate in H/s
-export function calculateAverageTimeToBlock(hashRate: bigint, difficulty: number): number {
+export function calculateAverageTimeToBlock(hashRate: bigint, difficulty: number | bigint, units?: string): number {
   const hashesPerDifficulty = BigInt(2 ** 32);
-  const convertedDifficulty = BigInt(Math.round(difficulty * 1e12)); // Convert T to hashes
+  let convertedDifficulty: bigint;
+  if (typeof difficulty === 'number') {
+  if (units === 'T') {
+      convertedDifficulty = BigInt(Math.round(difficulty * 1e12)); // Convert T
+    } else {
+      convertedDifficulty = BigInt(Math.round(difficulty)); // No units
+    }
+  } else {
+    convertedDifficulty = difficulty;
+  }
   return Number((convertedDifficulty * hashesPerDifficulty) / hashRate);
 }
 

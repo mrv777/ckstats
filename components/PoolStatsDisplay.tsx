@@ -29,7 +29,8 @@ export default function PoolStatsDisplay({
     if (key.startsWith('hashrate')) {
       return formatHashrate(value);
     } else if (key === 'diff') {
-      return `${value.toFixed(2)}T`;
+      const networkDiff = (stats.accepted * BigInt(100)) / BigInt(stats.diff);
+      return `${(Number(networkDiff) / 1e12).toFixed(2)}T`;
     } else if (typeof value === 'bigint' || typeof value === 'number') {
       return formatNumber(value);
     } else if (key === 'timestamp') {
@@ -126,7 +127,7 @@ export default function PoolStatsDisplay({
                     ? formatDuration(
                         calculateAverageTimeToBlock(
                           stats.hashrate6hr,
-                          Number(stats.diff)
+                          (stats.accepted * BigInt(100)) / BigInt(stats.diff)
                         )
                       )
                     : 'N/A'}

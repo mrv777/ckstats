@@ -11,6 +11,7 @@ import {
   Legend,
   ResponsiveContainer,
   LegendType,
+  Brush,
 } from 'recharts';
 
 import { PoolStatsType } from '../lib/api';
@@ -191,6 +192,12 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
           />
           <Tooltip />
           <Legend />
+          <Brush
+            dataKey="timestamp"
+            height={30}
+            alwaysShowText={true}
+            startIndex={formattedData.length - 1440 > 0 ? formattedData.length - 1440 : 0}
+          />
           <Line
             yAxisId="left"
             type="monotone"
@@ -199,6 +206,7 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
             activeDot={{ r: 8 }}
             name="Users"
             dot={false}
+            isAnimationActive={false}
           />
           <Line
             yAxisId="right"
@@ -208,6 +216,7 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
             activeDot={{ r: 8 }}
             name="Workers"
             dot={false}
+            isAnimationActive={false}
           />
         </LineChart>
       </ResponsiveContainer>
@@ -237,6 +246,12 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
               type: item.type as LegendType,
             }))}
             onClick={(e) => handleLegendClick(e.value)}
+          />
+          <Brush
+            dataKey="timestamp"
+            height={30}
+            alwaysShowText={true}
+            startIndex={formattedData.length - 1440 > 0 ? formattedData.length - 1440 : 0}
           />
           {visibleLines['1m'] && (
             <Line
@@ -331,6 +346,12 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
           />
           <Tooltip formatter={spsTooltipFormatter} />
           <Legend />
+          <Brush
+            dataKey="timestamp"
+            height={30}
+            alwaysShowText={true}
+            startIndex={formattedData.length - 1440 > 0 ? formattedData.length - 1440 : 0}
+          />
           <Line
             type="monotone"
             dataKey="SPS1m"
