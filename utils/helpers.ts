@@ -104,7 +104,7 @@ export function calculatePercentageChange(currentValue: number, pastValue: numbe
 
 export function getPercentageChangeColor(change: number | 'N/A'): string {
   if (change === 'N/A') return 'text-base-content';
-  return change > 0 ? 'text-success' : 'text-error';
+  return change > 0 ? 'text-success' : change < 0 ? 'text-error' : 'text-base-content';
 }
 
 // Difficulty is assumed to be in T, hashrate in H/s
