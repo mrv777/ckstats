@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+
 import { Worker } from '@prisma/client';
 import Link from 'next/link';
 
@@ -50,22 +51,40 @@ const WorkersTable: React.FC<WorkersTableProps> = ({ workers, address }) => {
               <th onClick={() => handleSort('name')} className="cursor-pointer">
                 Name{renderSortIcon('name')}
               </th>
-              <th onClick={() => handleSort('hashrate5m')} className="cursor-pointer">
+              <th
+                onClick={() => handleSort('hashrate5m')}
+                className="cursor-pointer"
+              >
                 Hashrate (5m){renderSortIcon('hashrate5m')}
               </th>
-              <th onClick={() => handleSort('hashrate1hr')} className="cursor-pointer">
+              <th
+                onClick={() => handleSort('hashrate1hr')}
+                className="cursor-pointer"
+              >
                 Hashrate (1hr){renderSortIcon('hashrate1hr')}
               </th>
-              <th onClick={() => handleSort('hashrate1d')} className="cursor-pointer">
+              <th
+                onClick={() => handleSort('hashrate1d')}
+                className="cursor-pointer"
+              >
                 Hashrate (1d){renderSortIcon('hashrate1d')}
               </th>
-              <th onClick={() => handleSort('bestShare')} className="cursor-pointer">
+              <th
+                onClick={() => handleSort('bestShare')}
+                className="cursor-pointer"
+              >
                 Best Share{renderSortIcon('bestShare')}
               </th>
-              <th onClick={() => handleSort('bestEver')} className="cursor-pointer">
+              <th
+                onClick={() => handleSort('bestEver')}
+                className="cursor-pointer"
+              >
                 Best Ever{renderSortIcon('bestEver')}
               </th>
-              <th onClick={() => handleSort('lastUpdate')} className="cursor-pointer">
+              <th
+                onClick={() => handleSort('lastUpdate')}
+                className="cursor-pointer"
+              >
                 Last Update{renderSortIcon('lastUpdate')}
               </th>
             </tr>
