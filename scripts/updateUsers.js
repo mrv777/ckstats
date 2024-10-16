@@ -137,9 +137,9 @@ async function updateWorker(address, workerData) {
 async function updateUserAndWorkers(address) {
   try {
     const userData = await fetchUserDataWithRetry(address);
-    await prisma.$transaction(async (prisma) => {
-      await updateUser(address, userData, prisma);
-      await Promise.all(userData.worker.map(w => updateWorker(address, w, prisma)));
+    await prisma.$transaction(async () => {
+      await updateUser(address, userData,);
+      await Promise.all(userData.worker.map(w => updateWorker(address, w)));
     });
     console.log(`Updated user and workers for: ${address}`);
   } catch (error) {
@@ -162,7 +162,22 @@ async function updateUsers() {
     console.error('Error updating users:', error);
   } finally {
     await prisma.$disconnect();
+    // Force garbage collection if running in Node.js with the --expose-gc flag
+    if (global.gc) {
+      global.gc();
+    }
   }
 }
 
-updateUsers();
+(async () => {
+  try {
+    await updateUsers();
+  } catch (error) {
+    console.error('Unhandled error:', error);
+  } finally {
+    // Ensure that Prisma client is disconnected
+    await prisma.$disconnect();
+    // Ensure that the process exits even if there are any hanging promises
+    process.exit(0);
+  }
+})();
