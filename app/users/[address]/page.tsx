@@ -1,11 +1,11 @@
 export const revalidate = 60;
 
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import PrivacyToggle from '../../../components/PrivacyToggle';
 import UserResetButton from '../../../components/UserResetButton';
 import UserStatsCharts from '../../../components/UserStatsCharts';
+import WorkersTable from '../../../components/WorkersTable';
 import {
   getUserWithWorkersAndStats,
   getUserHistoricalStats,
@@ -222,56 +222,7 @@ export default async function UserPage({
 
       <UserStatsCharts userStats={historicalStats} />
 
-      <div className="bg-base-200 p-4 rounded-lg mt-8">
-        <h2 className="text-xl font-bold mb-4">Workers</h2>
-        <div className="overflow-x-auto">
-          <table className="table w-full table-sm sm:table-md">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Hashrate (5m)</th>
-                <th>Hashrate (1hr)</th>
-                <th>Hashrate (1d)</th>
-                <th>Best Share</th>
-                <th>Best Ever</th>
-                <th>Last Update</th>
-              </tr>
-            </thead>
-            <tbody>
-              {user.workers.map((worker) => (
-                <tr key={worker.id}>
-                  <td>
-                    <Link
-                      className="link text-primary"
-                      href={`/users/${params.address}/workers/${encodeURIComponent(worker.name)}`}
-                    >
-                      {worker.name || <span className="italic">Unnamed</span>}
-                    </Link>
-                  </td>
-                  <td
-                    className={`${worker.hashrate5m < 1 ? 'text-error' : 'text-accent'}`}
-                  >
-                    {formatHashrate(worker.hashrate5m)}
-                  </td>
-                  <td
-                    className={`${worker.hashrate1hr < 1 ? 'text-error' : ''}`}
-                  >
-                    {formatHashrate(worker.hashrate1hr)}
-                  </td>
-                  <td
-                    className={`${worker.hashrate1d < 1 ? 'text-error' : ''}`}
-                  >
-                    {formatHashrate(worker.hashrate1d)}
-                  </td>
-                  <td>{formatNumber(worker.bestShare)}</td>
-                  <td>{formatNumber(worker.bestEver)}</td>
-                  <td>{formatTimeAgo(worker.lastUpdate)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <WorkersTable workers={user.workers} address={params.address} />
     </div>
   );
 }
