@@ -48,23 +48,31 @@ This project displays real-time and historical statistics for the CKPool Bitcoin
 
 ## Deployment
 
-1. Clone the repository (if not already done)
-2. Install dependencies: `pnpm install`
-3. Set up the environment variables in `.env`
-4. Run database migrations: `pnpm prisma:migrate`
-5. Generate Prisma client: `pnpm prisma:generate`
-6. Build the application: `pnpm build`
-7. Start the production server: `pnpm start`
-8. Set up cronjobs for regular updates:
+1. Clone the repository (git clone https://github.com/mrv777/ckstats.git)
+2. Install pnpm: `curl -fsSL https://get.pnpm.io/install.sh | bash`
+3. Install packages if needed: `sudo apt install postgresql postgresql-contrib nodejs nginx`
+2. Go to the directory: `cd ckstats`
+3. Install dependencies: `pnpm install`
+4. Set up the environment variables in `.env`
+  - Example:
+  ```
+   DATABASE_URL="postgres://postgres:password@localhost:5432/postgres"
+   SHADOW_DATABASE_URL="postgres://postgres:password@localhost:5432/postgres"
+   API_URL=https://solo.ckpool.org
+  ```
+7. Build the application: `pnpm build`
+8. Start the production server: `pnpm start`
+9. Set up cronjobs for regular updates:
    - Open the crontab editor: `crontab -e`
-   - Add the following lines:
+   - Add the following lines (for example, every 10 minutes):
      ```
      */10 * * * * cd /path/to/your/project && /usr/local/bin/pnpm seed
      */10 * * * * cd /path/to/your/project && /usr/local/bin/pnpm update-users
+     * */12 * * * cd /path/to/your/project && /usr/local/bin/pnpm cleanup
      ```
    - Save and exit the editor
    
-   These cronjobs will run the `seed` and `update-users` scripts every 10 minutes to populate the database.
+   These cronjobs will run the `seed` and `update-users` scripts every 10 minutes to populate the database and clean up old statistics every 12 hours.
 
 
 ## Scripts
