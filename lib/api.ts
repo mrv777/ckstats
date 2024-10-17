@@ -128,9 +128,10 @@ export async function getTopUserDifficulties(limit: number = 10): Promise<
         isPublic: true,
       },
     },
-    orderBy: {
-      bestEver: 'desc',
-    },
+    orderBy: [
+      { bestEver: 'desc' },
+      { timestamp: 'desc' }
+    ],
     take: limit,
     distinct: ['userAddress'],
   });
@@ -188,9 +189,10 @@ export async function getTopUserHashrates(limit: number = 10): Promise<
         isPublic: true,
       },
     },
-    orderBy: {
-      hashrate1hr: 'desc',
-    },
+    orderBy: [
+      { hashrate1hr: 'desc' },
+      { timestamp: 'desc' }
+    ],
     take: limit,
     distinct: ['userAddress'],
   });
