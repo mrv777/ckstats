@@ -15,7 +15,7 @@
     "update-stats": "ts-node scripts/updateStats.ts",
     "update-users": "node scripts/updateUsers.js",
     "cleanup": "node scripts/cleanOldStats.js",
-    "vacuum": "sqlite3 ./dev.sqlite3 'VACUUM;'",
+    "vacuum": "prisma db execute --stdin < scripts/vacuum.sql",
     "test": "jest",
     "test:watch": "jest --watch"
   },
