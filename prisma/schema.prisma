@@ -31,6 +31,8 @@ model PoolStats {
   SPS5m        Float
   SPS15m       Float
   SPS1h        Float
+
+  @@index([timestamp])
 }
 
 model User {
@@ -42,6 +44,9 @@ model User {
   stats        UserStats[]
   isActive     Boolean  @default(true)
   isPublic     Boolean  @default(true)
+  
+  @@index([isActive])
+  @@index([isPublic])
 }
 
 model UserStats {
@@ -59,7 +64,9 @@ model UserStats {
   bestShare    Float    @default(0)
   bestEver     BigInt   @default(0)
   timestamp    DateTime @default(now())
+  
   @@index([timestamp])
+  @@index([userAddress, timestamp])
 }
 
 model Worker {
@@ -79,7 +86,9 @@ model Worker {
   user         User     @relation(fields: [userAddress], references: [address])
   userAddress  String
   stats        WorkerStats[]
+  
   @@unique([userAddress, name])
+  @@index([userAddress])
 }
 
 model WorkerStats {
@@ -95,5 +104,7 @@ model WorkerStats {
   bestShare    Float    @default(0)
   bestEver     BigInt   @default(0)
   timestamp    DateTime @default(now())
+  
   @@index([timestamp])
+  @@index([workerId, timestamp])
 }
