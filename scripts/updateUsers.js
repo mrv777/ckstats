@@ -149,7 +149,10 @@ async function updateUserAndWorkers(address) {
 
 async function updateUsers() {
   try {
-    const users = await prisma.user.findMany({ where: { isActive: true } });
+    const users = await prisma.user.findMany({
+      where: { isActive: true },
+      select: { address: true },
+    });
     const batchSize = 4;
 
     for (let i = 0; i < users.length; i += batchSize) {
