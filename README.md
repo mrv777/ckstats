@@ -68,7 +68,7 @@ This project displays real-time and historical statistics for the CKPool Bitcoin
      ```
      */1 * * * * cd /path/to/your/project && /usr/local/bin/pnpm seed
      */1 * * * * cd /path/to/your/project && /usr/local/bin/pnpm update-users
-     5 */12 * * * cd /path/to/your/project && /usr/local/bin/pnpm cleanup
+     5 */2 * * * cd /path/to/your/project && /usr/local/bin/pnpm cleanup
      5 1 * * * cd /path/to/your/project && /usr/local/bin/pnpm vacuum
      ```
    - Save and exit the editor
