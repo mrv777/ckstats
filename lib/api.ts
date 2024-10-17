@@ -1,23 +1,9 @@
-import {
-  PoolStats,
-  PrismaClient,
-  User,
-  UserStats,
-  Worker,
-} from '@prisma/client';
+import { PoolStats, User, UserStats, Worker } from '@prisma/client';
 
+import prisma from './db';
 import { convertHashrate } from '../utils/helpers';
 
-const HISTORICAL_DATA_POINTS = 1440;
-
-declare global {
-  // eslint-disable-next-line no-var
-  var prisma: PrismaClient | undefined;
-}
-
-export const prisma = global.prisma || new PrismaClient();
-
-if (process.env.NODE_ENV !== 'production') global.prisma = prisma;
+const HISTORICAL_DATA_POINTS = 2880;
 
 export type PoolStatsInput = Omit<PoolStats, 'id' | 'timestamp'>;
 
