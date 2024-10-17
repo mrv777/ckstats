@@ -64,11 +64,12 @@ This project displays real-time and historical statistics for the CKPool Bitcoin
 8. Start the production server: `pnpm start`
 9. Set up cronjobs for regular updates:
    - Open the crontab editor: `crontab -e`
-   - Add the following lines (for example, every 10 minutes):
+   - Add the following lines (for example, every 1 minute updates with old data cleanup every 12 hours and vacuum every day at 01:05):
      ```
-     */10 * * * * cd /path/to/your/project && /usr/local/bin/pnpm seed
-     */10 * * * * cd /path/to/your/project && /usr/local/bin/pnpm update-users
-     * */12 * * * cd /path/to/your/project && /usr/local/bin/pnpm cleanup
+     */1 * * * * cd /path/to/your/project && /usr/local/bin/pnpm seed
+     */1 * * * * cd /path/to/your/project && /usr/local/bin/pnpm update-users
+     5 */12 * * * cd /path/to/your/project && /usr/local/bin/pnpm cleanup
+     5 1 * * * cd /path/to/your/project && /usr/local/bin/pnpm vacuum
      ```
    - Save and exit the editor
    
