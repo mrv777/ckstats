@@ -8,7 +8,7 @@ import {
 
 import { convertHashrate } from '../utils/helpers';
 
-const HISTORICAL_DATA_POINTS = 100;
+const HISTORICAL_DATA_POINTS = 1440;
 
 declare global {
   // eslint-disable-next-line no-var
