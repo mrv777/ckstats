@@ -67,6 +67,8 @@ model UserStats {
   
   @@index([timestamp])
   @@index([userAddress, timestamp])
+  @@index([userAddress, bestEver, timestamp])
+  @@index([userAddress, hashrate1hr, timestamp])
 }
 
 model Worker {
