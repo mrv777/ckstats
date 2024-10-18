@@ -6,6 +6,12 @@ async function cleanOldStats() {
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
+  const oneDayAgo = new Date();
+  oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+  const twoDaysAgo = new Date();
+  twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
   try {
     // Delete old pool stats
     const deletedPoolStats = await prisma.poolStats.deleteMany({
@@ -21,7 +27,7 @@ async function cleanOldStats() {
     const deletedUserStats = await prisma.userStats.deleteMany({
       where: {
         timestamp: {
-          lt: oneWeekAgo
+          lt: twoDaysAgo
         }
       }
     });
@@ -31,7 +37,7 @@ async function cleanOldStats() {
     const deletedWorkerStats = await prisma.workerStats.deleteMany({
       where: {
         timestamp: {
-          lt: oneWeekAgo
+          lt: oneDayAgo
         }
       }
     });
