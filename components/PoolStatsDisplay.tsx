@@ -128,7 +128,8 @@ export default function PoolStatsDisplay({
                     ? formatDuration(
                         calculateAverageTimeToBlock(
                           stats.hashrate6hr,
-                          (stats.accepted * BigInt(10000)) / BigInt(Math.round(Number(stats.diff) * 100))
+                          (stats.accepted * BigInt(10000)) /
+                            BigInt(Math.round(Number(stats.diff) * 100))
                         )
                       )
                     : 'N/A'}
