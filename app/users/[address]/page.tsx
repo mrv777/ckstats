@@ -180,7 +180,8 @@ export default async function UserPage({
             {latestStats.hashrate1hr && stats?.diff
               ? calculateBlockChances(
                   latestStats.hashrate1hr,
-                  Number(stats.diff)
+                  Number(stats.diff),
+                  stats.accepted
                 )['1d']
               : 'N/A'}
           </div>
@@ -191,7 +192,8 @@ export default async function UserPage({
             {latestStats.hashrate1hr && stats?.diff
               ? calculateBlockChances(
                   latestStats.hashrate1hr,
-                  Number(stats.diff)
+                  Number(stats.diff),
+                  stats.accepted
                 )['1w']
               : 'N/A'}
           </div>
@@ -202,7 +204,8 @@ export default async function UserPage({
             {latestStats.hashrate1hr && stats?.diff
               ? calculateBlockChances(
                   latestStats.hashrate1hr,
-                  Number(stats.diff)
+                  Number(stats.diff),
+                  stats.accepted
                 )['1m']
               : 'N/A'}
           </div>
@@ -213,7 +216,8 @@ export default async function UserPage({
             {latestStats.hashrate1hr && stats?.diff
               ? calculateBlockChances(
                   latestStats.hashrate1hr,
-                  Number(stats.diff)
+                  Number(stats.diff),
+                  stats.accepted
                 )['1y']
               : 'N/A'}
           </div>

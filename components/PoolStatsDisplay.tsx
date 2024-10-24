@@ -29,8 +29,9 @@ export default function PoolStatsDisplay({
     if (key.startsWith('hashrate')) {
       return formatHashrate(value);
     } else if (key === 'diff') {
-      const networkDiff = (stats.accepted * BigInt(100)) / BigInt(stats.diff);
-      return `${(Number(networkDiff) / 1e12).toFixed(2)}T`;
+      return `${formatNumber(value)}%`;
+      // const networkDiff = (stats.accepted * BigInt(10000)) / BigInt(Math.round(Number(stats.diff) * 100));
+      // return `${(Number(networkDiff) / 1e12).toFixed(2)}T`;
     } else if (typeof value === 'bigint' || typeof value === 'number') {
       return formatNumber(value);
     } else if (key === 'timestamp') {
@@ -45,7 +46,7 @@ export default function PoolStatsDisplay({
     if (key.startsWith('hashrate') || key.startsWith('SPS')) {
       return key.replace(/^(hashrate|SPS)/, '').toUpperCase();
     } else if (key === 'diff') {
-      return 'Network Diff';
+      return '% of Network Diff';
     } else if (key === 'bestshare') {
       return 'Best Diff';
     }
@@ -58,7 +59,7 @@ export default function PoolStatsDisplay({
   const statGroups = [
     { title: 'Users', keys: ['users', 'disconnected', 'workers'] },
     {
-      title: 'Shares',
+      title: 'Shares since last found block',
       keys: ['accepted', 'rejected', 'bestshare', 'diff'],
     },
     { title: 'Shares Per Second', keys: ['SPS1m', 'SPS5m', 'SPS15m', 'SPS1h'] },
@@ -127,7 +128,7 @@ export default function PoolStatsDisplay({
                     ? formatDuration(
                         calculateAverageTimeToBlock(
                           stats.hashrate6hr,
-                          (stats.accepted * BigInt(100)) / BigInt(stats.diff)
+                          (stats.accepted * BigInt(10000)) / BigInt(Math.round(Number(stats.diff) * 100))
                         )
                       )
                     : 'N/A'}

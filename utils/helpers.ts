@@ -123,11 +123,12 @@ export function calculateAverageTimeToBlock(hashRate: bigint, difficulty: number
   return Number((convertedDifficulty * hashesPerDifficulty) / hashRate);
 }
 
-// Difficulty is assumed to be in T, hashrate in H/s
-export function calculateBlockChances(hashRate: bigint, difficulty: number): { [key: string]: string } {
+// Difficulty is assumed to be a % of network, hashrate in H/s
+export function calculateBlockChances(hashRate: bigint, difficulty: number, accepted: bigint): { [key: string]: string } {
+  const networkDiff = (accepted) / BigInt(Math.round(Number(difficulty) * 100)) * BigInt(10000);
   const hashesPerDifficulty = BigInt(2 ** 32);
-  const convertedDifficulty = BigInt(Math.round(difficulty * 1e12));
-  const probabilityPerHash = 1 / Number(convertedDifficulty * hashesPerDifficulty);
+  // const convertedDifficulty = BigInt(Math.round(Number(networkDiff) * 1e12));
+  const probabilityPerHash = 1 / Number(networkDiff * hashesPerDifficulty);
   const hashesPerSecond = Number(hashRate);
 
   const periodsInSeconds = {
