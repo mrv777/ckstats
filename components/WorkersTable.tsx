@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 
-import { Worker } from '@prisma/client';
+import { Worker } from '../lib/entities/Worker';
 import Link from 'next/link';
 
 import { formatHashrate, formatNumber, formatTimeAgo } from '../utils/helpers';
@@ -101,14 +101,14 @@ const WorkersTable: React.FC<WorkersTableProps> = ({ workers, address }) => {
                   </Link>
                 </td>
                 <td
-                  className={`${worker.hashrate5m < 1 ? 'text-error' : 'text-accent'}`}
+                  className={`${Number(worker.hashrate5m) < 1 ? 'text-error' : 'text-accent'}`}
                 >
                   {formatHashrate(worker.hashrate5m)}
                 </td>
-                <td className={`${worker.hashrate1hr < 1 ? 'text-error' : ''}`}>
+                <td className={`${Number(worker.hashrate1hr) < 1 ? 'text-error' : ''}`}>
                   {formatHashrate(worker.hashrate1hr)}
                 </td>
-                <td className={`${worker.hashrate1d < 1 ? 'text-error' : ''}`}>
+                <td className={`${Number(worker.hashrate1d) < 1 ? 'text-error' : ''}`}>
                   {formatHashrate(worker.hashrate1d)}
                 </td>
                 <td>{formatNumber(worker.bestShare)}</td>

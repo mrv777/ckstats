@@ -1,79 +1,73 @@
-import { PoolStats, User, UserStats, Worker } from '@prisma/client';
-
-import prisma from './db';
+import { getDb } from './db';
+import { PoolStats } from './entities/PoolStats';
+import { User } from './entities/User';
+import { UserStats } from './entities/UserStats';
+import { Worker } from './entities/Worker';
 import { convertHashrate } from '../utils/helpers';
 
 const HISTORICAL_DATA_POINTS = 2880;
 
 export type PoolStatsInput = Omit<PoolStats, 'id' | 'timestamp'>;
 
-export type PoolStatsType = {
-  id: number;
-  timestamp: Date;
-  runtime: number;
-  users: number;
-  workers: number;
-  idle: number;
-  disconnected: number;
-  hashrate1m: bigint;
-  hashrate5m: bigint;
-  hashrate15m: bigint;
-  hashrate1hr: bigint;
-  hashrate6hr: bigint;
-  hashrate1d: bigint;
-  hashrate7d: bigint;
-  diff: number;
-  accepted: bigint;
-  rejected: bigint;
-  bestshare: bigint;
-  SPS1m: number;
-  SPS5m: number;
-  SPS15m: number;
-  SPS1h: number;
-};
-
 export async function savePoolStats(stats: PoolStatsInput): Promise<PoolStats> {
-  return prisma.poolStats.create({
-    data: stats,
-  });
+  const db = await getDb();
+  const repository = db.getRepository(PoolStats);
+  const poolStats = repository.create(stats);
+  return repository.save(poolStats);
 }
 
 export async function getLatestPoolStats(): Promise<PoolStats | null> {
-  return prisma.poolStats.findFirst({
-    orderBy: { timestamp: 'desc' },
+  const db = await getDb();
+  const repository = db.getRepository(PoolStats);
+  return repository.findOne({
+    where: {},
+    order: { timestamp: 'DESC' },
   });
 }
 
 export async function getHistoricalPoolStats(): Promise<PoolStats[]> {
-  return prisma.poolStats.findMany({
-    orderBy: { timestamp: 'desc' },
+  const db = await getDb();
+  const repository = db.getRepository(PoolStats);
+  return repository.find({
+    order: { timestamp: 'DESC' },
     take: HISTORICAL_DATA_POINTS,
   });
 }
 
-export async function getUserWithWorkersAndStats(
-  address: string
-): Promise<(User & { workers: Worker[]; stats: UserStats[] }) | null> {
-  return prisma.user.findUnique({
+export async function getUserWithWorkersAndStats(address: string) {
+  const db = await getDb();
+  const userRepository = db.getRepository(User);
+
+  const user = await userRepository.findOne({
     where: { address },
-    include: {
+    relations: {
+      workers: true,
+      stats: true,
+    },
+    order: {
       workers: {
-        orderBy: { hashrate5m: 'desc' },
+        hashrate5m: 'DESC',
       },
       stats: {
-        orderBy: { timestamp: 'desc' },
-        take: 1,
+        timestamp: 'DESC',
       },
     },
   });
+
+  if (!user) return null;
+
+  return {
+    ...user,
+    stats: user.stats.slice(0, 1),
+  };
 }
 
-export async function getUserHistoricalStats(
-  address: string
-): Promise<UserStats[]> {
-  return prisma.userStats.findMany({
+export async function getUserHistoricalStats(address: string) {
+  const db = await getDb();
+  const repository = db.getRepository(UserStats);
+  return repository.find({
     where: { userAddress: address },
-    orderBy: { timestamp: 'desc' },
+    order: { timestamp: 'DESC' },
     take: HISTORICAL_DATA_POINTS,
   });
 }
@@ -82,131 +76,77 @@ export async function getWorkerWithStats(
   userAddress: string,
   workerName: string
 ) {
-  workerName = workerName.trim();
+  const db = await getDb();
+  const repository = db.getRepository(Worker);
 
-  return prisma.worker.findUnique({
+  return repository.findOne({
     where: {
-      userAddress_name: {
-        userAddress,
-        name: workerName,
-      },
+      userAddress,
+      name: workerName.trim(),
     },
-    include: {
+    relations: {
+      stats: true,
+    },
+    order: {
       stats: {
-        orderBy: {
-          timestamp: 'desc',
-        },
-        take: HISTORICAL_DATA_POINTS,
+        timestamp: 'DESC',
       },
     },
   });
 }
 
-export async function getTopUserDifficulties(limit: number = 10): Promise<
-  {
-    address: string;
-    workerCount: number;
-    difficulty: string;
-    hashrate1hr: string;
-    hashrate1d: string;
-    hashrate7d: string;
-    bestShare: string;
-  }[]
-> {
-  const topUsers = await prisma.userStats.findMany({
-    select: {
-      userAddress: true,
-      workerCount: true,
-      bestEver: true,
-      bestShare: true,
-      hashrate1hr: true,
-      hashrate1d: true,
-      hashrate7d: true,
-    },
-    where: {
-      user: {
-        isPublic: true,
-      },
-    },
-    orderBy: [{ bestEver: 'desc' }, { timestamp: 'desc' }],
-    take: limit,
-    distinct: ['userAddress'],
-  });
+export async function getTopUserDifficulties(limit: number = 10) {
+  const db = await getDb();
+  const repository = db.getRepository(UserStats);
 
-  return topUsers.map((user) => ({
-    address: user.userAddress,
-    workerCount: user.workerCount,
-    difficulty: user.bestEver.toString(),
-    hashrate1hr: user.hashrate1hr.toString(),
-    hashrate1d: user.hashrate1d.toString(),
-    hashrate7d: user.hashrate7d.toString(),
-    bestShare: user.bestShare.toString(),
+  const topUsers = await repository
+    .createQueryBuilder('userStats')
+    .innerJoinAndSelect('userStats.user', 'user')
+    .where('user.isPublic = :isPublic', { isPublic: true })
+    .orderBy('userStats.bestEver', 'DESC')
+    .addOrderBy('userStats.timestamp', 'DESC')
+    .take(limit)
+    .getMany();
+
+  return topUsers.map((stats) => ({
+    address: stats.userAddress,
+    workerCount: stats.workerCount,
+    difficulty: stats.bestEver.toString(),
+    hashrate1hr: stats.hashrate1hr.toString(),
+    hashrate1d: stats.hashrate1d.toString(),
+    hashrate7d: stats.hashrate7d.toString(),
+    bestShare: stats.bestShare.toString(),
   }));
 }
 
-export async function getTopUserHashrates(limit: number = 10): Promise<
-  {
-    address: string;
-    workerCount: number;
-    hashrate1hr: string;
-    hashrate1d: string;
-    hashrate7d: string;
-    bestShare: string;
-    bestEver: string;
-  }[]
-> {
-  const userStats = await prisma.userStats.groupBy({
-    by: ['userAddress'],
-    _max: {
-      id: true,
-    },
-    where: {
-      user: {
-        isPublic: true,
-      },
-    },
-  });
-  const topUsers = await prisma.userStats.findMany({
-    select: {
-      userAddress: true,
-      workerCount: true,
-      hashrate1hr: true,
-      hashrate1d: true,
-      hashrate7d: true,
-      bestShare: true,
-      bestEver: true,
-    },
-    where: {
-      id: {
-        in: userStats
-          .map((user) => user._max.id)
-          .filter((id): id is number => id !== null),
-      },
-      user: {
-        isPublic: true,
-      },
-    },
-    orderBy: [{ hashrate1hr: 'desc' }, { timestamp: 'desc' }],
-    take: limit,
-    distinct: ['userAddress'],
-  });
+export async function getTopUserHashrates(limit: number = 10) {
+  const db = await getDb();
+  const repository = db.getRepository(UserStats);
 
-  return topUsers.map((user) => ({
-    address: user.userAddress,
-    workerCount: user.workerCount,
-    hashrate1hr: user.hashrate1hr.toString(),
-    hashrate1d: user.hashrate1d.toString(),
-    hashrate7d: user.hashrate7d.toString(),
-    bestShare: user.bestShare.toString(),
-    bestEver: user.bestEver.toString(),
+  const topUsers = await repository
+    .createQueryBuilder('userStats')
+    .innerJoinAndSelect('userStats.user', 'user')
+    .where('user.isPublic = :isPublic', { isPublic: true })
+    .orderBy('userStats.hashrate1hr', 'DESC')
+    .addOrderBy('userStats.timestamp', 'DESC')
+    .take(limit)
+    .getMany();
+
+  return topUsers.map((stats) => ({
+    address: stats.userAddress,
+    workerCount: stats.workerCount,
+    hashrate1hr: stats.hashrate1hr.toString(),
+    hashrate1d: stats.hashrate1d.toString(),
+    hashrate7d: stats.hashrate7d.toString(),
+    bestShare: stats.bestShare.toString(),
+    bestEver: stats.bestEver.toString(),
   }));
 }
 
 export async function resetUserActive(address: string): Promise<void> {
-  await prisma.user.update({
-    where: { address },
-    data: { isActive: true },
-  });
+  const db = await getDb();
+  const userRepository = db.getRepository(User);
+  await userRepository.update(address, { isActive: true });
 }
 
 export async function updateSingleUser(address: string): Promise<void> {
@@ -224,73 +164,76 @@ export async function updateSingleUser(address: string): Promise<void> {
     }
     const userData = await response.json();
 
-    await prisma.$transaction(async (prisma) => {
+    const db = await getDb();
+    await db.transaction(async (manager) => {
       // Update or create user
-      await prisma.user.upsert({
-        where: { address },
-        update: {
-          authorised: BigInt(userData.authorised),
-          isActive: true,
-        },
-        create: {
+      const userRepository = manager.getRepository(User);
+      const user = await userRepository.findOne({ where: { address } });
+      if (user) {
+        user.authorised = userData.authorised;
+        user.isActive = true;
+        await userRepository.save(user);
+      } else {
+        await userRepository.insert({
           address,
-          authorised: BigInt(userData.authorised),
+          authorised: userData.authorised,
           isActive: true,
-        },
-      });
+        });
+      }
 
       // Create a new UserStats entry
-      await prisma.userStats.create({
-        data: {
-          user: { connect: { address } },
-          hashrate1m: convertHashrate(userData.hashrate1m),
-          hashrate5m: convertHashrate(userData.hashrate5m),
-          hashrate1hr: convertHashrate(userData.hashrate1hr),
-          hashrate1d: convertHashrate(userData.hashrate1d),
-          hashrate7d: convertHashrate(userData.hashrate7d),
-          lastShare: BigInt(userData.lastshare),
-          workerCount: userData.workers,
-          shares: BigInt(userData.shares),
-          bestShare: parseFloat(userData.bestshare),
-          bestEver: BigInt(userData.bestever),
-        },
+      const userStatsRepository = manager.getRepository(UserStats);
+      const userStats = userStatsRepository.create({
+        userAddress: address,
+        hashrate1m: convertHashrate(userData.hashrate1m).toString(),
+        hashrate5m: convertHashrate(userData.hashrate5m).toString(),
+        hashrate1hr: convertHashrate(userData.hashrate1hr).toString(),
+        hashrate1d: convertHashrate(userData.hashrate1d).toString(),
+        hashrate7d: convertHashrate(userData.hashrate7d).toString(),
+        lastShare: BigInt(userData.lastshare).toString(),
+        workerCount: userData.workers,
+        shares: BigInt(userData.shares).toString(),
+        bestShare: parseFloat(userData.bestshare),
+        bestEver: BigInt(userData.bestever).toString()
       });
+      await userStatsRepository.save(userStats);
 
       // Update or create workers
+      const workerRepository = manager.getRepository(Worker);
       for (const workerData of userData.worker) {
         const workerName = workerData.workername.split('.')[1];
-        await prisma.worker.upsert({
+        const worker = await workerRepository.findOne({
           where: {
-            userAddress_name: {
-              userAddress: address,
-              name: workerName,
-            },
-          },
-          update: {
-            hashrate1m: convertHashrate(workerData.hashrate1m),
-            hashrate5m: convertHashrate(workerData.hashrate5m),
-            hashrate1hr: convertHashrate(workerData.hashrate1hr),
-            hashrate1d: convertHashrate(workerData.hashrate1d),
-            hashrate7d: convertHashrate(workerData.hashrate7d),
-            lastUpdate: new Date(workerData.lastshare * 1000),
-            shares: BigInt(workerData.shares),
-            bestShare: parseFloat(workerData.bestshare),
-            bestEver: BigInt(workerData.bestever),
-          },
-          create: {
             userAddress: address,
             name: workerName,
-            hashrate1m: convertHashrate(workerData.hashrate1m),
-            hashrate5m: convertHashrate(workerData.hashrate5m),
-            hashrate1hr: convertHashrate(workerData.hashrate1hr),
-            hashrate1d: convertHashrate(workerData.hashrate1d),
-            hashrate7d: convertHashrate(workerData.hashrate7d),
-            lastUpdate: new Date(workerData.lastshare * 1000),
-            shares: BigInt(workerData.shares),
-            bestShare: parseFloat(workerData.bestshare),
-            bestEver: BigInt(workerData.bestever),
           },
         });
+        if (worker) {
+          worker.hashrate1m = convertHashrate(workerData.hashrate1m).toString();
+          worker.hashrate5m = convertHashrate(workerData.hashrate5m).toString();
+          worker.hashrate1hr = convertHashrate(workerData.hashrate1hr).toString();
+          worker.hashrate1d = convertHashrate(workerData.hashrate1d).toString();
+          worker.hashrate7d = convertHashrate(workerData.hashrate7d).toString();
+          worker.lastUpdate = new Date(workerData.lastshare * 1000);
+          worker.shares = workerData.shares;
+          worker.bestShare = parseFloat(workerData.bestshare);
+          worker.bestEver = BigInt(workerData.bestever).toString();
+          await workerRepository.save(worker);
+        } else {
+          await workerRepository.insert({
+            userAddress: address,
+            name: workerName,
+            hashrate1m: convertHashrate(workerData.hashrate1m).toString(),
+            hashrate5m: convertHashrate(workerData.hashrate5m).toString(),
+            hashrate1hr: convertHashrate(workerData.hashrate1hr).toString(),
+            hashrate1d: convertHashrate(workerData.hashrate1d).toString(),
+            hashrate7d: convertHashrate(workerData.hashrate7d).toString(),
+            lastUpdate: new Date(workerData.lastshare * 1000),
+            shares: workerData.shares,
+            bestShare: parseFloat(workerData.bestshare),
+            bestEver: BigInt(workerData.bestever).toString(),
+          });
+        }
       }
     });
 
@@ -304,10 +247,9 @@ export async function updateSingleUser(address: string): Promise<void> {
 export async function toggleUserStatsPrivacy(
   address: string
 ): Promise<{ isPublic: boolean }> {
-  const user = await prisma.user.findUnique({
-    where: { address },
-    select: { isPublic: true },
-  });
+  const db = await getDb();
+  const userRepository = db.getRepository(User);
+  const user = await userRepository.findOne({ where: { address } });
 
   if (!user) {
     throw new Error('User not found');
@@ -315,10 +257,7 @@ export async function toggleUserStatsPrivacy(
 
   const newIsPublic = !user.isPublic;
 
-  await prisma.user.update({
-    where: { address },
-    data: { isPublic: newIsPublic },
-  });
+  await userRepository.update(address, { isPublic: newIsPublic });
 
   return { isPublic: newIsPublic };
 }

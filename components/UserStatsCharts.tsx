@@ -2,7 +2,8 @@
 
 import React, { useState, useMemo } from 'react';
 
-import { UserStats, WorkerStats } from '@prisma/client';
+import { UserStats } from '../lib/entities/UserStats';
+import { WorkerStats } from '../lib/entities/WorkerStats';
 import {
   LineChart,
   Line,

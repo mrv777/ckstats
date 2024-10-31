@@ -4,31 +4,36 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && prisma migrate deploy && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "postinstall": "prisma generate",
     "prisma:generate": "pnpx prisma generate",
     "prisma:migrate": "pnpx prisma migrate dev",
-    "seed": "node scripts/seed.js",
+    "seed": "ts-node -P tsconfig.scripts.json scripts/seed.ts",
     "update-stats": "ts-node scripts/updateStats.ts",
-    "update-users": "node scripts/updateUsers.js",
-    "cleanup": "node scripts/cleanOldStats.js",
+    "update-users": "ts-node scripts/updateUsers.ts",
+    "cleanup": "ts-node scripts/cleanOldStats.ts",
     "vacuum": "prisma db execute --stdin < scripts/vacuum.sql",
     "test": "jest",
     "test:watch": "jest --watch",
-    "load-test": "next lint --fix && next build && clinic doctor --on-port 'autocannon -c 200 -d 10 localhost:$PORT' -- node ./node_modules/next/dist/bin/next start"
+    "load-test": "next lint --fix && next build && clinic doctor --on-port 'autocannon -c 200 -d 10 localhost:$PORT' -- node ./node_modules/next/dist/bin/next start",
+    "typeorm": "typeorm-ts-node-commonjs",
+    "migration:generate": "npm run typeorm migration:generate -- -d ormconfig.ts",
+    "migration:run": "npm run typeorm migration:run -- -d ormconfig.ts",
+    "migration:revert": "npm run typeorm migration:revert -- -d ormconfig.ts"
   },
   "dependencies": {
-    "@prisma/client": "^5.21.1",
     "@tanstack/react-query": "^5.59.0",
     "bitcoinjs-lib": "^6.1.6",
     "daisyui": "^4.12.10",
     "next": "14.2.16",
+    "pg": "^8.11.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "recharts": "^2.12.7"
+    "recharts": "^2.12.7",
+    "reflect-metadata": "^0.2.1",
+    "typeorm": "^0.3.20"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.5.0",
@@ -52,10 +57,9 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8.4.47",
-    "prisma": "^5.21.1",
     "tailwindcss": "^3.4.13",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.2"
+    "@types/pg": "^8.11.2"
   }
 }

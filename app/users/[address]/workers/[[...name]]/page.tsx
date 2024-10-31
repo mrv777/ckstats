@@ -10,6 +10,7 @@ import {
   formatNumber,
   calculatePercentageChange,
   getPercentageChangeColor,
+  serializeData,
 } from '../../../../../utils/helpers';
 
 export default async function WorkerPage({
@@ -18,12 +19,13 @@ export default async function WorkerPage({
   params: { address: string; name?: string[] };
 }) {
   const decodedName = params.name ? decodeURIComponent(params.name[0]) : '';
-  const worker = await getWorkerWithStats(params.address, decodedName);
+  const workerORM = await getWorkerWithStats(params.address, decodedName);
 
-  if (!worker) {
+  if (!workerORM) {
     notFound();
   }
 
+  const worker = serializeData(workerORM);
   const latestStats = worker.stats[0]; // Assuming stats are ordered by timestamp desc
 
   const renderPercentageChange = (key: string) => {

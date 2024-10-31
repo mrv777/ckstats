@@ -1,18 +1,34 @@
-import { PrismaClient } from '@prisma/client';
+import 'reflect-metadata';
+import { DataSource } from 'typeorm';
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
+import { PoolStats } from './entities/PoolStats';
+import { User } from './entities/User';
+import { UserStats } from './entities/UserStats';
+import { Worker } from './entities/Worker';
+import { WorkerStats } from './entities/WorkerStats';
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log:
-      process.env.NODE_ENV === 'development'
-        ? ['query', 'error', 'warn']
-        : ['error'],
-  });
+const AppDataSource = new DataSource({
+  type: 'postgres',
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || '5432'),
+  username: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD || 'password',
+  database: process.env.DB_NAME || 'postgres',
+  entities: [PoolStats, User, UserStats, Worker, WorkerStats],
+  logging: process.env.NODE_ENV === 'development',
+  ssl: {
+    rejectUnauthorized: false,
+  },
+});
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+let initialized = false;
 
-export default prisma;
+export async function getDb() {
+  if (!initialized) {
+    await AppDataSource.initialize();
+    initialized = true;
+  }
+  return AppDataSource;
+}
+
+export default AppDataSource;

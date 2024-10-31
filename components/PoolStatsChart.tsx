@@ -14,10 +14,9 @@ import {
   Brush,
 } from 'recharts';
 
-import { PoolStatsType } from '../lib/api';
-
+import { PoolStats } from '../lib/entities/PoolStats';
 interface PoolStatsChartProps {
-  data: PoolStatsType[];
+  data: PoolStats[];
 }
 
 export default function PoolStatsChart({ data }: PoolStatsChartProps) {
