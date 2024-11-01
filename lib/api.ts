@@ -101,14 +101,29 @@ export async function getTopUserDifficulties(limit: number = 10) {
 
   const topUsers = await repository
     .createQueryBuilder('userStats')
-    .innerJoinAndSelect('userStats.user', 'user')
+    .innerJoin('userStats.user', 'user')
+    .select([
+      'userStats.id',
+      'userStats.userAddress',
+      'userStats.workerCount',
+      'userStats.bestEver',
+      'userStats.bestShare',
+      'userStats.hashrate1hr',
+      'userStats.hashrate1d',
+      'userStats.hashrate7d',
+      'userStats.timestamp'
+    ])
     .where('user.isPublic = :isPublic', { isPublic: true })
-    .orderBy('userStats.bestEver', 'DESC')
+    .distinctOn(['userStats.userAddress'])
+    .orderBy('userStats.userAddress', 'ASC')
     .addOrderBy('userStats.timestamp', 'DESC')
-    .take(limit)
     .getMany();
 
-  return topUsers.map((stats) => ({
+  const sortedUsers = topUsers
+    .sort((a, b) => Number(b.bestEver) - Number(a.bestEver))
+    .slice(0, limit);
+
+  return sortedUsers.map((stats) => ({
     address: stats.userAddress,
     workerCount: stats.workerCount,
     difficulty: stats.bestEver.toString(),
@@ -126,9 +141,22 @@ export async function getTopUserHashrates(limit: number = 10) {
   const topUsers = await repository
     .createQueryBuilder('userStats')
     .innerJoinAndSelect('userStats.user', 'user')
+    .select([
+      'userStats.id',
+      'userStats.userAddress',
+      'userStats.workerCount',
+      'userStats.hashrate1hr',
+      'userStats.hashrate1d',
+      'userStats.hashrate7d',
+      'userStats.bestShare',
+      'userStats.bestEver',
+      'userStats.timestamp'
+    ])
     .where('user.isPublic = :isPublic', { isPublic: true })
-    .orderBy('userStats.hashrate1hr', 'DESC')
+    .distinctOn(['userStats.userAddress', 'userStats.timestamp'])
+    .orderBy('userStats.userAddress', 'ASC')
     .addOrderBy('userStats.timestamp', 'DESC')
+    .addOrderBy('userStats.hashrate1hr', 'DESC')
     .take(limit)
     .getMany();
 

@@ -27,7 +27,6 @@ export default function PoolStatsDisplay({
 }: PoolStatsDisplayProps) {
   // Helper function to format values
   const formatValue = (key: string, value: any): string => {
-    console.log(key, value);
     if (key.startsWith('hashrate')) {
       return formatHashrate(value);
     } else if (key === 'diff') {
