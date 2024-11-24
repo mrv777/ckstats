@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { getDb } from '../lib/db';
 import { PoolStats } from '../lib/entities/PoolStats';
 
