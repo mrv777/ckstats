@@ -138,6 +138,7 @@ export async function getTopUserHashrates(limit: number = 10) {
   const db = await getDb();
   const repository = db.getRepository(UserStats);
 
+  // First get the latest stats for each user
   const topUsers = await repository
     .createQueryBuilder('userStats')
     .innerJoinAndSelect('userStats.user', 'user')
@@ -153,14 +154,18 @@ export async function getTopUserHashrates(limit: number = 10) {
       'userStats.timestamp'
     ])
     .where('user.isPublic = :isPublic', { isPublic: true })
-    .distinctOn(['userStats.userAddress', 'userStats.timestamp'])
+    .andWhere('user.isActive = :isActive', { isActive: true })
+    .distinctOn(['userStats.userAddress'])
     .orderBy('userStats.userAddress', 'ASC')
     .addOrderBy('userStats.timestamp', 'DESC')
-    .addOrderBy('userStats.hashrate1hr', 'DESC')
-    .take(limit)
     .getMany();
 
-  return topUsers.map((stats) => ({
+  // Then sort by hashrate and take the top N
+  const sortedUsers = topUsers
+    .sort((a, b) => Number(b.hashrate1hr) - Number(a.hashrate1hr))
+    .slice(0, limit);
+
+  return sortedUsers.map((stats) => ({
     address: stats.userAddress,
     workerCount: stats.workerCount,
     hashrate1hr: stats.hashrate1hr.toString(),
