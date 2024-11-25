@@ -11,7 +11,7 @@
     "seed": "ts-node -P tsconfig.scripts.json scripts/seed.ts",
     "update-users": "ts-node -P tsconfig.scripts.json scripts/updateUsers.ts",
     "cleanup": "ts-node -P tsconfig.scripts.json scripts/cleanOldStats.ts",
-    "vacuum": "prisma db execute --stdin < scripts/vacuum.sql",
+    "vacuum": "PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f scripts/vacuum.sql",
     "test": "jest",
     "test:watch": "jest --watch",
     "load-test": "next lint --fix && next build && clinic doctor --on-port 'autocannon -c 200 -d 10 localhost:$PORT' -- node ./node_modules/next/dist/bin/next start",
