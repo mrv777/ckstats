@@ -14,37 +14,26 @@ This project displays real-time and historical statistics for the CKPool Bitcoin
 - Tailwind CSS
 - daisyUI
 - Recharts
-
+- TypeORM
 ## Getting Started
 
 1. Clone the repository
 2. Install dependencies: `pnpm install`
 3. Set up the environment variables in `.env`
-4. Run database migrations: `pnpm prisma:migrate`
+4. Run database migrations: `pnpm migration:run`
 5. Seed the database: `pnpm seed`
 6. Start the development server: `pnpm dev`
 
 ## Set up the environment variables in `.env`:
    ```
-   DATABASE_URL="postgresql://username:password@server:port/your_database_name"
-   SHADOW_DATABASE_URL="postgresql://username:password@server:port/your_shadow_database_name"
    API_URL="https://solo.ckpool.org"
+   DB_HOST="server"
+   DB_PORT="port"
+   DB_USER="username"
+   DB_PASSWORD="password"
+   DB_NAME="database"
    ```
-   Replace `username`, `password`, `server`, `port`, `your_database_name`, and `your_shadow_database_name` with your actual PostgreSQL credentials, server details, and database names.
-
-   ### About the Shadow Database
-   The shadow database is used by Prisma for database migrations in environments where creating tables or modifying the schema of the main database is not possible during development. It's a temporary database that mimics your main database structure.
-
-   ### If you don't want to use two databases:
-   If you're working in a development environment or have full control over your database, you can use the same database for both `DATABASE_URL` and `SHADOW_DATABASE_URL`. In this case, your `.env` file would look like this:
-
-   ```
-   DATABASE_URL="postgresql://username:password@server:port/your_database_name"
-   SHADOW_DATABASE_URL="postgresql://username:password@server:port/your_database_name"
-   API_URL="https://solo.ckpool.org"
-   ```
-
-   This configuration uses the same database for both the main application and Prisma migrations.
+   Replace `username`, `password`, `server`, `port`, `database` with your actual PostgreSQL credentials, server details, and database names.
 
 ## Deployment
 
@@ -83,8 +72,6 @@ This project displays real-time and historical statistics for the CKPool Bitcoin
 - `pnpm start`: Start the production server
 - `pnpm lint`: Run ESLint
 - `pnpm lint:fix`: Run ESLint and fix issues
-- `pnpm prisma:generate`: Generate Prisma client
-- `pnpm prisma:migrate`: Run database migrations
 - `pnpm seed`: Save/Update pool stats to database
 - `pnpm update-stats`: Update pool statistics #Currently not used
 - `pnpm update-users`: Update user and worker information
@@ -92,6 +79,8 @@ This project displays real-time and historical statistics for the CKPool Bitcoin
 - `pnpm vacuum`: Optimize the SQLite database
 - `pnpm test`: Run tests
 - `pnpm test:watch`: Run tests in watch mode
+- `pnpm migration:run`: Run TypeORM database migrations
+- `pnpm migration:run:skip`: Run TypeORM database migrations skipping the initial migration
 
 ## License
 

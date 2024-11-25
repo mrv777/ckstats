@@ -11,7 +11,7 @@ export class PoolStats {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   @Index()
   timestamp: Date;
 

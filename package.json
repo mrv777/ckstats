@@ -15,10 +15,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "load-test": "next lint --fix && next build && clinic doctor --on-port 'autocannon -c 200 -d 10 localhost:$PORT' -- node ./node_modules/next/dist/bin/next start",
-    "typeorm": "typeorm-ts-node-commonjs",
-    "migration:generate": "npm run typeorm migration:generate -- -d ormconfig.ts",
-    "migration:run": "npm run typeorm migration:run -- -d ormconfig.ts",
-    "migration:revert": "npm run typeorm migration:revert -- -d ormconfig.ts"
+    "migration:run": "ts-node -P tsconfig.scripts.json ./scripts/migration.ts",
+    "migration:run:skip": "ts-node -P tsconfig.scripts.json ./scripts/migration.ts --skip-initial"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.59.0",

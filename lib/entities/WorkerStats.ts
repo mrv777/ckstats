@@ -46,7 +46,7 @@ export class WorkerStats {
   @Column('bigint', { default: '0' })
   bestEver: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   @Index()
   timestamp: Date;
 }

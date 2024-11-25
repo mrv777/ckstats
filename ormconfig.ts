@@ -12,6 +12,9 @@ const config: DataSourceOptions = {
   migrations: ['migrations/*.ts'],
   synchronize: process.env.NODE_ENV !== 'production',
   logging: process.env.NODE_ENV === 'development',
+  ssl: {
+    rejectUnauthorized: false
+  },
 };
 
 export default config; 

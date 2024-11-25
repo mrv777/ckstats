@@ -55,7 +55,7 @@ export class UserStats {
   @Column('bigint', { default: '0' })
   bestEver: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   @Index('timestamp_idx')
   @Index('userAddress_timestamp_idx')
   @Index('userAddress_bestEver_timestamp_idx')
