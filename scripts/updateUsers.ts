@@ -49,7 +49,7 @@ async function updateUser(address: string): Promise<void> {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    const userData: UserData = await response.json();
+    const userData = await response.json() as UserData;
     
     await db.transaction(async (manager) => {
       // Update or create user
