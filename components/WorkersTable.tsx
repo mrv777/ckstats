@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react';
 
-import { Worker } from '../lib/entities/Worker';
 import Link from 'next/link';
 
+import { Worker } from '../lib/entities/Worker';
 import { formatHashrate, formatNumber, formatTimeAgo } from '../utils/helpers';
 
 interface WorkersTableProps {
@@ -105,10 +105,14 @@ const WorkersTable: React.FC<WorkersTableProps> = ({ workers, address }) => {
                 >
                   {formatHashrate(worker.hashrate5m)}
                 </td>
-                <td className={`${Number(worker.hashrate1hr) < 1 ? 'text-error' : ''}`}>
+                <td
+                  className={`${Number(worker.hashrate1hr) < 1 ? 'text-error' : ''}`}
+                >
                   {formatHashrate(worker.hashrate1hr)}
                 </td>
-                <td className={`${Number(worker.hashrate1d) < 1 ? 'text-error' : ''}`}>
+                <td
+                  className={`${Number(worker.hashrate1d) < 1 ? 'text-error' : ''}`}
+                >
                   {formatHashrate(worker.hashrate1d)}
                 </td>
                 <td>{formatNumber(worker.bestShare)}</td>

@@ -111,7 +111,7 @@ export async function getTopUserDifficulties(limit: number = 10) {
       'userStats.hashrate1hr',
       'userStats.hashrate1d',
       'userStats.hashrate7d',
-      'userStats.timestamp'
+      'userStats.timestamp',
     ])
     .where('user.isPublic = :isPublic', { isPublic: true })
     .distinctOn(['userStats.userAddress'])
@@ -151,7 +151,7 @@ export async function getTopUserHashrates(limit: number = 10) {
       'userStats.hashrate7d',
       'userStats.bestShare',
       'userStats.bestEver',
-      'userStats.timestamp'
+      'userStats.timestamp',
     ])
     .where('user.isPublic = :isPublic', { isPublic: true })
     .andWhere('user.isActive = :isActive', { isActive: true })
@@ -227,7 +227,7 @@ export async function updateSingleUser(address: string): Promise<void> {
         workerCount: userData.workers,
         shares: BigInt(userData.shares).toString(),
         bestShare: parseFloat(userData.bestshare),
-        bestEver: BigInt(userData.bestever).toString()
+        bestEver: BigInt(userData.bestever).toString(),
       });
       await userStatsRepository.save(userStats);
 
@@ -244,7 +244,9 @@ export async function updateSingleUser(address: string): Promise<void> {
         if (worker) {
           worker.hashrate1m = convertHashrate(workerData.hashrate1m).toString();
           worker.hashrate5m = convertHashrate(workerData.hashrate5m).toString();
-          worker.hashrate1hr = convertHashrate(workerData.hashrate1hr).toString();
+          worker.hashrate1hr = convertHashrate(
+            workerData.hashrate1hr
+          ).toString();
           worker.hashrate1d = convertHashrate(workerData.hashrate1d).toString();
           worker.hashrate7d = convertHashrate(workerData.hashrate7d).toString();
           worker.lastUpdate = new Date(workerData.lastshare * 1000);

@@ -2,8 +2,6 @@
 
 import React, { useState, useMemo } from 'react';
 
-import { UserStats } from '../lib/entities/UserStats';
-import { WorkerStats } from '../lib/entities/WorkerStats';
 import {
   LineChart,
   Line,
@@ -15,6 +13,9 @@ import {
   LegendType,
   Brush,
 } from 'recharts';
+
+import { UserStats } from '../lib/entities/UserStats';
+import { WorkerStats } from '../lib/entities/WorkerStats';
 
 // Add this function at the top of the file, outside the component
 function getHashrateUnit(maxHashrate: number): [string, number] {
