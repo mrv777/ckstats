@@ -30,13 +30,18 @@ const WorkersTable: React.FC<WorkersTableProps> = ({ workers, address }) => {
 
   const sortedWorkers = [...workers].sort((a, b) => {
     if (sortField) {
-      const numericFields = ['hashrate5m', 'hashrate1hr', 'hashrate1d', 'bestEver'];
+      const numericFields = [
+        'hashrate5m',
+        'hashrate1hr',
+        'hashrate1d',
+        'bestEver',
+      ];
       if (numericFields.includes(sortField)) {
         const aVal = BigInt(a[sortField] || 0);
         const bVal = BigInt(b[sortField] || 0);
         return sortOrder === 'asc' ? Number(aVal - bVal) : Number(bVal - aVal);
       }
-      
+
       if (a[sortField] < b[sortField]) return sortOrder === 'asc' ? -1 : 1;
       if (a[sortField] > b[sortField]) return sortOrder === 'asc' ? 1 : -1;
     }
