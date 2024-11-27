@@ -213,6 +213,7 @@ export async function updateSingleUser(address: string): Promise<void> {
           address,
           authorised: userData.authorised,
           isActive: true,
+          updatedAt: new Date(),
         });
       }
 
@@ -269,6 +270,7 @@ export async function updateSingleUser(address: string): Promise<void> {
             shares: workerData.shares,
             bestShare: parseFloat(workerData.bestshare),
             bestEver: BigInt(workerData.bestever).toString(),
+            updatedAt: new Date(),
           });
         }
       }
