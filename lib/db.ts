@@ -22,13 +22,19 @@ const AppDataSource = new DataSource({
 });
 
 let initialized = false;
+let connectionPromise: Promise<DataSource> | null = null;
 
 export async function getDb() {
-  if (!initialized) {
-    await AppDataSource.initialize();
-    initialized = true;
+  if (!connectionPromise) {
+    connectionPromise = AppDataSource.initialize().then(connection => {
+      initialized = true;
+      return connection;
+    }).catch(error => {
+      connectionPromise = null;
+      throw error;
+    });
   }
-  return AppDataSource;
+  return connectionPromise;
 }
 
 export default AppDataSource;
