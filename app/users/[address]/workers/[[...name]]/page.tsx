@@ -28,6 +28,10 @@ export default async function WorkerPage({
   const worker = serializeData(workerORM);
   const latestStats = worker.stats[0]; // Assuming stats are ordered by timestamp desc
 
+  if (!latestStats) {
+    notFound();
+  }
+
   const renderPercentageChange = (key: string) => {
     if (worker.stats.length < 120) return 'N/A';
 

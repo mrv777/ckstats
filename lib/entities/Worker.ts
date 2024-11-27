@@ -22,10 +22,10 @@ export class Worker {
   @Column({ default: '' })
   name: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
   @Column('bigint', { default: () => '0' })

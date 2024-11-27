@@ -17,10 +17,10 @@ export class User {
   @Index('User_address_key', { unique: true })
   address: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
   @Column('bigint', { default: '0' })
