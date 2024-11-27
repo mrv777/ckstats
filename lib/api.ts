@@ -5,7 +5,7 @@ import { UserStats } from './entities/UserStats';
 import { Worker } from './entities/Worker';
 import { convertHashrate } from '../utils/helpers';
 
-const HISTORICAL_DATA_POINTS = 2880;
+const HISTORICAL_DATA_POINTS = 7200;
 
 export type PoolStatsInput = Omit<PoolStats, 'id' | 'timestamp'>;
 
@@ -192,6 +192,8 @@ export async function updateSingleUser(address: string): Promise<void> {
 
   try {
     const response = await fetch(`${apiUrl}/users/${address}`);
+    console.log('API URL:', `${apiUrl}/users/${address}`);
+    console.log('Response:', response);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
