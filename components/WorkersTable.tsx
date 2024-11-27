@@ -37,8 +37,8 @@ const WorkersTable: React.FC<WorkersTableProps> = ({ workers, address }) => {
         'bestEver',
       ];
       if (numericFields.includes(sortField)) {
-        const aVal = BigInt(a[sortField] || 0);
-        const bVal = BigInt(b[sortField] || 0);
+        const aVal = BigInt(Number(a[sortField]) || 0);
+        const bVal = BigInt(Number(b[sortField]) || 0);
         return sortOrder === 'asc' ? Number(aVal - bVal) : Number(bVal - aVal);
       }
 
