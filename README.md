@@ -7,6 +7,7 @@ This project displays real-time and historical statistics for the CKPool Bitcoin
 - Real-time pool statistics
 - Historical data chart
 - Responsive design with themed display
+- User and worker information
 
 ## Technologies Used
 
@@ -15,16 +16,15 @@ This project displays real-time and historical statistics for the CKPool Bitcoin
 - daisyUI
 - Recharts
 - TypeORM
-## Getting Started
 
-1. Clone the repository
-2. Install dependencies: `pnpm install`
-3. Set up the environment variables in `.env`
-4. Run database migrations: `pnpm migration:run`
-5. Seed the database: `pnpm seed`
-6. Start the development server: `pnpm dev`
+## Deployment
 
-## Set up the environment variables in `.env`:
+1. Clone the repository (git clone https://github.com/mrv777/ckstats.git)
+2. Install pnpm: `curl -fsSL https://get.pnpm.io/install.sh | bash`
+3. Install packages if needed: `sudo apt install postgresql postgresql-contrib nodejs nginx`
+4. Go to the directory: `cd ckstats`
+5. Set up the environment variables in `.env`
+  - Example:
    ```
    API_URL="https://solo.ckpool.org"
    DB_HOST="server"
@@ -34,35 +34,22 @@ This project displays real-time and historical statistics for the CKPool Bitcoin
    DB_NAME="database"
    ```
    Replace `username`, `password`, `server`, `port`, `database` with your actual PostgreSQL credentials, server details, and database names.
-
-## Deployment
-
-1. Clone the repository (git clone https://github.com/mrv777/ckstats.git)
-2. Install pnpm: `curl -fsSL https://get.pnpm.io/install.sh | bash`
-3. Install packages if needed: `sudo apt install postgresql postgresql-contrib nodejs nginx`
-2. Go to the directory: `cd ckstats`
-3. Install dependencies: `pnpm install`
-4. Set up the environment variables in `.env`
-  - Example:
-  ```
-   DATABASE_URL="postgres://postgres:password@localhost:5432/postgres"
-   SHADOW_DATABASE_URL="postgres://postgres:password@localhost:5432/postgres"
-   API_URL=https://solo.ckpool.org
-  ```
-7. Build the application: `pnpm build`
-8. Start the production server: `pnpm start`
-9. Set up cronjobs for regular updates:
+6. Install dependencies: `pnpm install`
+7. Run database migrations: `pnpm migration:run`
+8. Seed the database and test the connection: `pnpm seed`
+9. Build the application: `pnpm build`
+10. Start the production server: `pnpm start`
+11. Set up cronjobs for regular updates:
    - Open the crontab editor: `crontab -e`
-   - Add the following lines (for example, every 1 minute updates with old data cleanup every 12 hours and vacuum every day at 01:05):
+   - Add lines to run the scripts.  Example:
      ```
      */1 * * * * cd /path/to/your/project && /usr/local/bin/pnpm seed
      */1 * * * * cd /path/to/your/project && /usr/local/bin/pnpm update-users
      5 */2 * * * cd /path/to/your/project && /usr/local/bin/pnpm cleanup
-     5 1 * * * cd /path/to/your/project && /usr/local/bin/pnpm vacuum
      ```
    - Save and exit the editor
    
-   These cronjobs will run the `seed` and `update-users` scripts every 10 minutes to populate the database and clean up old statistics every 12 hours.
+   These cronjobs will run the `seed` and `update-users` scripts every 1 minute to populate the database and clean up old statistics every 2 hours.
 
 
 ## Scripts
@@ -76,7 +63,6 @@ This project displays real-time and historical statistics for the CKPool Bitcoin
 - `pnpm update-stats`: Update pool statistics #Currently not used
 - `pnpm update-users`: Update user and worker information
 - `pnpm cleanup`: Clean up old statistics
-- `pnpm vacuum`: Optimize the SQLite database
 - `pnpm test`: Run tests
 - `pnpm test:watch`: Run tests in watch mode
 - `pnpm migration:run`: Run TypeORM database migrations
