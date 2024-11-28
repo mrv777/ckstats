@@ -34,6 +34,7 @@ This project displays real-time and historical statistics for the CKPool Bitcoin
    DB_NAME="database"
    ```
    Replace `username`, `password`, `server`, `port`, `database` with your actual PostgreSQL credentials, server details, and database names.
+   
 6. Install dependencies: `pnpm install`
 7. Run database migrations: `pnpm migration:run`
 8. Seed the database and test the connection: `pnpm seed`
