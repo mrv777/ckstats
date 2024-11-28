@@ -6,7 +6,7 @@ import { UserStats } from '../lib/entities/UserStats';
 import { Worker } from '../lib/entities/Worker';
 import { convertHashrate } from '../utils/helpers';
 
-// const BATCH_SIZE = 10;
+const BATCH_SIZE = 5;
 // const INACTIVE_THRESHOLD = 24 * 60 * 60 * 1000; // 24 hours
 
 interface WorkerData {
@@ -158,22 +158,30 @@ async function main() {
     const db = await getDb();
     const userRepository = db.getRepository(User);
 
-      const users = await userRepository.find({
-        where: { isActive: true },
-        order: { address: 'ASC' },
-      });
+    const users = await userRepository.find({
+      where: { isActive: true },
+      order: { address: 'ASC' },
+    });
 
-      if (users.length === 0) {
-        console.log('No active users found');
-      }
+    if (users.length === 0) {
+      console.log('No active users found');
+    }
 
-      for (const user of users) {
-        try {
-          await updateUser(user.address);
-        } catch (error) {
-          console.error(`Failed to update user ${user.address}:`, error);
-        }
-      }
+    // Process users in batches
+    for (let i = 0; i < users.length; i += BATCH_SIZE) {
+      const batch = users.slice(i, i + BATCH_SIZE);
+      console.log(`Processing batch ${i / BATCH_SIZE + 1} of ${Math.ceil(users.length / BATCH_SIZE)}`);
+      
+      await Promise.all(
+        batch.map(async (user) => {
+          try {
+            await updateUser(user.address);
+          } catch (error) {
+            console.error(`Failed to update user ${user.address}:`, error);
+          }
+        })
+      );
+    }
 
     // await updateInactiveUsers();
 
