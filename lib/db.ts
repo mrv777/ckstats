@@ -19,6 +19,12 @@ const AppDataSource = new DataSource({
   ssl: {
     rejectUnauthorized: false,
   },
+  extra: {
+    max: 10,
+    min: 2,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000,
+  },
 });
 
 let connectionPromise: Promise<DataSource> | null = null;
@@ -30,11 +36,23 @@ export async function getDb() {
         return connection;
       })
       .catch((error) => {
+        console.error('Database connection error:', error);
         connectionPromise = null;
         throw error;
       });
   }
-  return connectionPromise;
+
+  try {
+    const connection = await connectionPromise;
+    if (!connection.isInitialized) {
+      connectionPromise = null;
+      return getDb();
+    }
+    return connection;
+  } catch (error) {
+    connectionPromise = null;
+    throw error;
+  }
 }
 
 export default AppDataSource;
