@@ -4,9 +4,10 @@ import { getDb } from '../lib/db';
 import { User } from '../lib/entities/User';
 import { UserStats } from '../lib/entities/UserStats';
 import { Worker } from '../lib/entities/Worker';
+import { WorkerStats } from '../lib/entities/WorkerStats';
 import { convertHashrate } from '../utils/helpers';
 
-const BATCH_SIZE = 5;
+const BATCH_SIZE = 10;
 // const INACTIVE_THRESHOLD = 24 * 60 * 60 * 1000; // 24 hours
 
 interface WorkerData {
@@ -87,6 +88,8 @@ async function updateUser(address: string): Promise<void> {
 
       // Update or create workers
       const workerRepository = manager.getRepository(Worker);
+      const workerStatsRepository = manager.getRepository(WorkerStats);
+      
       for (const workerData of userData.worker) {
         const workerName = workerData.workername.split('.')[1];
         const worker = await workerRepository.findOne({
@@ -108,17 +111,34 @@ async function updateUser(address: string): Promise<void> {
           bestEver: BigInt(workerData.bestever).toString(),
         };
 
+        let workerId: number;
         if (worker) {
           Object.assign(worker, workerValues);
-          await workerRepository.save(worker);
+          const savedWorker = await workerRepository.save(worker);
+          workerId = savedWorker.id;
         } else {
-          await workerRepository.insert({
+          const newWorker = await workerRepository.save({
             userAddress: address,
             name: workerName,
             updatedAt: new Date().toISOString(),
             ...workerValues,
           });
+          workerId = newWorker.id;
         }
+
+        // Create a new WorkerStats entry
+        const workerStats = workerStatsRepository.create({
+          workerId,
+          hashrate1m: workerValues.hashrate1m,
+          hashrate5m: workerValues.hashrate5m,
+          hashrate1hr: workerValues.hashrate1hr,
+          hashrate1d: workerValues.hashrate1d,
+          hashrate7d: workerValues.hashrate7d,
+          shares: workerValues.shares,
+          bestShare: workerValues.bestShare,
+          bestEver: workerValues.bestEver
+        });
+        await workerStatsRepository.save(workerStats);
       }
     });
 
