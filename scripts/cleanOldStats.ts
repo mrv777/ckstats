@@ -15,6 +15,9 @@ async function cleanOldStats() {
   const threeDaysAgo = new Date();
   threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
+  const oneDayAgo = new Date();
+  oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
   try {
     const db = await getDb();
 
@@ -26,13 +29,13 @@ async function cleanOldStats() {
 
     // Delete old user stats
     const userStatsResult = await db.getRepository(UserStats).delete({
-      timestamp: LessThan(fiveDaysAgo)
+      timestamp: LessThan(threeDaysAgo)
     });
     console.log(`Deleted ${userStatsResult.affected || 0} old user stats`);
 
     // Delete old worker stats
     const workerStatsResult = await db.getRepository(WorkerStats).delete({
-      timestamp: LessThan(threeDaysAgo)
+      timestamp: LessThan(oneDayAgo)
     });
     console.log(`Deleted ${workerStatsResult.affected || 0} old worker stats`);
 
