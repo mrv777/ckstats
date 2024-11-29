@@ -5,7 +5,7 @@ import { UserStats } from './entities/UserStats';
 import { Worker } from './entities/Worker';
 import { convertHashrate } from '../utils/helpers';
 
-const HISTORICAL_DATA_POINTS = 7200;
+const HISTORICAL_DATA_POINTS = 5760;
 
 export type PoolStatsInput = Omit<PoolStats, 'id' | 'timestamp'>;
 
