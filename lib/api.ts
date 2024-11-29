@@ -44,6 +44,7 @@ export async function getUserWithWorkersAndStats(address: string) {
       workers: true,
       stats: true,
     },
+    relationLoadStrategy: 'query',
     order: {
       workers: {
         hashrate5m: 'DESC',
@@ -87,6 +88,7 @@ export async function getWorkerWithStats(
     relations: {
       stats: true,
     },
+    relationLoadStrategy: 'query',
     order: {
       stats: {
         timestamp: 'DESC',
