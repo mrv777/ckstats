@@ -45,17 +45,15 @@ export async function getUserWithWorkersAndStats(address: string) {
       stats: true,
     },
     relationLoadStrategy: 'query',
-    order: {
-      workers: {
-        hashrate5m: 'DESC',
-      },
-      stats: {
-        timestamp: 'DESC',
-      },
-    },
   });
 
   if (!user) return null;
+
+  // Sort workers by hashrate
+  user.workers.sort((a, b) => Number(b.hashrate5m) - Number(a.hashrate5m));
+
+  // Sort stats by timestamp and take the most recent
+  user.stats.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
   return {
     ...user,
@@ -80,7 +78,7 @@ export async function getWorkerWithStats(
   const db = await getDb();
   const repository = db.getRepository(Worker);
 
-  return repository.findOne({
+  const worker = await repository.findOne({
     where: {
       userAddress,
       name: workerName.trim(),
@@ -89,12 +87,14 @@ export async function getWorkerWithStats(
       stats: true,
     },
     relationLoadStrategy: 'query',
-    order: {
-      stats: {
-        timestamp: 'DESC',
-      },
-    },
   });
+
+  if (worker) {
+    // Sort stats by timestamp after loading
+    worker.stats.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  }
+
+  return worker;
 }
 
 export async function getTopUserDifficulties(limit: number = 10) {
@@ -215,7 +215,7 @@ export async function updateSingleUser(address: string): Promise<void> {
           address,
           authorised: userData.authorised,
           isActive: true,
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString(),
         });
       }
 
@@ -272,7 +272,7 @@ export async function updateSingleUser(address: string): Promise<void> {
             shares: workerData.shares,
             bestShare: parseFloat(workerData.bestshare),
             bestEver: BigInt(workerData.bestever).toString(),
-            updatedAt: new Date(),
+            updatedAt: new Date().toISOString(),
           });
         }
       }

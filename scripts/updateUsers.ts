@@ -64,7 +64,7 @@ async function updateUser(address: string): Promise<void> {
           address,
           authorised: userData.authorised.toString(),
           isActive: true,
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString()
         });
       }
 
@@ -115,7 +115,7 @@ async function updateUser(address: string): Promise<void> {
           await workerRepository.insert({
             userAddress: address,
             name: workerName,
-            updatedAt: new Date(),
+            updatedAt: new Date().toISOString(),
             ...workerValues,
           });
         }

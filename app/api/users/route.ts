@@ -54,7 +54,7 @@ export async function POST(request: Request) {
       address,
       isActive: true,
       isPublic: true,
-      updatedAt: new Date(),
+      updatedAt: new Date().toISOString(),
     });
 
     await userRepository.save(user);
