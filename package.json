@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "NODE_OPTIONS='--max-old-space-size=4096' next start",
+    "start": "NODE_OPTIONS='--max-old-space-size=6144' next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "seed": "ts-node -P tsconfig.scripts.json scripts/seed.ts",
