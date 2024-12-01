@@ -18,6 +18,7 @@ import {
   calculatePercentageChange,
   getPercentageChangeColor,
   calculateBlockChances,
+  serializeData,
 } from '../../../utils/helpers';
 
 export default async function UserPage({
@@ -25,15 +26,19 @@ export default async function UserPage({
 }: {
   params: { address: string };
 }) {
-  const [user, stats, historicalStats] = await Promise.all([
+  const [userORM, statsORM, historicalStatsORM] = await Promise.all([
     getUserWithWorkersAndStats(params.address),
     getLatestPoolStats(),
     getUserHistoricalStats(params.address),
   ]);
 
-  if (!user) {
+  if (!userORM) {
     notFound();
   }
+
+  const user = serializeData(userORM);
+  const stats = serializeData(statsORM);
+  const historicalStats = serializeData(historicalStatsORM);
 
   if (user.isActive === false) {
     return (

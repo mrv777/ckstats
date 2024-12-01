@@ -24,10 +24,10 @@ export default async function TopUserHashrates({
         <div className="card-body">
           <h2 className="card-title">
             {limit > SMALL_LIMIT ? (
-              `Top ${limit} User Hashrates`
+              `Top ${limit} Active User Hashrates`
             ) : (
               <Link href="/top-hashrates" className="link text-primary">
-                Top {limit} User Hashrates
+                Top {limit} Active User Hashrates
               </Link>
             )}
           </h2>

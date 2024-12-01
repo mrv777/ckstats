@@ -5,21 +5,25 @@ import PoolStatsDisplay from '../components/PoolStatsDisplay';
 import TopUserDifficulties from '../components/TopUserDifficulties';
 import TopUserHashrates from '../components/TopUserHashrates';
 import { getLatestPoolStats, getHistoricalPoolStats } from '../lib/api';
+import { serializeData } from '../utils/helpers';
 
 export default async function Home() {
   try {
-    const [latestStats, historicalStats] = await Promise.all([
+    const [latestStatsORM, historicalStatsORM] = await Promise.all([
       getLatestPoolStats(),
       getHistoricalPoolStats(),
     ]);
 
-    if (!latestStats) {
+    if (!latestStatsORM) {
       return (
         <main className="container mx-auto p-4">
           <p>No stats available at the moment. Please try again later.</p>
         </main>
       );
     }
+
+    const latestStats = serializeData(latestStatsORM);
+    const historicalStats = serializeData(historicalStatsORM);
 
     return (
       <main className="container mx-auto p-4">
