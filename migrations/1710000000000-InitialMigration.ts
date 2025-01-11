@@ -5,7 +5,7 @@ export class InitialMigration1710000000000 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
-            CREATE TABLE "pool_stats" (
+            CREATE TABLE "PoolStats" (
                 "id" SERIAL NOT NULL,
                 "timestamp" TIMESTAMP NOT NULL DEFAULT now(),
                 "runtime" integer NOT NULL,
@@ -24,70 +24,70 @@ export class InitialMigration1710000000000 implements MigrationInterface {
                 "accepted" bigint NOT NULL,
                 "rejected" bigint NOT NULL,
                 "bestshare" bigint NOT NULL,
-                "sps1m" double precision NOT NULL,
-                "sps5m" double precision NOT NULL,
-                "sps15m" double precision NOT NULL,
-                "sps1h" double precision NOT NULL,
-                CONSTRAINT "PK_pool_stats" PRIMARY KEY ("id")
+                "SPS1m" double precision NOT NULL,
+                "SPS5m" double precision NOT NULL,
+                "SPS15m" double precision NOT NULL,
+                "SPS1h" double precision NOT NULL,
+                CONSTRAINT "PK_PoolStats" PRIMARY KEY ("id")
             )
         `);
 
         await queryRunner.query(`
-            CREATE TABLE "user" (
+            CREATE TABLE "User" (
                 "address" character varying NOT NULL,
-                "created_at" TIMESTAMP NOT NULL DEFAULT now(),
-                "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
+                "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
+                "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
                 "authorised" bigint NOT NULL DEFAULT '0',
-                "is_active" boolean NOT NULL DEFAULT true,
-                "is_public" boolean NOT NULL DEFAULT true,
-                CONSTRAINT "PK_user" PRIMARY KEY ("address")
+                "isActive" boolean NOT NULL DEFAULT true,
+                "isPublic" boolean NOT NULL DEFAULT true,
+                CONSTRAINT "PK_User" PRIMARY KEY ("address")
             )
         `);
 
         await queryRunner.query(`
-            CREATE TABLE "user_stats" (
+            CREATE TABLE "UserStats" (
                 "id" SERIAL NOT NULL,
-                "user_address" character varying NOT NULL,
+                "userAddress" character varying NOT NULL,
                 "timestamp" TIMESTAMP NOT NULL DEFAULT now(),
                 "hashrate1m" bigint NOT NULL DEFAULT '0',
                 "hashrate5m" bigint NOT NULL DEFAULT '0',
                 "hashrate1hr" bigint NOT NULL DEFAULT '0',
                 "hashrate1d" bigint NOT NULL DEFAULT '0',
                 "hashrate7d" bigint NOT NULL DEFAULT '0',
-                "last_share" bigint NOT NULL DEFAULT '0',
-                "worker_count" integer NOT NULL DEFAULT 0,
+                "lastShare" bigint NOT NULL DEFAULT '0',
+                "workerCount" integer NOT NULL DEFAULT 0,
                 "shares" bigint NOT NULL DEFAULT '0',
-                "best_share" double precision NOT NULL DEFAULT 0,
-                "best_ever" bigint NOT NULL DEFAULT '0',
-                CONSTRAINT "PK_user_stats" PRIMARY KEY ("id")
+                "bestShare" double precision NOT NULL DEFAULT 0,
+                "bestEver" bigint NOT NULL DEFAULT '0',
+                CONSTRAINT "PK_UserStats" PRIMARY KEY ("id")
             )
         `);
 
         await queryRunner.query(`
-            CREATE TABLE "worker" (
+            CREATE TABLE "Worker" (
                 "id" SERIAL NOT NULL,
                 "name" character varying NOT NULL DEFAULT '',
-                "created_at" TIMESTAMP NOT NULL DEFAULT now(),
-                "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
+                "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
+                "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
                 "hashrate1m" bigint NOT NULL DEFAULT '0',
                 "hashrate5m" bigint NOT NULL DEFAULT '0',
                 "hashrate1hr" bigint NOT NULL DEFAULT '0',
                 "hashrate1d" bigint NOT NULL DEFAULT '0',
                 "hashrate7d" bigint NOT NULL DEFAULT '0',
-                "last_update" TIMESTAMP NOT NULL DEFAULT now(),
+                "lastUpdate" TIMESTAMP NOT NULL DEFAULT now(),
                 "shares" bigint NOT NULL DEFAULT '0',
-                "best_share" double precision NOT NULL DEFAULT 0,
-                "best_ever" bigint NOT NULL DEFAULT '0',
-                "user_address" character varying NOT NULL,
-                CONSTRAINT "PK_worker" PRIMARY KEY ("id"),
-                CONSTRAINT "UQ_worker_user_name" UNIQUE ("user_address", "name")
+                "bestShare" double precision NOT NULL DEFAULT 0,
+                "bestEver" bigint NOT NULL DEFAULT '0',
+                "userAddress" character varying NOT NULL,
+                CONSTRAINT "PK_Worker" PRIMARY KEY ("id"),
+                CONSTRAINT "UQ_Worker_User_Name" UNIQUE ("userAddress", "name")
             )
         `);
 
         await queryRunner.query(`
-            CREATE TABLE "worker_stats" (
+            CREATE TABLE "WorkerStats" (
                 "id" SERIAL NOT NULL,
-                "worker_id" integer NOT NULL,
+                "workerId" integer NOT NULL,
                 "timestamp" TIMESTAMP NOT NULL DEFAULT now(),
                 "hashrate1m" bigint NOT NULL DEFAULT '0',
                 "hashrate5m" bigint NOT NULL DEFAULT '0',
@@ -95,65 +95,79 @@ export class InitialMigration1710000000000 implements MigrationInterface {
                 "hashrate1d" bigint NOT NULL DEFAULT '0',
                 "hashrate7d" bigint NOT NULL DEFAULT '0',
                 "shares" bigint NOT NULL DEFAULT '0',
-                "best_share" double precision NOT NULL DEFAULT 0,
-                "best_ever" bigint NOT NULL DEFAULT '0',
-                CONSTRAINT "PK_worker_stats" PRIMARY KEY ("id")
+                "bestShare" double precision NOT NULL DEFAULT 0,
+                "bestEver" bigint NOT NULL DEFAULT '0',
+                CONSTRAINT "PK_WorkerStats" PRIMARY KEY ("id")
             )
         `);
 
         // Add foreign key constraints
         await queryRunner.query(`
-            ALTER TABLE "user_stats"
-            ADD CONSTRAINT "FK_user_stats_user"
-            FOREIGN KEY ("user_address")
-            REFERENCES "user"("address")
+            ALTER TABLE "UserStats"
+            ADD CONSTRAINT "FK_UserStats_User"
+            FOREIGN KEY ("userAddress")
+            REFERENCES "User"("address")
             ON DELETE CASCADE
         `);
 
         await queryRunner.query(`
-            ALTER TABLE "worker"
-            ADD CONSTRAINT "FK_worker_user"
-            FOREIGN KEY ("user_address")
-            REFERENCES "user"("address")
+            ALTER TABLE "Worker"
+            ADD CONSTRAINT "FK_Worker_User"
+            FOREIGN KEY ("userAddress")
+            REFERENCES "User"("address")
             ON DELETE CASCADE
         `);
 
         await queryRunner.query(`
-            ALTER TABLE "worker_stats"
-            ADD CONSTRAINT "FK_worker_stats_worker"
-            FOREIGN KEY ("worker_id")
-            REFERENCES "worker"("id")
+            ALTER TABLE "WorkerStats"
+            ADD CONSTRAINT "FK_WorkerStats_Worker"
+            FOREIGN KEY ("workerId")
+            REFERENCES "Worker"("id")
             ON DELETE CASCADE
         `);
 
         // Create indexes
-        await queryRunner.query(`CREATE INDEX "IDX_pool_stats_timestamp" ON "pool_stats" ("timestamp")`);
-        await queryRunner.query(`CREATE INDEX "IDX_user_is_active" ON "user" ("is_active")`);
-        await queryRunner.query(`CREATE INDEX "IDX_user_is_public" ON "user" ("is_public")`);
-        await queryRunner.query(`CREATE INDEX "IDX_user_stats_timestamp" ON "user_stats" ("timestamp")`);
-        await queryRunner.query(`CREATE INDEX "IDX_user_stats_user_address" ON "user_stats" ("user_address")`);
-        await queryRunner.query(`CREATE INDEX "IDX_worker_stats_timestamp" ON "worker_stats" ("timestamp")`);
+        await queryRunner.query(`CREATE INDEX "IDX_PoolStats_Timestamp" ON "PoolStats" ("timestamp")`);
+        
+        await queryRunner.query(`CREATE INDEX "User_address_key" ON "User" ("address")`);
+        await queryRunner.query(`CREATE INDEX "User_isActive_idx" ON "User" ("isActive")`);
+        await queryRunner.query(`CREATE INDEX "User_isPublic_idx" ON "User" ("isPublic")`);
+        
+        await queryRunner.query(`CREATE INDEX "UserStats_timestamp_idx" ON "UserStats" ("timestamp")`);
+        await queryRunner.query(`CREATE INDEX "userAddress_timestamp_idx" ON "UserStats" ("userAddress", "timestamp")`);
+        await queryRunner.query(`CREATE INDEX "userAddress_bestEver_timestamp_idx" ON "UserStats" ("userAddress", "bestEver", "timestamp")`);
+        await queryRunner.query(`CREATE INDEX "userAddress_hashrate1hr_timestamp_idx" ON "UserStats" ("userAddress", "hashrate1hr", "timestamp")`);
+        
+        await queryRunner.query(`CREATE INDEX "WorkerStats_timestamp_idx" ON "WorkerStats" ("timestamp")`);
+        await queryRunner.query(`CREATE INDEX "WorkerStats_workerId_idx" ON "WorkerStats" ("workerId")`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
         // Drop indexes
-        await queryRunner.query(`DROP INDEX "IDX_worker_stats_timestamp"`);
-        await queryRunner.query(`DROP INDEX "IDX_user_stats_user_address"`);
-        await queryRunner.query(`DROP INDEX "IDX_user_stats_timestamp"`);
-        await queryRunner.query(`DROP INDEX "IDX_user_is_public"`);
-        await queryRunner.query(`DROP INDEX "IDX_user_is_active"`);
-        await queryRunner.query(`DROP INDEX "IDX_pool_stats_timestamp"`);
+        await queryRunner.query(`DROP INDEX "WorkerStats_workerId_idx"`);
+        await queryRunner.query(`DROP INDEX "WorkerStats_timestamp_idx"`);
+        
+        await queryRunner.query(`DROP INDEX "userAddress_hashrate1hr_timestamp_idx"`);
+        await queryRunner.query(`DROP INDEX "userAddress_bestEver_timestamp_idx"`);
+        await queryRunner.query(`DROP INDEX "userAddress_timestamp_idx"`);
+        await queryRunner.query(`DROP INDEX "UserStats_timestamp_idx"`);
+        
+        await queryRunner.query(`DROP INDEX "User_isPublic_idx"`);
+        await queryRunner.query(`DROP INDEX "User_isActive_idx"`);
+        await queryRunner.query(`DROP INDEX "User_address_key"`);
+        
+        await queryRunner.query(`DROP INDEX "IDX_PoolStats_Timestamp"`);
 
         // Drop foreign key constraints
-        await queryRunner.query(`ALTER TABLE "worker_stats" DROP CONSTRAINT "FK_worker_stats_worker"`);
-        await queryRunner.query(`ALTER TABLE "worker" DROP CONSTRAINT "FK_worker_user"`);
-        await queryRunner.query(`ALTER TABLE "user_stats" DROP CONSTRAINT "FK_user_stats_user"`);
+        await queryRunner.query(`ALTER TABLE "WorkerStats" DROP CONSTRAINT "FK_WorkerStats_Worker"`);
+        await queryRunner.query(`ALTER TABLE "Worker" DROP CONSTRAINT "FK_Worker_User"`);
+        await queryRunner.query(`ALTER TABLE "UserStats" DROP CONSTRAINT "FK_UserStats_User"`);
 
         // Drop tables
-        await queryRunner.query(`DROP TABLE "worker_stats"`);
-        await queryRunner.query(`DROP TABLE "worker"`);
-        await queryRunner.query(`DROP TABLE "user_stats"`);
-        await queryRunner.query(`DROP TABLE "user"`);
-        await queryRunner.query(`DROP TABLE "pool_stats"`);
+        await queryRunner.query(`DROP TABLE "WorkerStats"`);
+        await queryRunner.query(`DROP TABLE "Worker"`);
+        await queryRunner.query(`DROP TABLE "UserStats"`);
+        await queryRunner.query(`DROP TABLE "User"`);
+        await queryRunner.query(`DROP TABLE "PoolStats"`);
     }
 } 
