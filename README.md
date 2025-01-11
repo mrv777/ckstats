@@ -34,6 +34,7 @@ This project displays real-time and historical statistics for the CKPool Bitcoin
    DB_NAME="database"
    ```
    Replace `username`, `password`, `server`, `port`, `database` with your actual PostgreSQL credentials, server details, and database names.
+   You can also set the DB_SSL to true if you want to use SSL and set the DB_SSL_REJECT_UNAUTHORIZED to true if you want to reject untrusted SSL certificates (like self-signed certificates).
    
 6. Install dependencies: `pnpm install`
 7. Run database migrations: `pnpm migration:run`
