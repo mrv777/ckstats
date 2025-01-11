@@ -16,9 +16,12 @@ const AppDataSource = new DataSource({
   database: process.env.DB_NAME || 'postgres',
   entities: [PoolStats, User, UserStats, Worker, WorkerStats],
   logging: process.env.NODE_ENV === 'development',
-  ssl: process.env.DB_SSL === 'true' ? {
-    rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true',
-  } : false,
+  ssl:
+    process.env.DB_SSL === 'true'
+      ? {
+          rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true',
+        }
+      : false,
   extra: {
     max: 10,
     min: 2,
