@@ -2,14 +2,39 @@ import 'dotenv/config';
 import { getDb } from '../lib/db';
 import { PoolStats } from '../lib/entities/PoolStats';
 
-async function fetchPoolStats() {
+// Define an interface for the pool stats
+interface PoolStatsData {
+  runtime: string;
+  Users: string;
+  Workers: string;
+  Idle: string;
+  Disconnected: string;
+  hashrate1m: string;
+  hashrate5m: string;
+  hashrate15m: string;
+  hashrate1hr: string;
+  hashrate6hr: string;
+  hashrate1d: string;
+  hashrate7d: string;
+  diff: string;
+  accepted: string;
+  rejected: string;
+  bestshare: string;
+  SPS1m: string;
+  SPS5m: string;
+  SPS15m: string;
+  SPS1h: string;
+}
+
+// Using partial to allow for fields that may or may not be present but are not required
+async function fetchPoolStats(): Promise<Partial<PoolStatsData>> {
   console.log('Fetching pool stats...');
   const apiUrl = process.env.API_URL || 'https://solo.ckpool.org';
   const response = await fetch(`${apiUrl}/pool/pool.status`);
   const data = await response.text();
   const jsonLines = data.split('\n').filter(Boolean);
   const parsedData = jsonLines.reduce((acc, line) => ({ ...acc, ...JSON.parse(line) }), {});
-  return parsedData;
+  return parsedData as PoolStatsData;
 }
 
 // Function to convert hashrate with units to string
