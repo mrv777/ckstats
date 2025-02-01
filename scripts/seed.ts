@@ -59,18 +59,18 @@ async function seed() {
     const poolStatsRepository = db.getRepository(PoolStats);
 
     const poolStats = poolStatsRepository.create({
-      runtime: parseInt(stats.runtime),
-      users: parseInt(stats.Users),
-      workers: parseInt(stats.Workers),
-      idle: parseInt(stats.Idle),
-      disconnected: parseInt(stats.Disconnected),
-      hashrate1m: BigInt(convertHashrate(stats.hashrate1m)),
-      hashrate5m: BigInt(convertHashrate(stats.hashrate5m)),
-      hashrate15m: BigInt(convertHashrate(stats.hashrate15m)),
-      hashrate1hr: BigInt(convertHashrate(stats.hashrate1hr)),
-      hashrate6hr: BigInt(convertHashrate(stats.hashrate6hr)),
-      hashrate1d: BigInt(convertHashrate(stats.hashrate1d)),
-      hashrate7d: BigInt(convertHashrate(stats.hashrate7d)),
+      runtime: parseInt(stats.runtime ?? '0'),
+      users: parseInt(stats.Users ?? '0'),
+      workers: parseInt(stats.Workers ?? '0'),
+      idle: parseInt(stats.Idle ?? '0'),
+      disconnected: stats.Disconnected ? parseInt(stats.Disconnected) : 0,
+      hashrate1m: BigInt(convertHashrate(stats.hashrate1m ?? '0')),
+      hashrate5m: BigInt(convertHashrate(stats.hashrate5m ?? '0')),
+      hashrate15m: BigInt(convertHashrate(stats.hashrate15m ?? '0')),
+      hashrate1hr: BigInt(convertHashrate(stats.hashrate1hr ?? '0')),
+      hashrate6hr: BigInt(convertHashrate(stats.hashrate6hr ?? '0')),
+      hashrate1d: BigInt(convertHashrate(stats.hashrate1d ?? '0')),
+      hashrate7d: BigInt(convertHashrate(stats.hashrate7d ?? '0')),
       diff: stats.diff,
       accepted: stats.accepted,
       rejected: stats.rejected,
@@ -80,7 +80,7 @@ async function seed() {
       SPS15m: stats.SPS15m,
       SPS1h: stats.SPS1h,
       timestamp: new Date(),
-    });
+    } as Partial<PoolStats>);
 
     await poolStatsRepository.save(poolStats);
     console.log('Database seeded successfully');
