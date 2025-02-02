@@ -6,19 +6,19 @@ export class UpdateTimestampColumns1710000000001 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
         // Convert existing timestamps to timestamptz
         await queryRunner.query(`
-            ALTER TABLE "PoolStats" 
+            ALTER TABLE "pool_stats" 
             ALTER COLUMN "timestamp" TYPE TIMESTAMPTZ 
             USING "timestamp" AT TIME ZONE 'UTC'
         `);
 
         await queryRunner.query(`
-            ALTER TABLE "UserStats" 
+            ALTER TABLE "user_stats" 
             ALTER COLUMN "timestamp" TYPE TIMESTAMPTZ 
             USING "timestamp" AT TIME ZONE 'UTC'
         `);
 
         await queryRunner.query(`
-            ALTER TABLE "WorkerStats" 
+            ALTER TABLE "worker_stats" 
             ALTER COLUMN "timestamp" TYPE TIMESTAMPTZ 
             USING "timestamp" AT TIME ZONE 'UTC'
         `);
@@ -26,17 +26,17 @@ export class UpdateTimestampColumns1710000000001 implements MigrationInterface {
 
     public async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
-            ALTER TABLE "PoolStats" 
+            ALTER TABLE "pool_stats" 
             ALTER COLUMN "timestamp" TYPE TIMESTAMP
         `);
 
         await queryRunner.query(`
-            ALTER TABLE "UserStats" 
+            ALTER TABLE "user_stats" 
             ALTER COLUMN "timestamp" TYPE TIMESTAMP
         `);
 
         await queryRunner.query(`
-            ALTER TABLE "WorkerStats" 
+            ALTER TABLE "worker_stats" 
             ALTER COLUMN "timestamp" TYPE TIMESTAMP
         `);
     }

@@ -5,7 +5,7 @@ export class InitialMigration1710000000000 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
-            CREATE TABLE "PoolStats" (
+            CREATE TABLE "pool_stats" (
                 "id" SERIAL NOT NULL,
                 "timestamp" TIMESTAMP NOT NULL DEFAULT now(),
                 "runtime" integer NOT NULL,
@@ -33,7 +33,7 @@ export class InitialMigration1710000000000 implements MigrationInterface {
         `);
 
         await queryRunner.query(`
-            CREATE TABLE "User" (
+            CREATE TABLE "user" (
                 "address" character varying NOT NULL,
                 "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
                 "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
@@ -45,7 +45,7 @@ export class InitialMigration1710000000000 implements MigrationInterface {
         `);
 
         await queryRunner.query(`
-            CREATE TABLE "UserStats" (
+            CREATE TABLE "user_stats" (
                 "id" SERIAL NOT NULL,
                 "userAddress" character varying NOT NULL,
                 "timestamp" TIMESTAMP NOT NULL DEFAULT now(),
@@ -64,7 +64,7 @@ export class InitialMigration1710000000000 implements MigrationInterface {
         `);
 
         await queryRunner.query(`
-            CREATE TABLE "Worker" (
+            CREATE TABLE "worker" (
                 "id" SERIAL NOT NULL,
                 "name" character varying NOT NULL DEFAULT '',
                 "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
@@ -85,7 +85,7 @@ export class InitialMigration1710000000000 implements MigrationInterface {
         `);
 
         await queryRunner.query(`
-            CREATE TABLE "WorkerStats" (
+            CREATE TABLE "worker_stats" (
                 "id" SERIAL NOT NULL,
                 "workerId" integer NOT NULL,
                 "timestamp" TIMESTAMP NOT NULL DEFAULT now(),
@@ -103,43 +103,43 @@ export class InitialMigration1710000000000 implements MigrationInterface {
 
         // Add foreign key constraints
         await queryRunner.query(`
-            ALTER TABLE "UserStats"
+            ALTER TABLE "user_stats"
             ADD CONSTRAINT "FK_UserStats_User"
             FOREIGN KEY ("userAddress")
-            REFERENCES "User"("address")
+            REFERENCES "user"("address")
             ON DELETE CASCADE
         `);
 
         await queryRunner.query(`
-            ALTER TABLE "Worker"
+            ALTER TABLE "worker"
             ADD CONSTRAINT "FK_Worker_User"
             FOREIGN KEY ("userAddress")
-            REFERENCES "User"("address")
+            REFERENCES "user"("address")
             ON DELETE CASCADE
         `);
 
         await queryRunner.query(`
-            ALTER TABLE "WorkerStats"
+            ALTER TABLE "worker_stats"
             ADD CONSTRAINT "FK_WorkerStats_Worker"
             FOREIGN KEY ("workerId")
-            REFERENCES "Worker"("id")
+            REFERENCES "worker"("id")
             ON DELETE CASCADE
         `);
 
         // Create indexes
-        await queryRunner.query(`CREATE INDEX "IDX_PoolStats_Timestamp" ON "PoolStats" ("timestamp")`);
+        await queryRunner.query(`CREATE INDEX "IDX_PoolStats_Timestamp" ON "pool_stats" ("timestamp")`);
         
-        await queryRunner.query(`CREATE INDEX "User_address_key" ON "User" ("address")`);
-        await queryRunner.query(`CREATE INDEX "User_isActive_idx" ON "User" ("isActive")`);
-        await queryRunner.query(`CREATE INDEX "User_isPublic_idx" ON "User" ("isPublic")`);
+        await queryRunner.query(`CREATE INDEX "User_address_key" ON "user" ("address")`);
+        await queryRunner.query(`CREATE INDEX "User_isActive_idx" ON "user" ("isActive")`);
+        await queryRunner.query(`CREATE INDEX "User_isPublic_idx" ON "user" ("isPublic")`);
         
-        await queryRunner.query(`CREATE INDEX "UserStats_timestamp_idx" ON "UserStats" ("timestamp")`);
-        await queryRunner.query(`CREATE INDEX "userAddress_timestamp_idx" ON "UserStats" ("userAddress", "timestamp")`);
-        await queryRunner.query(`CREATE INDEX "userAddress_bestEver_timestamp_idx" ON "UserStats" ("userAddress", "bestEver", "timestamp")`);
-        await queryRunner.query(`CREATE INDEX "userAddress_hashrate1hr_timestamp_idx" ON "UserStats" ("userAddress", "hashrate1hr", "timestamp")`);
+        await queryRunner.query(`CREATE INDEX "UserStats_timestamp_idx" ON "user_stats" ("timestamp")`);
+        await queryRunner.query(`CREATE INDEX "userAddress_timestamp_idx" ON "user_stats" ("userAddress", "timestamp")`);
+        await queryRunner.query(`CREATE INDEX "userAddress_bestEver_timestamp_idx" ON "user_stats" ("userAddress", "bestEver", "timestamp")`);
+        await queryRunner.query(`CREATE INDEX "userAddress_hashrate1hr_timestamp_idx" ON "user_stats" ("userAddress", "hashrate1hr", "timestamp")`);
         
-        await queryRunner.query(`CREATE INDEX "WorkerStats_timestamp_idx" ON "WorkerStats" ("timestamp")`);
-        await queryRunner.query(`CREATE INDEX "WorkerStats_workerId_idx" ON "WorkerStats" ("workerId")`);
+        await queryRunner.query(`CREATE INDEX "WorkerStats_timestamp_idx" ON "worker_stats" ("timestamp")`);
+        await queryRunner.query(`CREATE INDEX "WorkerStats_workerId_idx" ON "worker_stats" ("workerId")`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
@@ -159,15 +159,15 @@ export class InitialMigration1710000000000 implements MigrationInterface {
         await queryRunner.query(`DROP INDEX "IDX_PoolStats_Timestamp"`);
 
         // Drop foreign key constraints
-        await queryRunner.query(`ALTER TABLE "WorkerStats" DROP CONSTRAINT "FK_WorkerStats_Worker"`);
-        await queryRunner.query(`ALTER TABLE "Worker" DROP CONSTRAINT "FK_Worker_User"`);
-        await queryRunner.query(`ALTER TABLE "UserStats" DROP CONSTRAINT "FK_UserStats_User"`);
+        await queryRunner.query(`ALTER TABLE "worker_stats" DROP CONSTRAINT "FK_WorkerStats_Worker"`);
+        await queryRunner.query(`ALTER TABLE "worker" DROP CONSTRAINT "FK_Worker_User"`);
+        await queryRunner.query(`ALTER TABLE "user_stats" DROP CONSTRAINT "FK_UserStats_User"`);
 
         // Drop tables
-        await queryRunner.query(`DROP TABLE "WorkerStats"`);
-        await queryRunner.query(`DROP TABLE "Worker"`);
-        await queryRunner.query(`DROP TABLE "UserStats"`);
-        await queryRunner.query(`DROP TABLE "User"`);
-        await queryRunner.query(`DROP TABLE "PoolStats"`);
+        await queryRunner.query(`DROP TABLE "worker_stats"`);
+        await queryRunner.query(`DROP TABLE "worker"`);
+        await queryRunner.query(`DROP TABLE "user_stats"`);
+        await queryRunner.query(`DROP TABLE "user"`);
+        await queryRunner.query(`DROP TABLE "pool_stats"`);
     }
 } 
