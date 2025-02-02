@@ -10,7 +10,7 @@ import {
 
 import { Worker } from './Worker';
 
-@Entity('WorkerStats')
+@Entity('worker_stats')
 export class WorkerStats {
   @PrimaryGeneratedColumn()
   id: number;

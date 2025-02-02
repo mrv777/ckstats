@@ -6,7 +6,7 @@ import {
   Index,
 } from 'typeorm';
 
-@Entity('PoolStats')
+@Entity('pool_stats')
 export class PoolStats {
   @PrimaryGeneratedColumn()
   id: number;
