@@ -13,7 +13,7 @@ import {
 import { User } from './User';
 import { WorkerStats } from './WorkerStats';
 
-@Entity('worker')
+@Entity('Worker')
 @Unique(['userAddress', 'name'])
 export class Worker {
   @PrimaryGeneratedColumn()

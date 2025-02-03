@@ -10,7 +10,7 @@ import {
 
 import { User } from './User';
 
-@Entity('user_stats')
+@Entity('UserStats')
 export class UserStats {
   @PrimaryGeneratedColumn()
   id: number;

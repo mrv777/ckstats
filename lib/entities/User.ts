@@ -11,7 +11,7 @@ import {
 import { UserStats } from './UserStats';
 import { Worker } from './Worker';
 
-@Entity('user')
+@Entity('User')
 export class User {
   @PrimaryColumn()
   @Index('User_address_key', { unique: true })
