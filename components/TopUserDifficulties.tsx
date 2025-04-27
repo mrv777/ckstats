@@ -36,7 +36,7 @@ export default async function TopUserDifficulties({
               <thead>
                 <tr>
                   <th>Rank</th>
-                  <th>Address</th>
+                  <th>User</th>
 
                   {limit > SMALL_LIMIT ? (
                     <>
@@ -81,7 +81,7 @@ export default async function TopUserDifficulties({
                       )}
                     </td>
                     <td>
-                      {user.address.slice(0, 6)}...{user.address.slice(-4)}
+                      {user.address}
                     </td>
 
                     {limit > SMALL_LIMIT ? (
