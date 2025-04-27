@@ -2,18 +2,10 @@ import { NextResponse } from 'next/server';
 
 import { updateSingleUser } from '../../../lib/api';
 import prisma from '../../../lib/db';
-import { validateBitcoinAddress } from '../../../utils/validateBitcoinAddress';
 
 export async function POST(request: Request) {
   try {
     const { address } = await request.json();
-
-    if (!validateBitcoinAddress(address)) {
-      return NextResponse.json(
-        { error: 'Invalid Bitcoin address' },
-        { status: 400 }
-      );
-    }
 
     // Check if user with the given address already exists
     const existingUser = await prisma.user.findUnique({

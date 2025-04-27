@@ -60,13 +60,6 @@ export default function Header() {
 
   const handleAddAddress = async () => {
     const trimmedAddress = address.trim();
-    if (!validateBitcoinAddress(trimmedAddress)) {
-      setModalMessage('Invalid Bitcoin address');
-      setIsError(true);
-      modalRef.current?.showModal();
-      return;
-    }
-
     addUserMutation.mutate(trimmedAddress);
   };
 
@@ -81,7 +74,7 @@ export default function Header() {
         <div className="form-control flex-grow md:flex-grow-0">
           <input
             type="text"
-            placeholder="Enter Bitcoin address"
+            placeholder="Enter username"
             className="input input-bordered w-full md:w-96 text-sm"
             value={address}
             onChange={(e) => setAddress(e.target.value.trim())}
@@ -116,9 +109,8 @@ export default function Header() {
       <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
         <form method="dialog" className="modal-box">
           <h3
-            className={`font-bold text-lg ${
-              isError ? 'text-error' : 'text-success'
-            }`}
+            className={`font-bold text-lg ${isError ? 'text-error' : 'text-success'
+              }`}
           >
             {isError ? 'Error' : 'Success'}
           </h3>
