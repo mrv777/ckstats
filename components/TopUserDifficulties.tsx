@@ -81,7 +81,9 @@ export default async function TopUserDifficulties({
                       )}
                     </td>
                     <td>
-                      {user.address}
+                      <Link href={`/users/${user.address}`} className="hover:underline">
+                        {user.address}
+                      </Link>
                     </td>
 
                     {limit > SMALL_LIMIT ? (
