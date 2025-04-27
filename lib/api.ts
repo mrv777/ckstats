@@ -258,7 +258,7 @@ export async function updateSingleUser(address: string): Promise<void> {
 
       // Update or create workers
       for (const workerData of userData.worker) {
-        const workerName = workerData.workername.split('.')[1];
+        const workerName = workerData.workername; // show full worker name
         await prisma.worker.upsert({
           where: {
             userAddress_name: {
