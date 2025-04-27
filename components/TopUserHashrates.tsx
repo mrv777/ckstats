@@ -56,7 +56,9 @@ export default async function TopUserHashrates({
                   <tr key={user.address}>
                     <td>{index + 1}</td>
                     <td>
-                      {user.address}
+                      <Link href={`/users/${user.address}`} className="hover:underline">
+                        {user.address}
+                      </Link>
                     </td>
 
                     {limit > SMALL_LIMIT ? (
