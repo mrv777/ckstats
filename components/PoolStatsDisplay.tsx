@@ -127,15 +127,15 @@ export default function PoolStatsDisplay({
                 <div className="stat-value text-2xl">
                   {stats.hashrate6hr && stats.diff
                     ? formatDuration(
-                        calculateAverageTimeToBlock(
-                          stats.hashrate6hr,
-                          (stats.accepted * BigInt(10000)) /
-                            BigInt(Math.round(Number(stats.diff) * 100))
-                        )
+                      calculateAverageTimeToBlock(
+                        stats.hashrate6hr,
+                        (stats.accepted * BigInt(10000)) /
+                        BigInt(Math.round(Number(stats.diff) * 100))
                       )
+                    )
                     : 'N/A'}
                 </div>
-                <div className="stat-desc">
+                {/* <div className="stat-desc">
                   <Link
                     href="https://mempool.space/mining/pool/solock"
                     target="_blank"
@@ -143,7 +143,7 @@ export default function PoolStatsDisplay({
                   >
                     Found Blocks
                   </Link>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
