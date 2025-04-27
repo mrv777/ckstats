@@ -22,7 +22,7 @@ const Footer: React.FC = () => {
             </svg>
           </a>
           <a
-            href="https://github.com/mrv777/ckstats"
+            href="https://github.com/poo2win/ckstats"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-primary"
@@ -40,7 +40,7 @@ const Footer: React.FC = () => {
         </div>
       </div>
       <div>
-        <p>Always free, always open source.</p>
+        <p>Built on CKStats. Donation address for original author.</p>
         <p className="break-all">
           Donations: bc1qz9vvexjmexe8pr2aueuz6x0v94ulkx2m2sp6lr
         </p>
