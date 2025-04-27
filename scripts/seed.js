@@ -1,12 +1,36 @@
-const { PrismaClient } = require('@prisma/client');
+const fs = require('fs');
+const path = require('path');
 
+const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-async function fetchPoolStats() {
-  console.log('Fetching pool stats...');
+async function fetchPoolStatsFromAPI() {
   const apiUrl = process.env.API_URL || 'https://solo.ckpool.org';
   const response = await fetch(`${apiUrl}/pool/pool.status`);
   const data = await response.text();
+  return data;
+}
+
+async function fetchPoolStatsFromFile() {
+  const filePath = path.join(process.env.LOGS_DIR, 'pool/pool.status');
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`File not found: ${filePath}`);
+  }
+  console.log(`Reading pool stats from file: ${filePath}`);
+
+  const data = await fs.promises.readFile(filePath, 'utf8');
+  return data;
+}
+
+
+async function fetchPoolStats() {
+  console.log('Fetching pool stats...');
+  var data;
+  if (process.env.API_URL) {
+    data = await fetchPoolStatsFromAPI();
+  } else {
+    data = await fetchPoolStatsFromFile();
+  }
   const jsonLines = data.split('\n').filter(Boolean);
   const parsedData = jsonLines.reduce((acc, line) => ({ ...acc, ...JSON.parse(line) }), {});
   return parsedData;
@@ -16,7 +40,7 @@ async function seed() {
   try {
     console.log('Fetching pool stats...');
     const stats = await fetchPoolStats();
-    
+
     console.log('Saving pool stats to database...');
 
     // Function to convert hashrate with units to string
