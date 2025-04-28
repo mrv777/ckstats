@@ -6,7 +6,7 @@ const Footer: React.FC = () => {
       <div>
         <div className="grid grid-flow-col gap-4">
           <a
-            href="https://x.com/MrV_777"
+            href="https://x.com/jungly"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-primary"
