@@ -17,9 +17,12 @@ const AppDataSource = new DataSource({
   entities: [PoolStats, User, UserStats, Worker, WorkerStats],
   migrations: ['migrations/*.ts'],
   logging: process.env.NODE_ENV === 'development',
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  ssl:
+    process.env.DB_SSL === 'true'
+      ? {
+          rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true',
+        }
+      : false,
 });
 
 let initialized = false;
