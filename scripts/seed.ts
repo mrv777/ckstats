@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import * as fs from 'fs';
 import { getDb } from '../lib/db';
 import { PoolStats } from '../lib/entities/PoolStats';
 
@@ -28,10 +29,20 @@ interface PoolStatsData {
 
 // Using partial to allow for fields that may or may not be present but are not required
 async function fetchPoolStats(): Promise<Partial<PoolStatsData>> {
+  let data: string;
+
   console.log('Fetching pool stats...');
-  const apiUrl = process.env.API_URL || 'https://solo.ckpool.org';
-  const response = await fetch(`${apiUrl}/pool/pool.status`);
-  const data = await response.text();
+  const apiUrl = (process.env.API_URL || 'https://solo.ckpool.org') + '/pool/pool.status';
+
+  try {
+    const response = await fetch(apiUrl);
+    data = await response.text();
+  } catch (error: any) {
+    if(error.cause.code == "ERR_INVALID_URL") {
+      data = fs.readFileSync(apiUrl, 'utf-8');
+    } else throw(error);
+  }
+
   const jsonLines = data.split('\n').filter(Boolean);
   const parsedData = jsonLines.reduce((acc, line) => ({ ...acc, ...JSON.parse(line) }), {});
   return parsedData as PoolStatsData;

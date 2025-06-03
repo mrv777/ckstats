@@ -1,3 +1,5 @@
+import * as fs from 'fs';
+
 import { getDb } from './db';
 import { PoolStats } from './entities/PoolStats';
 import { User } from './entities/User';
@@ -185,7 +187,9 @@ export async function resetUserActive(address: string): Promise<void> {
 }
 
 export async function updateSingleUser(address: string): Promise<void> {
-  const apiUrl = process.env.API_URL || 'https://solo.ckpool.org';
+  const apiUrl =
+    (process.env.API_URL || 'https://solo.ckpool.org') + `/users/${address}`;
+
   if (!apiUrl) {
     throw new Error('API_URL is not defined in environment variables');
   }
@@ -193,13 +197,24 @@ export async function updateSingleUser(address: string): Promise<void> {
   console.log('Attempting to update user stats for:', address);
 
   try {
-    const response = await fetch(`${apiUrl}/users/${address}`);
-    console.log('API URL:', `${apiUrl}/users/${address}`);
-    console.log('Response:', response);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    let userData;
+
+    try {
+      const response = await fetch(apiUrl);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      userData = await response.json();
+    } catch (error: any) {
+      if (error.cause.code == 'ERR_INVALID_URL') {
+        userData = JSON.parse(fs.readFileSync(apiUrl, 'utf-8'));
+      } else throw error;
     }
-    const userData = await response.json();
+
+    console.log('API URL:', apiUrl);
+    console.log('Response:', userData);
 
     const db = await getDb();
     await db.transaction(async (manager) => {

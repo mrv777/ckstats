@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import 'reflect-metadata';
+import * as fs from 'fs';
 import { getDb } from '../lib/db';
 import { User } from '../lib/entities/User';
 import { UserStats } from '../lib/entities/UserStats';
@@ -39,18 +40,26 @@ interface UserData {
 }
 
 async function updateUser(address: string): Promise<void> {
-  const apiUrl = process.env.API_URL || 'https://solo.ckpool.org';
-  
+  let userData: UserData;
+  const apiUrl = (process.env.API_URL || 'https://solo.ckpool.org') + `/users/${address}`;
+
   console.log('Attempting to update user stats for:', address);
   const db = await getDb();
 
   try {
-    const response = await fetch(`${apiUrl}/users/${address}`);
+    try {
+      const response = await fetch(apiUrl);
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+       if (!response.ok) {
+         throw new Error(`HTTP error! status: ${response.status}`);
+       }
+
+      const userData = await response.json() as UserData;
+    } catch (error: any) {
+      if (error.cause.code == 'ERR_INVALID_URL') {
+        userData = JSON.parse(fs.readFileSync(apiUrl, 'utf-8')) as UserData;
+      } else throw error;
     }
-    const userData = await response.json() as UserData;
     
     await db.transaction(async (manager) => {
       // Update or create user
