@@ -38,7 +38,7 @@ async function fetchPoolStats(): Promise<Partial<PoolStatsData>> {
     const response = await fetch(apiUrl);
     data = await response.text();
   } catch (error: any) {
-    if(error.cause.code == "ERR_INVALID_URL") {
+    if(error.cause?.code == "ERR_INVALID_URL") {
       data = fs.readFileSync(apiUrl, 'utf-8');
     } else throw(error);
   }

@@ -208,7 +208,7 @@ export async function updateSingleUser(address: string): Promise<void> {
 
       userData = await response.json();
     } catch (error: any) {
-      if (error.cause.code == 'ERR_INVALID_URL') {
+      if (error.cause?.code == 'ERR_INVALID_URL') {
         userData = JSON.parse(fs.readFileSync(apiUrl, 'utf-8'));
       } else throw error;
     }

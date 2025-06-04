@@ -44,7 +44,7 @@ async function updateUser(address: string): Promise<void> {
   const apiUrl = (process.env.API_URL || 'https://solo.ckpool.org') + `/users/${address}`;
 
   console.log('Attempting to update user stats for:', address);
-  const db = await getDb();
+  let db = await getDb();
 
   try {
     try {
@@ -56,7 +56,7 @@ async function updateUser(address: string): Promise<void> {
 
       const userData = await response.json() as UserData;
     } catch (error: any) {
-      if (error.cause.code == 'ERR_INVALID_URL') {
+      if (error.cause?.code == 'ERR_INVALID_URL') {
         userData = JSON.parse(fs.readFileSync(apiUrl, 'utf-8')) as UserData;
       } else throw error;
     }
