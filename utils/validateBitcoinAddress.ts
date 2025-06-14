@@ -6,13 +6,14 @@ export function validateBitcoinAddress(address: string): boolean {
   // return regex.test(address);
   try {
     // Check for legacy addresses (P2PKH and P2SH) and SegWit addresses (P2WPKH and P2WSH)
-    if (address.startsWith('1') || address.startsWith('3') || address.startsWith('bc1q')) {
+    if (address.startsWith('1') || address.startsWith('3') ||
+	address.startsWith('bc1q') || address.startsWith('tb1q')) {
       bitcoin.address.toOutputScript(address);
       return true;
     }
     
-    // Check for Taproot addresses (P2TR)
-    if (address.startsWith('bc1p')) {
+    // Check for Taproot addresses (P2TR) (and allow testnet)
+    if (address.startsWith('bc1p') || (address.startsWith('tb1p'))) {
       // Taproot addresses are 62 characters long
       if (address.length !== 62) {
         throw new Error('Invalid Taproot address length');

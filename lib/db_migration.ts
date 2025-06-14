@@ -15,6 +15,7 @@ const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD || 'password',
   database: process.env.DB_NAME || 'postgres',
   entities: [PoolStats, User, UserStats, Worker, WorkerStats],
+  migrations: ['migrations/*.ts'],
   logging: process.env.NODE_ENV === 'development',
   ssl:
     process.env.DB_SSL === 'true'
@@ -22,40 +23,16 @@ const AppDataSource = new DataSource({
           rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true',
         }
       : false,
-  extra: {
-    max: 10,
-    min: 2,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 5000,
-  },
 });
 
-let connectionPromise: Promise<DataSource> | null = null;
+let initialized = false;
 
 export async function getDb() {
-  if (!connectionPromise) {
-    connectionPromise = AppDataSource.initialize()
-      .then((connection) => {
-        return connection;
-      })
-      .catch((error) => {
-        console.error('Database connection error:', error);
-        connectionPromise = null;
-        throw error;
-      });
+  if (!initialized) {
+    await AppDataSource.initialize();
+    initialized = true;
   }
-
-  try {
-    const connection = await connectionPromise;
-    if (!connection.isInitialized) {
-      connectionPromise = null;
-      return getDb();
-    }
-    return connection;
-  } catch (error) {
-    connectionPromise = null;
-    throw error;
-  }
+  return AppDataSource;
 }
 
 export default AppDataSource;

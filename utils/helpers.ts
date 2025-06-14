@@ -1,20 +1,20 @@
-export function formatNumber(num: number | bigint): string {
+export function formatNumber(num: number | bigint | string): string {
   const absNum = Math.abs(Number(num));
   
   if (absNum >= 1e21) {
-    return (Number(num) / 1e21).toFixed(2) + ' S';
+    return (Number(num) / 1e21).toFixed(2) + ' Z';
   } else if (absNum >= 1e18) {
-    return (Number(num) / 1e18).toFixed(2) + ' Qi';
+    return (Number(num) / 1e18).toFixed(2) + ' E';
   } else if (absNum >= 1e15) {
-    return (Number(num) / 1e15).toFixed(2) + ' Q';
+    return (Number(num) / 1e15).toFixed(2) + ' P';
   } else if (absNum >= 1e12) {
     return (Number(num) / 1e12).toFixed(2) + ' T';
   } else if (absNum >= 1e9) {
-    return (Number(num) / 1e9).toFixed(2) + ' B';
+    return (Number(num) / 1e9).toFixed(2) + ' G';
   } else if (absNum >= 1e6) {
     return (Number(num) / 1e6).toFixed(2) + ' M';
   } else if (absNum >= 1e3) {
-    return (Number(num) / 1e3).toFixed(2) + ' K';
+    return (Number(num) / 1e3).toFixed(2) + ' k';
   } else {
     return num.toLocaleString();
   }
@@ -120,12 +120,12 @@ export function calculateAverageTimeToBlock(hashRate: bigint, difficulty: number
   } else {
     convertedDifficulty = difficulty;
   }
-  return Number((convertedDifficulty * hashesPerDifficulty) / hashRate);
+  return Number((BigInt(convertedDifficulty) * BigInt(hashesPerDifficulty)) / BigInt(hashRate));
 }
 
 // Difficulty is assumed to be a % of network, hashrate in H/s
 export function calculateBlockChances(hashRate: bigint, difficulty: number, accepted: bigint): { [key: string]: string } {
-  const networkDiff = (accepted) / BigInt(Math.round(Number(difficulty) * 100)) * BigInt(10000);
+  const networkDiff = (BigInt(accepted) / BigInt(Math.round(Number(difficulty) * 100))) * BigInt(10000);
   const hashesPerDifficulty = BigInt(2 ** 32);
   // const convertedDifficulty = BigInt(Math.round(Number(networkDiff) * 1e12));
   const probabilityPerHash = 1 / Number(networkDiff * hashesPerDifficulty);
@@ -149,4 +149,12 @@ export function calculateBlockChances(hashRate: bigint, difficulty: number, acce
     }
     return chances;
   }, {} as { [key: string]: string });
+}
+
+export function serializeData(data: any) {
+  return JSON.parse(
+    JSON.stringify(data, (key, value) =>
+      typeof value === 'bigint' ? value.toString() : value
+    )
+  );
 }

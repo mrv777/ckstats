@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
+import { MoreThanOrEqual } from 'typeorm';
 
 import { updateSingleUser } from '../../../lib/api';
-import prisma from '../../../lib/db';
+import { getDb } from '../../../lib/db';
+import { User } from '../../../lib/entities/User';
 import { validateBitcoinAddress } from '../../../utils/validateBitcoinAddress';
 
 export async function POST(request: Request) {
@@ -15,8 +17,11 @@ export async function POST(request: Request) {
       );
     }
 
+    const db = await getDb();
+    const userRepository = db.getRepository(User);
+
     // Check if user with the given address already exists
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await userRepository.findOne({
       where: { address },
     });
 
@@ -29,11 +34,9 @@ export async function POST(request: Request) {
 
     // Check the number of new users created in the last 3 minutes
     const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000);
-    const recentUsersCount = await prisma.user.count({
+    const recentUsersCount = await userRepository.count({
       where: {
-        createdAt: {
-          gte: threeMinutesAgo,
-        },
+        createdAt: MoreThanOrEqual(threeMinutesAgo),
       },
     });
 
@@ -47,11 +50,14 @@ export async function POST(request: Request) {
 
     console.log('Adding user:', address);
 
-    const user = await prisma.user.create({
-      data: {
-        address,
-      },
+    const user = userRepository.create({
+      address,
+      isActive: true,
+      isPublic: true,
+      updatedAt: new Date().toISOString(),
     });
+
+    await userRepository.save(user);
 
     console.log(
       `User ${address} added to database, updating stats in background.`
@@ -68,7 +74,8 @@ export async function POST(request: Request) {
     return NextResponse.json(serializedUser);
   } catch (error) {
     console.error('Error adding user:', error);
-    if (error.code === 'P2002' && error.meta?.target?.includes('address')) {
+    // Check for unique constraint violation
+    if (error.code === '23505' && error.detail?.includes('address')) {
       return NextResponse.json(
         { error: 'Bitcoin address already exists' },
         { status: 409 }
