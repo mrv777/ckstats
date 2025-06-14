@@ -100,7 +100,11 @@ async function updateUser(address: string): Promise<void> {
       const workerStatsRepository = manager.getRepository(WorkerStats);
       
       for (const workerData of userData.worker) {
-        const workerName = workerData.workername.split('.')[1];
+        const workerName = workerData.workername.includes('.')
+          ? workerData.workername.split('.')[1]
+          : workerData.workername.includes('_')
+            ? workerData.workername.split('_')[1]
+            : workerData.workername;
         const worker = await workerRepository.findOne({
           where: {
             userAddress: address,
@@ -183,8 +187,10 @@ async function updateUser(address: string): Promise<void> {
 // }
 
 async function main() {
+  let db;
+  
   try {
-    const db = await getDb();
+    db = await getDb();
     const userRepository = db.getRepository(User);
 
     const users = await userRepository.find({
@@ -213,11 +219,19 @@ async function main() {
     }
 
     // await updateInactiveUsers();
-
-    await db.destroy();
   } catch (error) {
     console.error('Error in main loop:', error);
-    process.exit(1);
+    throw error;
+  } finally {
+    // Ensure database connection is always closed if it was established
+    if (db) {
+      try {
+        await db.destroy();
+        console.log('Database connection closed');
+      } catch (error) {
+        console.error('Error closing database connection:', error);
+      }
+    }
   }
 }
 
