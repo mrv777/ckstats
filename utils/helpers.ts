@@ -25,6 +25,7 @@ export function formatHashrate(num: string | bigint | number): string {
   const absNum = Math.abs(numberValue);
   
   const units: { threshold: number; suffix: string }[] = [
+    { threshold: 1e18, suffix: ' EH/s' },
     { threshold: 1e15, suffix: ' PH/s' },
     { threshold: 1e12, suffix: ' TH/s' },
     { threshold: 1e9, suffix: ' GH/s' },
@@ -42,9 +43,9 @@ export function formatHashrate(num: string | bigint | number): string {
 }
 
 export function convertHashrate(value: string): bigint {
-  const units = { P: 1e15, T: 1e12, G: 1e9, M: 1e6, K: 1e3 };
+  const units = { E: 1e18, P: 1e15, T: 1e12, G: 1e9, M: 1e6, K: 1e3 };
   // Updated regex to handle scientific notation
-  const match = value.match(/^(\d+(\.\d+)?(?:e[+-]\d+)?)([PTGMK])$/i);
+  const match = value.match(/^(\d+(\.\d+)?(?:e[+-]\d+)?)([EPTGMK])$/i);
   if (match) {
     const [, num, , unit] = match;
     // Parse the number, which now handles scientific notation

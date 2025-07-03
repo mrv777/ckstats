@@ -50,8 +50,8 @@ async function fetchPoolStats(): Promise<Partial<PoolStatsData>> {
 
 // Function to convert hashrate with units to string
 const convertHashrate = (value: string): string => {
-  const units = { P: 1e15, T: 1e12, G: 1e9, M: 1e6, K: 1e3 };
-  const match = value.match(/^(\d+(\.\d+)?)([PTGMK])$/);
+  const units = { E: 1e18, P: 1e15, T: 1e12, G: 1e9, M: 1e6, K: 1e3 };
+  const match = value.match(/^(\d+(\.\d+)?)([EPTGMK])$/);
   if (match) {
     const [, num, , unit] = match;
     return Math.round(parseFloat(num) * units[unit]).toString();
