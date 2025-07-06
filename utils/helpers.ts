@@ -44,9 +44,9 @@ export function formatHashrate(num: string | bigint | number): string {
 }
 
 export function convertHashrate(value: string): bigint {
-  const units = { E: 1e18, P: 1e15, T: 1e12, G: 1e9, M: 1e6, K: 1e3 };
+  const units = { Z: 1e21, E: 1e18, P: 1e15, T: 1e12, G: 1e9, M: 1e6, K: 1e3 };
   // Updated regex to handle scientific notation
-  const match = value.match(/^(\d+(\.\d+)?(?:e[+-]\d+)?)([EPTGMK])$/i);
+  const match = value.match(/^(\d+(\.\d+)?(?:e[+-]\d+)?)([ZEPTGMK])$/i);
   if (match) {
     const [, num, , unit] = match;
     // Parse the number, which now handles scientific notation
