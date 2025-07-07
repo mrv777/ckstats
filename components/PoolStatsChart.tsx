@@ -245,7 +245,9 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
 
   const renderHashrateChart = () => (
     <div className="h-80 w-full mb-8">
-      <h2 className="text-xl font-bold mb-2">Hashrate (PH/s)</h2>
+      <h2 className="text-xl font-bold mb-2">
+        Hashrate ({hashrateUnit.iso}H/s)
+      </h2>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={formattedData}
