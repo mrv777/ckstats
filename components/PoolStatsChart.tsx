@@ -178,7 +178,7 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
   ];
 
   const spsTooltipFormatter = (value: number, name: string) => [
-    `${value.toFixed(0)} SPS`,
+    `${value > 10 ? value.toFixed(0) : value.toFixed(1)} SPS`,
     name,
   ];
 
