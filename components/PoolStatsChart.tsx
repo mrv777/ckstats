@@ -15,6 +15,8 @@ import {
 } from 'recharts';
 
 import { PoolStats } from '../lib/entities/PoolStats';
+import { ISOUnit, findISOUnit } from '../utils/helpers';
+
 interface PoolStatsChartProps {
   data: PoolStats[];
 }
@@ -128,6 +130,23 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
     },
   ];
 
+  // Calculate the maximum hashrate
+  const hashrateFields: (keyof PoolStats)[] = [
+    'hashrate5m',
+    'hashrate15m',
+    'hashrate1hr',
+    'hashrate6hr',
+    'hashrate1d',
+    'hashrate7d',
+  ];
+  const maxHashrate = data
+    .flatMap((entry) => hashrateFields.map((field) => entry[field]))
+    .reduce((max, current) => (max > current ? max : current), BigInt(0));
+
+  // Find out the nearest ISO unit
+  const hashrateUnit: ISOUnit = findISOUnit(Number(maxHashrate));
+  const hashrateDivisor: number = hashrateUnit.threshold;
+
   // Reverse the data array
   const reversedData = [...data].reverse();
 
@@ -140,13 +159,13 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
       hour: '2-digit',
       minute: '2-digit',
     }),
-    hashrate1m: Number(item.hashrate1m) / 1000000000000000,
-    hashrate5m: Number(item.hashrate5m) / 1000000000000000,
-    hashrate15m: Number(item.hashrate15m) / 1000000000000000,
-    hashrate1hr: Number(item.hashrate1hr) / 1000000000000000,
-    hashrate6hr: Number(item.hashrate6hr) / 1000000000000000,
-    hashrate1d: Number(item.hashrate1d) / 1000000000000000,
-    hashrate7d: Number(item.hashrate7d) / 1000000000000000,
+    hashrate1m: Number(item.hashrate1m) / hashrateDivisor,
+    hashrate5m: Number(item.hashrate5m) / hashrateDivisor,
+    hashrate15m: Number(item.hashrate15m) / hashrateDivisor,
+    hashrate1hr: Number(item.hashrate1hr) / hashrateDivisor,
+    hashrate6hr: Number(item.hashrate6hr) / hashrateDivisor,
+    hashrate1d: Number(item.hashrate1d) / hashrateDivisor,
+    hashrate7d: Number(item.hashrate7d) / hashrateDivisor,
     SPS1m: item.SPS1m ?? 0,
     SPS5m: item.SPS5m ?? 0,
     SPS15m: item.SPS15m ?? 0,
@@ -154,12 +173,12 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
   }));
 
   const hashrateTooltipFormatter = (value: number, name: string) => [
-    `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })} PH/s`,
+    `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })} ${hashrateUnit.iso}H/s`,
     name,
   ];
 
   const spsTooltipFormatter = (value: number, name: string) => [
-    `${value.toFixed(0)} SPS`,
+    `${value > 10 ? value.toFixed(0) : value.toFixed(1)} SPS`,
     name,
   ];
 
@@ -226,7 +245,9 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
 
   const renderHashrateChart = () => (
     <div className="h-80 w-full mb-8">
-      <h2 className="text-xl font-bold mb-2">Hashrate (PH/s)</h2>
+      <h2 className="text-xl font-bold mb-2">
+        Hashrate ({hashrateUnit.iso}H/s)
+      </h2>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={formattedData}

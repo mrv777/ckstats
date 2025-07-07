@@ -1,41 +1,41 @@
+export interface ISOUnit {
+  threshold: number;
+  iso: string;
+}
+
+// An array of all ISO units we support.
+// Make sure you check for 0 if you use this.
+const isoUnits: ISOUnit[] = [
+  { threshold: 1e21, iso: 'Z' },
+  { threshold: 1e18, iso: 'E' },
+  { threshold: 1e15, iso: 'P' },
+  { threshold: 1e12, iso: 'T' },
+  { threshold: 1e9, iso: 'G' },
+  { threshold: 1e6, iso: 'M' },
+  { threshold: 1e3, iso: 'k' },
+  { threshold: 1e0, iso: '' },
+] as const;
+
+
 export function formatNumber(num: number | bigint | string): string {
   const absNum = Math.abs(Number(num));
-  
-  if (absNum >= 1e21) {
-    return (Number(num) / 1e21).toFixed(2) + ' Z';
-  } else if (absNum >= 1e18) {
-    return (Number(num) / 1e18).toFixed(2) + ' E';
-  } else if (absNum >= 1e15) {
-    return (Number(num) / 1e15).toFixed(2) + ' P';
-  } else if (absNum >= 1e12) {
-    return (Number(num) / 1e12).toFixed(2) + ' T';
-  } else if (absNum >= 1e9) {
-    return (Number(num) / 1e9).toFixed(2) + ' G';
-  } else if (absNum >= 1e6) {
-    return (Number(num) / 1e6).toFixed(2) + ' M';
-  } else if (absNum >= 1e3) {
-    return (Number(num) / 1e3).toFixed(2) + ' k';
-  } else {
-    return num.toLocaleString();
+
+  for (const unit of isoUnits) {
+    if (absNum >= unit.threshold) {
+      return (Number(num) / unit.threshold).toFixed(2) + ' ' + unit.iso;
+    }
   }
+
+  return num.toLocaleString();
 }
 
 export function formatHashrate(num: string | bigint | number): string {
   const numberValue = Number(num);
   const absNum = Math.abs(numberValue);
   
-  const units: { threshold: number; suffix: string }[] = [
-    { threshold: 1e18, suffix: ' EH/s' },
-    { threshold: 1e15, suffix: ' PH/s' },
-    { threshold: 1e12, suffix: ' TH/s' },
-    { threshold: 1e9, suffix: ' GH/s' },
-    { threshold: 1e6, suffix: ' MH/s' },
-    { threshold: 1e3, suffix: ' KH/s' }
-  ];
-
-  for (const unit of units) {
+  for (const unit of isoUnits) {
     if (absNum >= unit.threshold) {
-      return (numberValue / unit.threshold).toLocaleString(undefined, { maximumFractionDigits: 2 }) + unit.suffix;
+      return (numberValue / unit.threshold).toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' '+unit.iso+'H/s';
     }
   }
 
@@ -43,17 +43,29 @@ export function formatHashrate(num: string | bigint | number): string {
 }
 
 export function convertHashrate(value: string): bigint {
-  const units = { E: 1e18, P: 1e15, T: 1e12, G: 1e9, M: 1e6, K: 1e3 };
   // Updated regex to handle scientific notation
-  const match = value.match(/^(\d+(\.\d+)?(?:e[+-]\d+)?)([EPTGMK])$/i);
+  const match = value.match(/^(\d+(\.\d+)?(?:e[+-]\d+)?)([ZEPTGMK])$/i);
   if (match) {
     const [, num, , unit] = match;
     // Parse the number, which now handles scientific notation
     const parsedNum = parseFloat(num);
-    return BigInt(Math.round(parsedNum * units[unit.toUpperCase()]));
+    const isoUnit = isoUnits.find((u) => u.iso.toUpperCase() === unit.toUpperCase()) || { threshold: 1, iso: '' };
+    return BigInt(Math.round(parsedNum * isoUnit.threshold));
   }
   return BigInt(value);
 };
+
+export function findISOUnit(num: number): ISOUnit {
+  const absNum = Math.abs(num);
+
+  for (const unit of isoUnits) {
+    if (absNum >= unit.threshold) {
+      return(unit);
+    }
+  }
+
+  return {threshold: 1, iso: ''};
+}
 
 export function formatTimeAgo(date: Date | number | string, minDiff: number = 1): string {
   const now = new Date();
