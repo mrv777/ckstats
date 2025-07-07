@@ -56,6 +56,28 @@ export function convertHashrate(value: string): bigint {
   return BigInt(value);
 };
 
+export function calculateDivisor(num: number): number {
+  const absNum = Math.abs(num);
+
+  const units: { threshold: number; suffix: string }[] = [
+    { threshold: 1e21, suffix: ' ZH/s' },
+    { threshold: 1e18, suffix: ' EH/s' },
+    { threshold: 1e15, suffix: ' PH/s' },
+    { threshold: 1e12, suffix: ' TH/s' },
+    { threshold: 1e9, suffix: ' GH/s' },
+    { threshold: 1e6, suffix: ' MH/s' },
+    { threshold: 1e3, suffix: ' kH/s' }
+  ];
+
+  for (const unit of units) {
+    if (absNum >= unit.threshold) {
+      return(unit.threshold);
+    }
+  }
+
+  return 1;
+}
+
 export function formatTimeAgo(date: Date | number | string, minDiff: number = 1): string {
   const now = new Date();
   const lastUpdate = new Date(date);

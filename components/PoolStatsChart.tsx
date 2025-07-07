@@ -15,6 +15,8 @@ import {
 } from 'recharts';
 
 import { PoolStats } from '../lib/entities/PoolStats';
+import { calculateDivisor } from '../utils/helpers';
+
 interface PoolStatsChartProps {
   data: PoolStats[];
 }
@@ -129,26 +131,19 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
   ];
 
   // Calculate the maximum hashrate
-  let maxHashrate;
-  {
-    const fields: (keyof PoolStats)[] = [
-      'hashrate5m',
-      'hashrate15m',
-      'hashrate1hr',
-      'hashrate6hr',
-      'hashrate1d',
-      'hashrate7d',
-    ];
+  const hashrateFields: (keyof PoolStats)[] = [
+    'hashrate5m',
+    'hashrate15m',
+    'hashrate1hr',
+    'hashrate6hr',
+    'hashrate1d',
+    'hashrate7d',
+  ];
+  const maxHashrate = data
+    .flatMap((entry) => hashrateFields.map((field) => entry[field]))
+    .reduce((max, current) => (max > current ? max : current), BigInt(0));
 
-    maxHashrate = data
-      .flatMap((entry) => fields.map((field) => entry[field]))
-      .reduce((max, current) => (max > current ? max : current), BigInt(0));
-
-    //maxHashrate = Math.max(
-    //  ...data.flatMap((entry) => fields.map((field) => entry[field]))
-    //);
-  }
-  console.log(maxHashrate);
+  const hashrateDivisor: number = calculateDivisor(Number(maxHashrate));
 
   // Reverse the data array
   const reversedData = [...data].reverse();
@@ -162,13 +157,13 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
       hour: '2-digit',
       minute: '2-digit',
     }),
-    hashrate1m: Number(item.hashrate1m) / 1000000000000000,
-    hashrate5m: Number(item.hashrate5m) / 1000000000000000,
-    hashrate15m: Number(item.hashrate15m) / 1000000000000000,
-    hashrate1hr: Number(item.hashrate1hr) / 1000000000000000,
-    hashrate6hr: Number(item.hashrate6hr) / 1000000000000000,
-    hashrate1d: Number(item.hashrate1d) / 1000000000000000,
-    hashrate7d: Number(item.hashrate7d) / 1000000000000000,
+    hashrate1m: Number(item.hashrate1m) / hashrateDivisor,
+    hashrate5m: Number(item.hashrate5m) / hashrateDivisor,
+    hashrate15m: Number(item.hashrate15m) / hashrateDivisor,
+    hashrate1hr: Number(item.hashrate1hr) / hashrateDivisor,
+    hashrate6hr: Number(item.hashrate6hr) / hashrateDivisor,
+    hashrate1d: Number(item.hashrate1d) / hashrateDivisor,
+    hashrate7d: Number(item.hashrate7d) / hashrateDivisor,
     SPS1m: item.SPS1m ?? 0,
     SPS5m: item.SPS5m ?? 0,
     SPS15m: item.SPS15m ?? 0,
