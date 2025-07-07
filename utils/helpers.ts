@@ -3,7 +3,7 @@ export interface ISOUnit {
   iso: string;
 }
 
-// An array oif all ISO units we support.
+// An array of all ISO units we support.
 // Make sure you check for 0 if you use this.
 const isoUnits: ISOUnit[] = [
   { threshold: 1e21, iso: 'Z' },
@@ -43,14 +43,14 @@ export function formatHashrate(num: string | bigint | number): string {
 }
 
 export function convertHashrate(value: string): bigint {
-  const units = { Z: 1e21, E: 1e18, P: 1e15, T: 1e12, G: 1e9, M: 1e6, K: 1e3 };
   // Updated regex to handle scientific notation
   const match = value.match(/^(\d+(\.\d+)?(?:e[+-]\d+)?)([ZEPTGMK])$/i);
   if (match) {
     const [, num, , unit] = match;
     // Parse the number, which now handles scientific notation
     const parsedNum = parseFloat(num);
-    return BigInt(Math.round(parsedNum * units[unit.toUpperCase()]));
+    const isoUnit = isoUnits.find((u) => u.iso.toUpperCase() === unit.toUpperCase()) || { threshold: 1, iso: '' };
+    return BigInt(Math.round(parsedNum * isoUnit.threshold));
   }
   return BigInt(value);
 };
