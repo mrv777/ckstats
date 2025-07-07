@@ -128,6 +128,28 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
     },
   ];
 
+  // Calculate the maximum hashrate
+  let maxHashrate;
+  {
+    const fields: (keyof PoolStats)[] = [
+      'hashrate5m',
+      'hashrate15m',
+      'hashrate1hr',
+      'hashrate6hr',
+      'hashrate1d',
+      'hashrate7d',
+    ];
+
+    maxHashrate = data
+      .flatMap((entry) => fields.map((field) => entry[field]))
+      .reduce((max, current) => (max > current ? max : current), BigInt(0));
+
+    //maxHashrate = Math.max(
+    //  ...data.flatMap((entry) => fields.map((field) => entry[field]))
+    //);
+  }
+  console.log(maxHashrate);
+
   // Reverse the data array
   const reversedData = [...data].reverse();
 
