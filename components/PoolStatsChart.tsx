@@ -15,7 +15,7 @@ import {
 } from 'recharts';
 
 import { PoolStats } from '../lib/entities/PoolStats';
-import { calculateDivisor } from '../utils/helpers';
+import { ISOUnit, findISOUnit } from '../utils/helpers';
 
 interface PoolStatsChartProps {
   data: PoolStats[];
@@ -143,7 +143,9 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
     .flatMap((entry) => hashrateFields.map((field) => entry[field]))
     .reduce((max, current) => (max > current ? max : current), BigInt(0));
 
-  const hashrateDivisor: number = calculateDivisor(Number(maxHashrate));
+  // Find out the nearest ISO unit
+  const hashrateUnit: ISOUnit = findISOUnit(Number(maxHashrate));
+  const hashrateDivisor: number = hashrateUnit.threshold;
 
   // Reverse the data array
   const reversedData = [...data].reverse();
@@ -171,7 +173,7 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
   }));
 
   const hashrateTooltipFormatter = (value: number, name: string) => [
-    `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })} PH/s`,
+    `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })} ${hashrateUnit.iso}H/s`,
     name,
   ];
 
