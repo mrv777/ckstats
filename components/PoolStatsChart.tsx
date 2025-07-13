@@ -131,21 +131,21 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
   ];
 
   // Calculate the maximum hashrate
-  const hashrateFields: (keyof PoolStats)[] = [
-    'hashrate5m',
-    'hashrate15m',
-    'hashrate1hr',
-    'hashrate6hr',
-    'hashrate1d',
-    'hashrate7d',
-  ];
-  const maxHashrate = data
-    .flatMap((entry) => hashrateFields.map((field) => entry[field]))
-    .reduce((max, current) => (max > current ? max : current), BigInt(0));
+  const maxHashrate = Math.max(
+    ...data.flatMap((stat) => [
+      Number(stat.hashrate1m),
+      Number(stat.hashrate5m),
+      Number(stat.hashrate1hr),
+      Number(stat.hashrate1d),
+      Number(stat.hashrate7d),
+    ])
+  );
 
   // Find out the nearest ISO unit
   const hashrateUnit: ISOUnit = findISOUnit(Number(maxHashrate));
   const hashrateDivisor: number = hashrateUnit.threshold;
+  console.log(maxHashrate);
+  console.log(hashrateUnit);
 
   // Reverse the data array
   const reversedData = [...data].reverse();
