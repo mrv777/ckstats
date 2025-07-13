@@ -144,8 +144,6 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
   // Find out the nearest ISO unit
   const hashrateUnit: ISOUnit = findISOUnit(Number(maxHashrate));
   const hashrateDivisor: number = hashrateUnit.threshold;
-  console.log(maxHashrate);
-  console.log(hashrateUnit);
 
   // Reverse the data array
   const reversedData = [...data].reverse();
