@@ -135,7 +135,9 @@ export default function PoolStatsChart({ data }: PoolStatsChartProps) {
     ...data.flatMap((stat) => [
       Number(stat.hashrate1m),
       Number(stat.hashrate5m),
+      Number(stat.hashrate15m),
       Number(stat.hashrate1hr),
+      Number(stat.hashrate6hr),
       Number(stat.hashrate1d),
       Number(stat.hashrate7d),
     ])
