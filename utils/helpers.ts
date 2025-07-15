@@ -13,7 +13,6 @@ const isoUnits: ISOUnit[] = [
   { threshold: 1e9, iso: 'G' },
   { threshold: 1e6, iso: 'M' },
   { threshold: 1e3, iso: 'k' },
-  { threshold: 1e0, iso: '' },
 ] as const;
 
 
