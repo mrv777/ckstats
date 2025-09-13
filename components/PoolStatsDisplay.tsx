@@ -137,9 +137,10 @@ export default function PoolStatsDisplay({
                             BigInt(Math.round(Number(stats.diff) * 100))
                         )
                       )
+                    )
                     : 'N/A'}
                 </div>
-                <div className="stat-desc">
+                {/* <div className="stat-desc">
                   <Link
                     href="https://mempool.space/mining/pool/solock"
                     target="_blank"
@@ -147,7 +148,7 @@ export default function PoolStatsDisplay({
                   >
                     Found Blocks
                   </Link>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
