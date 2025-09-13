@@ -56,7 +56,10 @@ export default async function TopUserHashrates({
                   <tr key={user.address}>
                     <td>{index + 1}</td>
                     <td>
-                      <Link href={`/users/${user.address}`} className="hover:underline">
+                      <Link
+                        href={`/users/${user.address}`}
+                        className="hover:underline"
+                      >
                         {user.address}
                       </Link>
                     </td>

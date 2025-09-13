@@ -7,7 +7,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import ThemeController from './ThemeController';
-import { validateBitcoinAddress } from '../utils/validateBitcoinAddress';
 
 export default function Header() {
   const [address, setAddress] = useState('');
@@ -109,8 +108,9 @@ export default function Header() {
       <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
         <form method="dialog" className="modal-box">
           <h3
-            className={`font-bold text-lg ${isError ? 'text-error' : 'text-success'
-              }`}
+            className={`font-bold text-lg ${
+              isError ? 'text-error' : 'text-success'
+            }`}
           >
             {isError ? 'Error' : 'Success'}
           </h3>
