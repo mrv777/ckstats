@@ -10,6 +10,7 @@
     "lint:fix": "next lint --fix",
     "seed": "ts-node -P tsconfig.scripts.json scripts/seed.ts",
     "update-users": "ts-node -P tsconfig.scripts.json scripts/updateUsers.ts",
+    "update-users-from-logs": "ts-node -P tsconfig.scripts.json scripts/updateUsersFromLogs.ts",
     "cleanup": "ts-node -P tsconfig.scripts.json scripts/cleanOldStats.ts",
     "vacuum": "PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f scripts/vacuum.sql",
     "test": "jest",
