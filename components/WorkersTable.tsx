@@ -42,7 +42,7 @@ const WorkersTable: React.FC<WorkersTableProps> = ({ workers, address }) => {
         'bestEver',
       ];
       if (numericFields.includes(sortField)) {
-        const toBigIntSafe = (v: any): bigint => {
+        const toBigIntSafe = (v: string | number | bigint | undefined | null): bigint => {
           const s = String(v ?? '0').trim();
           // If it's an integer string, use BigInt directly
           if (/^[+-]?\d+$/.test(s)) {
