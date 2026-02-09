@@ -10,6 +10,7 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['typeorm'],
   },
+  staticPageGenerationTimeout: 300,
 }
 
 module.exports = nextConfig
