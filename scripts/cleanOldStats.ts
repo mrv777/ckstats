@@ -1,11 +1,13 @@
 import 'dotenv/config';
 import { getDb } from '../lib/db';
 import { PoolStats } from '../lib/entities/PoolStats';
+import { User } from '../lib/entities/User';
 import { UserStats } from '../lib/entities/UserStats';
+import { Worker } from '../lib/entities/Worker';
 import { WorkerStats } from '../lib/entities/WorkerStats';
-import { LessThan } from 'typeorm';
+import { In, Not, LessThan } from 'typeorm';
 
-async function cleanOldStats() {
+async function cleanOldStats(db) {
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
@@ -19,8 +21,6 @@ async function cleanOldStats() {
   oneDayAgo.setDate(oneDayAgo.getDate() - 1);
 
   try {
-    const db = await getDb();
-
     // Delete old pool stats
     const poolStatsResult = await db.getRepository(PoolStats).delete({
       timestamp: LessThan(oneWeekAgo)
@@ -42,10 +42,61 @@ async function cleanOldStats() {
     console.log('Old stats cleanup completed successfully');
   } catch (error) {
     console.error('Error cleaning old stats:', error);
+  }
+}
+
+async function cleanDeadWorkers(db) {
+  try {
+    // Find active users
+    const activeUsers = await db.getRepository(User).find({
+      where: { isActive: true },
+      relations: ['workers'],
+    });
+
+    let deletedWorkersCount = 0;
+    let deletedStatsCount = 0;
+
+    for (const user of activeUsers) {
+      const INACTIVE_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+      const threshold = new Date(Date.now() - INACTIVE_THRESHOLD_MS);
+
+      const deadWorkers = user.workers.filter(worker =>
+	worker.lastUpdate< threshold
+      );
+
+      if (deadWorkers.length > 0) {
+        // Delete associated WorkerStats first (to avoid foreign key issues)
+        const deadWorkerIds = deadWorkers.map(w => w.id);
+        const statsResult = await db.getRepository(WorkerStats).delete({
+          worker: { id: In(deadWorkerIds) },
+        });
+        deletedStatsCount += statsResult.affected || 0;
+
+        // Then delete the workers
+        const workersResult = await db.getRepository(Worker).delete({
+          id: In(deadWorkerIds),
+        });
+        deletedWorkersCount += workersResult.affected || 0;
+      }
+    }
+
+    console.log(`Deleted ${deletedWorkersCount} dead workers and ${deletedStatsCount} associated stats for active users`);
+    console.log('Dead workers cleanup completed successfully');
+  } catch (error) {
+    console.error('Error cleaning dead workers: ', error);
+  }
+}
+
+async function main() {
+  try {
+    const db = await getDb();
+
+    await cleanOldStats(db).catch(console.error); 
+    await cleanDeadWorkers(db).catch(console.error);
   } finally {
     const db = await getDb();
     await db.destroy();
   }
 }
 
-cleanOldStats().catch(console.error); 
+main()
