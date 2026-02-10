@@ -21,56 +21,64 @@ export async function savePoolStats(stats: PoolStatsInput): Promise<PoolStats> {
 export async function getLatestPoolStats(): Promise<PoolStats | null> {
   const db = await getDb();
   const repository = db.getRepository(PoolStats);
-  return repository.findOne({
-    where: {},
-    order: { timestamp: 'DESC' },
-  });
+
+  return repository
+    .createQueryBuilder('stats')
+    .orderBy('stats.timestamp', 'DESC')
+    .limit(1)
+    .getOne(); // returns PoolStats | null
 }
 
 export async function getHistoricalPoolStats(): Promise<PoolStats[]> {
   const db = await getDb();
   const repository = db.getRepository(PoolStats);
-  return repository.find({
-    order: { timestamp: 'DESC' },
-    take: HISTORICAL_DATA_POINTS,
-  });
+
+  return repository
+    .createQueryBuilder('stat')
+    .orderBy('stat.timestamp', 'DESC')
+    .limit(HISTORICAL_DATA_POINTS)
+    .getMany();
 }
 
 export async function getUserWithWorkersAndStats(address: string) {
   const db = await getDb();
-  const userRepository = db.getRepository(User);
+  const userRepo = db.getRepository(User);
+  const statsRepo = db.getRepository(UserStats);
 
-  const user = await userRepository.findOne({
-    where: { address },
-    relations: {
-      workers: true,
-      stats: true,
-    },
-    relationLoadStrategy: 'query',
-  });
+  // 1. User + sorted workers (small & fast)
+  const user = await userRepo
+    .createQueryBuilder('user')
+    .where('user.address = :address', { address })
+    .leftJoinAndSelect('user.workers', 'worker')
+    .addOrderBy('worker.hashrate5m', 'DESC')
+    .getOne();
 
   if (!user) return null;
 
-  // Sort workers by hashrate
-  user.workers.sort((a, b) => Number(b.hashrate5m) - Number(a.hashrate5m));
-
-  // Sort stats by timestamp and take the most recent
-  user.stats.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  // 2. Only the latest stat
+  const latestStat = await statsRepo
+    .createQueryBuilder('stat')
+    .where('stat.userAddress = :address', { address: user.address })
+    .orderBy('stat.timestamp', 'DESC')
+    .limit(1)
+    .getOne();
 
   return {
     ...user,
-    stats: user.stats.slice(0, 1),
+    stats: latestStat ? [latestStat] : [],
   };
 }
 
 export async function getUserHistoricalStats(address: string) {
   const db = await getDb();
   const repository = db.getRepository(UserStats);
-  return repository.find({
-    where: { userAddress: address },
-    order: { timestamp: 'DESC' },
-    take: HISTORICAL_DATA_POINTS,
-  });
+
+  return repository
+    .createQueryBuilder('stat')
+    .where('stat.userAddress = :address', { address })
+    .orderBy('stat.timestamp', 'DESC')
+    .limit(HISTORICAL_DATA_POINTS)
+    .getMany();
 }
 
 export async function getWorkerWithStats(
