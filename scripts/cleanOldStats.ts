@@ -5,8 +5,14 @@ import { User } from '../lib/entities/User';
 import { UserStats } from '../lib/entities/UserStats';
 import { Worker } from '../lib/entities/Worker';
 import { WorkerStats } from '../lib/entities/WorkerStats';
-import { In, Not, LessThan } from 'typeorm';
+import { In, LessThan } from 'typeorm';
 
+
+/**
+ * Cleans up old statistical records from the database to prevent indefinite growth.
+ *
+ * @param {DataSource | Connection} db - The TypeORM database connection.
+ */
 async function cleanOldStats(db) {
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
@@ -44,6 +50,12 @@ async function cleanOldStats(db) {
     console.error('Error cleaning old stats:', error);
   }
 }
+
+/**
+ * Cleans up old statistical records from the database to prevent indefinite growth.
+ *
+ * @param {DataSource | Connection} db - The TypeORM database connection.
+ */
 
 async function cleanDeadWorkers(db) {
   try {
@@ -94,7 +106,6 @@ async function main() {
     await cleanOldStats(db).catch(console.error); 
     await cleanDeadWorkers(db).catch(console.error);
   } finally {
-    const db = await getDb();
     await db.destroy();
   }
 }
