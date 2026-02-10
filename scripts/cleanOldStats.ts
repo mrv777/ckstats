@@ -52,7 +52,7 @@ async function cleanOldStats(db) {
 }
 
 /**
- * Cleans up old statistical records from the database to prevent indefinite growth.
+ * Remove dead workers and their related stats.
  *
  * @param {DataSource | Connection} db - The TypeORM database connection.
  */
@@ -99,6 +99,10 @@ async function cleanDeadWorkers(db) {
   }
 }
 
+/**
+ * Run all the clean up actions.
+ */
+
 async function main() {
   try {
     const db = await getDb();
@@ -111,3 +115,4 @@ async function main() {
 }
 
 main()
+
