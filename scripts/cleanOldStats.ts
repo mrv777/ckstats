@@ -103,8 +103,8 @@ async function main() {
   const db = await getDb();
 
   try {
-    await cleanOldStats(db)
-    await cleanDeadWorkers(db)
+    await cleanOldStats(db);
+    await cleanDeadWorkers(db);
   } finally {
     await db.destroy();
   }
