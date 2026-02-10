@@ -17,9 +17,6 @@ async function cleanOldStats(db) {
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-  const fiveDaysAgo = new Date();
-  fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
-
   const threeDaysAgo = new Date();
   threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
@@ -72,7 +69,7 @@ async function cleanDeadWorkers(db) {
 
     for (const user of activeUsers) {
       const deadWorkers = user.workers.filter(worker =>
-	worker.lastUpdate< threshold
+        worker.lastUpdate < threshold
       );
 
       if (deadWorkers.length > 0) {
