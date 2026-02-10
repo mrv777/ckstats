@@ -67,11 +67,10 @@ async function cleanDeadWorkers(db) {
 
     let deletedWorkersCount = 0;
     let deletedStatsCount = 0;
+    const INACTIVE_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+    const threshold = new Date(Date.now() - INACTIVE_THRESHOLD_MS);
 
     for (const user of activeUsers) {
-      const INACTIVE_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
-      const threshold = new Date(Date.now() - INACTIVE_THRESHOLD_MS);
-
       const deadWorkers = user.workers.filter(worker =>
 	worker.lastUpdate< threshold
       );
@@ -104,11 +103,11 @@ async function cleanDeadWorkers(db) {
  */
 
 async function main() {
-  try {
-    const db = await getDb();
+  const db = await getDb();
 
-    await cleanOldStats(db).catch(console.error); 
-    await cleanDeadWorkers(db).catch(console.error);
+  try {
+    await cleanOldStats(db)
+    await cleanDeadWorkers(db)
   } finally {
     await db.destroy();
   }
