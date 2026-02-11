@@ -107,42 +107,49 @@ export async function getWorkerWithStats(
   return worker;
 }
 
+/**
+ * Get top user difficulties.
+ *
+ * Fetches the latest `UserStats` row for each public user (using a LATERAL
+ * subquery) and returns the top `limit` users ordered by `bestEver` (numeric)
+ * in descending order. All heavy lifting is done in the database so only the
+ * final `limit` rows are returned to the application.
+ *
+ * @param limit - number of users to return (default: 10)
+ * @returns array of objects: { address, workerCount, difficulty,
+ *          hashrate1hr, hashrate1d, hashrate7d, bestShare }
+ */
 export async function getTopUserDifficulties(limit: number = 10) {
   const db = await getDb();
-  const repository = db.getRepository(UserStats);
 
-  const topUsers = await repository
-    .createQueryBuilder('userStats')
-    .innerJoin('userStats.user', 'user')
-    .select([
-      'userStats.id',
-      'userStats.userAddress',
-      'userStats.workerCount',
-      'userStats.bestEver',
-      'userStats.bestShare',
-      'userStats.hashrate1hr',
-      'userStats.hashrate1d',
-      'userStats.hashrate7d',
-      'userStats.timestamp',
-    ])
-    .where('user.isPublic = :isPublic', { isPublic: true })
-    .distinctOn(['userStats.userAddress'])
-    .orderBy('userStats.userAddress', 'ASC')
-    .addOrderBy('userStats.timestamp', 'DESC')
-    .getMany();
+  // Use a LATERAL join: for each public user select their latest UserStats row,
+  // then order those latest rows by bestEver and limit in the DB.
+  const rows = await db.query(
+    `
+    SELECT s."userAddress", s."workerCount", s."bestEver", s."hashrate1hr", s."hashrate1d", s."hashrate7d", s."bestShare"
+    FROM "User" u
+    JOIN LATERAL (
+      SELECT *
+      FROM "UserStats" us
+      WHERE us."userAddress" = u."address"
+      ORDER BY us."timestamp" DESC
+      LIMIT 1
+    ) s ON true
+    WHERE u."isPublic" = $1
+    ORDER BY (s."bestEver")::numeric DESC
+    LIMIT $2
+    `,
+    [true, limit]
+  );
 
-  const sortedUsers = topUsers
-    .sort((a, b) => Number(b.bestEver) - Number(a.bestEver))
-    .slice(0, limit);
-
-  return sortedUsers.map((stats) => ({
-    address: stats.userAddress,
-    workerCount: stats.workerCount,
-    difficulty: stats.bestEver.toString(),
-    hashrate1hr: stats.hashrate1hr.toString(),
-    hashrate1d: stats.hashrate1d.toString(),
-    hashrate7d: stats.hashrate7d.toString(),
-    bestShare: stats.bestShare.toString(),
+  return rows.map((r: any) => ({
+    address: r.userAddress,
+    workerCount: r.workerCount,
+    difficulty: r.bestEver.toString(),
+    hashrate1hr: r.hashrate1hr.toString(),
+    hashrate1d: r.hashrate1d.toString(),
+    hashrate7d: r.hashrate7d.toString(),
+    bestShare: r.bestShare.toString(),
   }));
 }
 
