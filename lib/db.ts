@@ -32,7 +32,30 @@ const AppDataSource = new DataSource({
 
 let connectionPromise: Promise<DataSource> | null = null;
 
+/**
+ * Retrieves (or initializes) the shared TypeORM DataSource instance for the
+ * PostgreSQL database.
+ *
+ * **Runtime recovery behavior**:
+ * - If the database becomes unavailable after successful initialization
+ *   (e.g., restart, network issue, failover),
+ *   the underlying `pg` connection pool automatically detects and discards
+ *   broken connections when they are used.
+ * - New connections are created transparently on the next query (as long as
+ *   the database is reachable and
+ *   the pool has not reached its `max` limit).
+ * - This means the **first query after an outage will typically fail**, but
+ *   subsequent queries should succeed automatically once the database recovers.
+ *
+ * @returns {Promise<DataSource>} A promise that resolves to the initialized
+ *                                TypeORM DataSource.
+ *                               Rejects if initialization fails (and clears
+ *                               the promise for retry on next call).
+ */
+
 export async function getDb() {
+  // On first call we init.  Note that only one concurrent caller
+  // can get into this code block
   if (!connectionPromise) {
     connectionPromise = AppDataSource.initialize()
       .then((connection) => {
@@ -45,17 +68,7 @@ export async function getDb() {
       });
   }
 
-  try {
-    const connection = await connectionPromise;
-    if (!connection.isInitialized) {
-      connectionPromise = null;
-      return getDb();
-    }
-    return connection;
-  } catch (error) {
-    connectionPromise = null;
-    throw error;
-  }
+  // If someone concurrently calls getDb() before we complete init,
+  // then this will suspend them till that init has finished.
+  return await connectionPromise;
 }
-
-export default AppDataSource;
