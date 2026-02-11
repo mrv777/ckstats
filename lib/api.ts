@@ -153,47 +153,52 @@ export async function getTopUserDifficulties(limit: number = 10) {
   }));
 }
 
+/**
+  * Get top user hashrates.
+  *
+  * For each public and active user, selects their latest `UserStats` row
+  * (via a LATERAL subquery) and returns the top `limit` users ordered by
+  * `hashrate1hr` (numeric) in descending order. Query work is performed in
+  * the database so only the final `limit` rows are returned to the app.
+  *
+  * @param limit - number of users to return (default: 10)
+  * @returns array of objects: { address, workerCount, hashrate1hr, hashrate1d,
+  *          hashrate7d, bestShare, bestEver }
+  */
 export async function getTopUserHashrates(limit: number = 10) {
   const db = await getDb();
-  const repository = db.getRepository(UserStats);
 
-  // First get the latest stats for each user
-  const topUsers = await repository
-    .createQueryBuilder('userStats')
-    .innerJoinAndSelect('userStats.user', 'user')
-    .select([
-      'userStats.id',
-      'userStats.userAddress',
-      'userStats.workerCount',
-      'userStats.hashrate1hr',
-      'userStats.hashrate1d',
-      'userStats.hashrate7d',
-      'userStats.bestShare',
-      'userStats.bestEver',
-      'userStats.timestamp',
-    ])
-    .where('user.isPublic = :isPublic', { isPublic: true })
-    .andWhere('user.isActive = :isActive', { isActive: true })
-    .distinctOn(['userStats.userAddress'])
-    .orderBy('userStats.userAddress', 'ASC')
-    .addOrderBy('userStats.timestamp', 'DESC')
-    .getMany();
+  // Use a LATERAL join: for each public+active user select their latest UserStats row,
+  // then order those latest rows by hashrate1hr and limit in the DB.
+  const rows = await db.query(
+    `
+    SELECT s."userAddress", s."workerCount", s."hashrate1hr", s."hashrate1d", s."hashrate7d", s."bestShare", s."bestEver"
+    FROM "User" u
+    JOIN LATERAL (
+      SELECT *
+      FROM "UserStats" us
+      WHERE us."userAddress" = u."address"
+      ORDER BY us."timestamp" DESC
+      LIMIT 1
+    ) s ON true
+    WHERE u."isPublic" = $1 AND u."isActive" = $2
+    ORDER BY (s."hashrate1hr")::numeric DESC
+    LIMIT $3
+    `,
+    [true, true, limit]
+  );
 
-  // Then sort by hashrate and take the top N
-  const sortedUsers = topUsers
-    .sort((a, b) => Number(b.hashrate1hr) - Number(a.hashrate1hr))
-    .slice(0, limit);
-
-  return sortedUsers.map((stats) => ({
-    address: stats.userAddress,
-    workerCount: stats.workerCount,
-    hashrate1hr: stats.hashrate1hr.toString(),
-    hashrate1d: stats.hashrate1d.toString(),
-    hashrate7d: stats.hashrate7d.toString(),
-    bestShare: stats.bestShare.toString(),
-    bestEver: stats.bestEver.toString(),
+  return rows.map((r: any) => ({
+    address: r.userAddress,
+    workerCount: r.workerCount,
+    hashrate1hr: r.hashrate1hr.toString(),
+    hashrate1d: r.hashrate1d.toString(),
+    hashrate7d: r.hashrate7d.toString(),
+    bestShare: r.bestShare.toString(),
+    bestEver: r.bestEver.toString(),
   }));
 }
+
 
 export async function resetUserActive(address: string): Promise<void> {
   const db = await getDb();
