@@ -1,5 +1,7 @@
 import * as fs from 'fs';
 
+import NodeCache from 'node-cache';
+
 import { getDb } from './db';
 import { PoolStats } from './entities/PoolStats';
 import { User } from './entities/User';
@@ -8,6 +10,9 @@ import { Worker } from './entities/Worker';
 import { convertHashrate } from '../utils/helpers';
 
 const HISTORICAL_DATA_POINTS = 5760;
+
+// Initialize cache with a default 1-minute TTL
+const cache = new NodeCache({ stdTTL: 60 });
 
 export type PoolStatsInput = Omit<PoolStats, 'id' | 'timestamp'>;
 
@@ -19,25 +24,49 @@ export async function savePoolStats(stats: PoolStatsInput): Promise<PoolStats> {
 }
 
 export async function getLatestPoolStats(): Promise<PoolStats | null> {
+  const cacheKey = 'pool:latest';
+
+  // Try cache first (cached null is a valid cached value)
+  const cached = cache.get<PoolStats | null>(cacheKey);
+  if (cached !== undefined) {
+    return cached;
+  }
+
   const db = await getDb();
   const repository = db.getRepository(PoolStats);
 
-  return repository
+  const result = await repository
     .createQueryBuilder('stats')
     .orderBy('stats.timestamp', 'DESC')
     .limit(1)
     .getOne(); // returns PoolStats | null
+
+  // Cache for 60 seconds
+  cache.set(cacheKey, result, 60);
+  return result;
 }
 
 export async function getHistoricalPoolStats(): Promise<PoolStats[]> {
+  const cacheKey = 'pool:historical';
+
+  // Try cache first
+  const cached = cache.get<PoolStats[]>(cacheKey);
+  if (cached !== undefined) {
+    return cached;
+  }
+
   const db = await getDb();
   const repository = db.getRepository(PoolStats);
 
-  return repository
+  const result = await repository
     .createQueryBuilder('stat')
     .orderBy('stat.timestamp', 'DESC')
     .limit(HISTORICAL_DATA_POINTS)
     .getMany();
+
+  // Cache for 60 seconds
+  cache.set(cacheKey, result, 60);
+  return result;
 }
 
 export async function getUserWithWorkersAndStats(address: string) {
@@ -120,6 +149,14 @@ export async function getWorkerWithStats(
  *          hashrate1hr, hashrate1d, hashrate7d, bestShare }
  */
 export async function getTopUserDifficulties(limit: number = 10) {
+  const cacheKey = `topUserDifficulties:${limit}`;
+
+  // Try to get from cache
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const db = await getDb();
 
   // Use a LATERAL join: for each public user select their latest UserStats row,
@@ -142,7 +179,7 @@ export async function getTopUserDifficulties(limit: number = 10) {
     [true, limit]
   );
 
-  return rows.map((r: any) => ({
+  const result = rows.map((r: any) => ({
     address: r.userAddress,
     workerCount: r.workerCount,
     difficulty: r.bestEver.toString(),
@@ -151,21 +188,33 @@ export async function getTopUserDifficulties(limit: number = 10) {
     hashrate7d: r.hashrate7d.toString(),
     bestShare: r.bestShare.toString(),
   }));
+
+  // Store in cache for 5 minutes
+  cache.set(cacheKey, result, 5 * 60);
+  return result;
 }
 
 /**
-  * Get top user hashrates.
-  *
-  * For each public and active user, selects their latest `UserStats` row
-  * (via a LATERAL subquery) and returns the top `limit` users ordered by
-  * `hashrate1hr` (numeric) in descending order. Query work is performed in
-  * the database so only the final `limit` rows are returned to the app.
-  *
-  * @param limit - number of users to return (default: 10)
-  * @returns array of objects: { address, workerCount, hashrate1hr, hashrate1d,
-  *          hashrate7d, bestShare, bestEver }
-  */
+ * Get top user hashrates.
+ *
+ * For each public and active user, selects their latest `UserStats` row
+ * (via a LATERAL subquery) and returns the top `limit` users ordered by
+ * `hashrate1hr` (numeric) in descending order. Query work is performed in
+ * the database so only the final `limit` rows are returned to the app.
+ *
+ * @param limit - number of users to return (default: 10)
+ * @returns array of objects: { address, workerCount, hashrate1hr, hashrate1d,
+ *          hashrate7d, bestShare, bestEver }
+ */
 export async function getTopUserHashrates(limit: number = 10) {
+  const cacheKey = `topUserHashrates:${limit}`;
+
+  // Try to get from cache
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const db = await getDb();
 
   // Use a LATERAL join: for each public+active user select their latest UserStats row,
@@ -188,7 +237,7 @@ export async function getTopUserHashrates(limit: number = 10) {
     [true, true, limit]
   );
 
-  return rows.map((r: any) => ({
+  const result = rows.map((r: any) => ({
     address: r.userAddress,
     workerCount: r.workerCount,
     hashrate1hr: r.hashrate1hr.toString(),
@@ -197,8 +246,11 @@ export async function getTopUserHashrates(limit: number = 10) {
     bestShare: r.bestShare.toString(),
     bestEver: r.bestEver.toString(),
   }));
-}
 
+  // Store in cache for 5 minutes
+  cache.set(cacheKey, result, 5 * 60);
+  return result;
+}
 
 export async function resetUserActive(address: string): Promise<void> {
   const db = await getDb();
