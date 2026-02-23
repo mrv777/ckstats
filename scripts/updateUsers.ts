@@ -9,6 +9,7 @@ import { WorkerStats } from '../lib/entities/WorkerStats';
 import { convertHashrate } from '../utils/helpers';
 
 const BATCH_SIZE = 10;
+const FETCH_TIMEOUT_MS = 10000;
 
 interface WorkerData {
   workername: string;
@@ -55,6 +56,7 @@ async function main() {
 
     if (users.length === 0) {
       console.log('No active users found');
+      return;
     }
 
     // Process users in batches
@@ -73,7 +75,7 @@ async function main() {
 
         const apiUrl = (process.env.API_URL || 'https://solo.ckpool.org') + `/users/${address}`;
         try {
-          const response = await fetch(apiUrl);
+          const response = await fetch(apiUrl, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
