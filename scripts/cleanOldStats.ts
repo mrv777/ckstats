@@ -1,11 +1,13 @@
 import 'dotenv/config';
+
+import { In, LessThan } from 'typeorm';
+
 import { getDb } from '../lib/db';
 import { PoolStats } from '../lib/entities/PoolStats';
 import { User } from '../lib/entities/User';
 import { UserStats } from '../lib/entities/UserStats';
 import { Worker } from '../lib/entities/Worker';
 import { WorkerStats } from '../lib/entities/WorkerStats';
-import { In, LessThan } from 'typeorm';
 
 
 /**
@@ -13,7 +15,7 @@ import { In, LessThan } from 'typeorm';
  *
  * @param {DataSource | Connection} db - The TypeORM database connection.
  */
-async function cleanOldStats(db) {
+async function cleanOldStats(db: DataSource) {
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
@@ -54,7 +56,7 @@ async function cleanOldStats(db) {
  * @param {DataSource | Connection} db - The TypeORM database connection.
  */
 
-async function cleanDeadWorkers(db) {
+async function cleanDeadWorkers(db: DataSource) {
   try {
     // Find active users
     const activeUsers = await db.getRepository(User).find({
