@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-import { In, LessThan } from 'typeorm';
+import { DataSource, In, LessThan } from 'typeorm';
 
 import { getDb } from '../lib/db';
 import { PoolStats } from '../lib/entities/PoolStats';
