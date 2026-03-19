@@ -1,5 +1,7 @@
 import * as fs from 'fs';
 
+import NodeCache from 'node-cache';
+
 import { getDb } from './db';
 import { PoolStats } from './entities/PoolStats';
 import { User } from './entities/User';
@@ -8,6 +10,9 @@ import { Worker } from './entities/Worker';
 import { convertHashrate } from '../utils/helpers';
 
 const HISTORICAL_DATA_POINTS = 5760;
+
+// Initialize cache with a default 1-minute TTL
+const cache = new NodeCache({ stdTTL: 60 });
 
 export type PoolStatsInput = Omit<PoolStats, 'id' | 'timestamp'>;
 
@@ -19,58 +24,90 @@ export async function savePoolStats(stats: PoolStatsInput): Promise<PoolStats> {
 }
 
 export async function getLatestPoolStats(): Promise<PoolStats | null> {
+  const cacheKey = 'pool:latest';
+
+  // Try cache first (cached null is a valid cached value)
+  const cached = cache.get<PoolStats | null>(cacheKey);
+  if (cached !== undefined) {
+    return cached;
+  }
+
   const db = await getDb();
   const repository = db.getRepository(PoolStats);
-  return repository.findOne({
-    where: {},
-    order: { timestamp: 'DESC' },
-  });
+
+  const result = await repository
+    .createQueryBuilder('stats')
+    .orderBy('stats.timestamp', 'DESC')
+    .limit(1)
+    .getOne(); // returns PoolStats | null
+
+  // Cache for 60 seconds
+  cache.set(cacheKey, result, 60);
+  return result;
 }
 
 export async function getHistoricalPoolStats(): Promise<PoolStats[]> {
+  const cacheKey = 'pool:historical';
+
+  // Try cache first
+  const cached = cache.get<PoolStats[]>(cacheKey);
+  if (cached !== undefined) {
+    return cached;
+  }
+
   const db = await getDb();
   const repository = db.getRepository(PoolStats);
-  return repository.find({
-    order: { timestamp: 'DESC' },
-    take: HISTORICAL_DATA_POINTS,
-  });
+
+  const result = await repository
+    .createQueryBuilder('stat')
+    .orderBy('stat.timestamp', 'DESC')
+    .limit(HISTORICAL_DATA_POINTS)
+    .getMany();
+
+  // Cache for 60 seconds
+  cache.set(cacheKey, result, 60);
+  return result;
 }
 
 export async function getUserWithWorkersAndStats(address: string) {
   const db = await getDb();
-  const userRepository = db.getRepository(User);
+  const userRepo = db.getRepository(User);
+  const statsRepo = db.getRepository(UserStats);
 
-  const user = await userRepository.findOne({
-    where: { address },
-    relations: {
-      workers: true,
-      stats: true,
-    },
-    relationLoadStrategy: 'query',
-  });
+  // 1. User + sorted workers (small & fast)
+  const user = await userRepo
+    .createQueryBuilder('user')
+    .where('user.address = :address', { address })
+    .leftJoinAndSelect('user.workers', 'worker')
+    .addOrderBy('worker.hashrate5m', 'DESC')
+    .getOne();
 
   if (!user) return null;
 
-  // Sort workers by hashrate
-  user.workers.sort((a, b) => Number(b.hashrate5m) - Number(a.hashrate5m));
-
-  // Sort stats by timestamp and take the most recent
-  user.stats.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  // 2. Only the latest stat
+  const latestStat = await statsRepo
+    .createQueryBuilder('stat')
+    .where('stat.userAddress = :address', { address: user.address })
+    .orderBy('stat.timestamp', 'DESC')
+    .limit(1)
+    .getOne();
 
   return {
     ...user,
-    stats: user.stats.slice(0, 1),
+    stats: latestStat ? [latestStat] : [],
   };
 }
 
 export async function getUserHistoricalStats(address: string) {
   const db = await getDb();
   const repository = db.getRepository(UserStats);
-  return repository.find({
-    where: { userAddress: address },
-    order: { timestamp: 'DESC' },
-    take: HISTORICAL_DATA_POINTS,
-  });
+
+  return repository
+    .createQueryBuilder('stat')
+    .where('stat.userAddress = :address', { address })
+    .orderBy('stat.timestamp', 'DESC')
+    .limit(HISTORICAL_DATA_POINTS)
+    .getMany();
 }
 
 export async function getWorkerWithStats(
@@ -99,85 +136,120 @@ export async function getWorkerWithStats(
   return worker;
 }
 
+/**
+ * Get top user difficulties.
+ *
+ * Fetches the latest `UserStats` row for each public user (using a LATERAL
+ * subquery) and returns the top `limit` users ordered by `bestEver` (numeric)
+ * in descending order. All heavy lifting is done in the database so only the
+ * final `limit` rows are returned to the application.
+ *
+ * @param limit - number of users to return (default: 10)
+ * @returns array of objects: { address, workerCount, difficulty,
+ *          hashrate1hr, hashrate1d, hashrate7d, bestShare }
+ */
 export async function getTopUserDifficulties(limit: number = 10) {
+  const cacheKey = `topUserDifficulties:${limit}`;
+
+  // Try to get from cache
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const db = await getDb();
-  const repository = db.getRepository(UserStats);
 
-  const topUsers = await repository
-    .createQueryBuilder('userStats')
-    .innerJoin('userStats.user', 'user')
-    .select([
-      'userStats.id',
-      'userStats.userAddress',
-      'userStats.workerCount',
-      'userStats.bestEver',
-      'userStats.bestShare',
-      'userStats.hashrate1hr',
-      'userStats.hashrate1d',
-      'userStats.hashrate7d',
-      'userStats.timestamp',
-    ])
-    .where('user.isPublic = :isPublic', { isPublic: true })
-    .distinctOn(['userStats.userAddress'])
-    .orderBy('userStats.userAddress', 'ASC')
-    .addOrderBy('userStats.timestamp', 'DESC')
-    .getMany();
+  // Use a LATERAL join: for each public user select their latest UserStats row,
+  // then order those latest rows by bestEver and limit in the DB.
+  const rows = await db.query(
+    `
+    SELECT s."userAddress", s."workerCount", s."bestEver", s."hashrate1hr", s."hashrate1d", s."hashrate7d", s."bestShare"
+    FROM "User" u
+    JOIN LATERAL (
+      SELECT *
+      FROM "UserStats" us
+      WHERE us."userAddress" = u."address"
+      ORDER BY us."timestamp" DESC
+      LIMIT 1
+    ) s ON true
+    WHERE u."isPublic" = $1
+    ORDER BY (s."bestEver")::numeric DESC
+    LIMIT $2
+    `,
+    [true, limit]
+  );
 
-  const sortedUsers = topUsers
-    .sort((a, b) => Number(b.bestEver) - Number(a.bestEver))
-    .slice(0, limit);
-
-  return sortedUsers.map((stats) => ({
-    address: stats.userAddress,
-    workerCount: stats.workerCount,
-    difficulty: stats.bestEver.toString(),
-    hashrate1hr: stats.hashrate1hr.toString(),
-    hashrate1d: stats.hashrate1d.toString(),
-    hashrate7d: stats.hashrate7d.toString(),
-    bestShare: stats.bestShare.toString(),
+  const result = rows.map((r: any) => ({
+    address: r.userAddress,
+    workerCount: r.workerCount,
+    difficulty: r.bestEver.toString(),
+    hashrate1hr: r.hashrate1hr.toString(),
+    hashrate1d: r.hashrate1d.toString(),
+    hashrate7d: r.hashrate7d.toString(),
+    bestShare: r.bestShare.toString(),
   }));
+
+  // Store in cache for 5 minutes
+  cache.set(cacheKey, result, 5 * 60);
+  return result;
 }
 
+/**
+ * Get top user hashrates.
+ *
+ * For each public and active user, selects their latest `UserStats` row
+ * (via a LATERAL subquery) and returns the top `limit` users ordered by
+ * `hashrate1hr` (numeric) in descending order. Query work is performed in
+ * the database so only the final `limit` rows are returned to the app.
+ *
+ * @param limit - number of users to return (default: 10)
+ * @returns array of objects: { address, workerCount, hashrate1hr, hashrate1d,
+ *          hashrate7d, bestShare, bestEver }
+ */
 export async function getTopUserHashrates(limit: number = 10) {
+  const cacheKey = `topUserHashrates:${limit}`;
+
+  // Try to get from cache
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const db = await getDb();
-  const repository = db.getRepository(UserStats);
 
-  // First get the latest stats for each user
-  const topUsers = await repository
-    .createQueryBuilder('userStats')
-    .innerJoinAndSelect('userStats.user', 'user')
-    .select([
-      'userStats.id',
-      'userStats.userAddress',
-      'userStats.workerCount',
-      'userStats.hashrate1hr',
-      'userStats.hashrate1d',
-      'userStats.hashrate7d',
-      'userStats.bestShare',
-      'userStats.bestEver',
-      'userStats.timestamp',
-    ])
-    .where('user.isPublic = :isPublic', { isPublic: true })
-    .andWhere('user.isActive = :isActive', { isActive: true })
-    .distinctOn(['userStats.userAddress'])
-    .orderBy('userStats.userAddress', 'ASC')
-    .addOrderBy('userStats.timestamp', 'DESC')
-    .getMany();
+  // Use a LATERAL join: for each public+active user select their latest UserStats row,
+  // then order those latest rows by hashrate1hr and limit in the DB.
+  const rows = await db.query(
+    `
+    SELECT s."userAddress", s."workerCount", s."hashrate1hr", s."hashrate1d", s."hashrate7d", s."bestShare", s."bestEver"
+    FROM "User" u
+    JOIN LATERAL (
+      SELECT *
+      FROM "UserStats" us
+      WHERE us."userAddress" = u."address"
+      ORDER BY us."timestamp" DESC
+      LIMIT 1
+    ) s ON true
+    WHERE u."isPublic" = $1 AND u."isActive" = $2
+    ORDER BY (s."hashrate1hr")::numeric DESC
+    LIMIT $3
+    `,
+    [true, true, limit]
+  );
 
-  // Then sort by hashrate and take the top N
-  const sortedUsers = topUsers
-    .sort((a, b) => Number(b.hashrate1hr) - Number(a.hashrate1hr))
-    .slice(0, limit);
-
-  return sortedUsers.map((stats) => ({
-    address: stats.userAddress,
-    workerCount: stats.workerCount,
-    hashrate1hr: stats.hashrate1hr.toString(),
-    hashrate1d: stats.hashrate1d.toString(),
-    hashrate7d: stats.hashrate7d.toString(),
-    bestShare: stats.bestShare.toString(),
-    bestEver: stats.bestEver.toString(),
+  const result = rows.map((r: any) => ({
+    address: r.userAddress,
+    workerCount: r.workerCount,
+    hashrate1hr: r.hashrate1hr.toString(),
+    hashrate1d: r.hashrate1d.toString(),
+    hashrate7d: r.hashrate7d.toString(),
+    bestShare: r.bestShare.toString(),
+    bestEver: r.bestEver.toString(),
   }));
+
+  // Store in cache for 5 minutes
+  cache.set(cacheKey, result, 5 * 60);
+  return result;
 }
 
 export async function resetUserActive(address: string): Promise<void> {

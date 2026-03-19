@@ -37,13 +37,14 @@ This project displays real-time and historical statistics for the CKPool Bitcoin
    You can also set the DB_SSL to true if you want to use SSL and set the DB_SSL_REJECT_UNAUTHORIZED to true if you want to reject untrusted SSL certificates (like self-signed certificates).
    If PostgreSQL is running locally, you can make `DB_HOST` `/var/run/postgresql/` (which connects via a Unix socket).  The username and password are then ignored (authentication is done based on the Unix user connection to the socket).
    If ckpool is running locally you can make `API_URL` the path to the logs directory.  For example `/home/ckpool-testnet/solobtc/logs`.
-   
-6. Install dependencies: `pnpm install`
-7. Run database migrations: `pnpm migration:run`
-8. Seed the database and test the connection: `pnpm seed`
-9. Build the application: `pnpm build`
-10. Start the production server: `pnpm start`
-11. Set up cronjobs for regular updates:
+
+6. If you are upgrading from an existing version: `pnpm store prune`
+7. Install dependencies: `pnpm install`
+8. Run database migrations: `pnpm migration:run`
+9. Seed the database and test the connection: `pnpm seed`
+10. Build the application: `pnpm build`
+11. Start the production server: `pnpm start`
+12. Set up cronjobs for regular updates:
    - Open the crontab editor: `crontab -e`
    - Add lines to run the scripts.  Example:
      ```

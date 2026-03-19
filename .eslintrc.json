@@ -3,7 +3,6 @@
     "next/core-web-vitals",
     "eslint:recommended",
     "plugin:react/recommended",
-    "plugin:react-hooks/recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:import/errors",
     "plugin:import/warnings",
@@ -13,7 +12,6 @@
   ],
   "plugins": [
     "react",
-    "react-hooks",
     "@typescript-eslint",
     "import",
     "jsx-a11y",
