@@ -159,9 +159,17 @@ export function calculateBlockChances(hashRate: bigint, difficulty: number, acce
     };
   }
 
-  const networkDiff = (BigInt(accepted) / BigInt(difficultyFactor)) * BigInt(10000);
+  const networkDiff = (BigInt(accepted) * BigInt(10000)) / BigInt(difficultyFactor);
   const hashesPerDifficulty = BigInt(2 ** 32);
-  // const convertedDifficulty = BigInt(Math.round(Number(networkDiff) * 1e12));
+  if (networkDiff === BigInt(0) || hashesPerDifficulty === BigInt(0)) {
+    return {
+      '1h': '<0.001%',
+      '1d': '<0.001%',
+      '1w': '<0.001%',
+      '1m': '<0.001%',
+      '1y': '<0.001%',
+    };
+  }
   const probabilityPerHash = 1 / Number(networkDiff * hashesPerDifficulty);
   const hashesPerSecond = Number(hashRate);
 
