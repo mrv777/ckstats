@@ -159,9 +159,9 @@ export function calculateBlockChances(hashRate: bigint, difficulty: number, acce
     };
   }
 
-  const networkDiff = (BigInt(accepted) * BigInt(10000)) / BigInt(difficultyFactor);
+  const networkDiff = (accepted * BigInt(10000)) / BigInt(difficultyFactor);
   const hashesPerDifficulty = BigInt(2 ** 32);
-  if (networkDiff === BigInt(0) || hashesPerDifficulty === BigInt(0)) {
+  if (networkDiff === BigInt(0)) {
     return {
       '1h': '<0.001%',
       '1d': '<0.001%',
