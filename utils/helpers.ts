@@ -119,7 +119,7 @@ export function getPercentageChangeColor(change: number | 'N/A'): string {
   return change > 0 ? 'text-success' : change < 0 ? 'text-error' : 'text-base-content';
 }
 
-// Difficulty is assumed to be in T, hashrate in H/s
+// Difficulty is assumed to be in the specified units (e.g., 'T' for terahash), hashrate in H/s
 export function calculateAverageTimeToBlock(hashRate: bigint | number | string, difficulty: number | bigint, units?: string): number {
   const hashesPerDifficulty = BigInt(2 ** 32);
   const hashRateBigInt =
@@ -133,11 +133,8 @@ export function calculateAverageTimeToBlock(hashRate: bigint | number | string, 
 
   let convertedDifficulty: bigint;
   if (typeof difficulty === 'number') {
-    if (units === 'T') {
-      convertedDifficulty = BigInt(Math.round(difficulty * 1e12)); // Convert T
-    } else {
-      convertedDifficulty = BigInt(Math.round(difficulty)); // No units
-    }
+    const isoUnit = isoUnits.find((u) => u.iso.toUpperCase() === units?.toUpperCase()) || { threshold: 1, iso: '' };
+    convertedDifficulty = BigInt(Math.round(difficulty * isoUnit.threshold));
   } else {
     convertedDifficulty = difficulty;
   }
@@ -195,3 +192,4 @@ export function serializeData(data: any) {
     )
   );
 }
+
