@@ -129,7 +129,7 @@ export default function PoolStatsDisplay({
               <div className="stat">
                 <div className="stat-title">Avg Time to Find a Block</div>
                 <div className="stat-value text-2xl">
-                  {stats.hashrate6hr && stats.diff
+                  {Number(stats.hashrate6hr) > 0 && Number(stats.diff) > 0
                     ? formatDuration(
                         calculateAverageTimeToBlock(
                           stats.hashrate6hr,

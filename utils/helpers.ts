@@ -120,11 +120,20 @@ export function getPercentageChangeColor(change: number | 'N/A'): string {
 }
 
 // Difficulty is assumed to be in T, hashrate in H/s
-export function calculateAverageTimeToBlock(hashRate: bigint, difficulty: number | bigint, units?: string): number {
+export function calculateAverageTimeToBlock(hashRate: bigint | number | string, difficulty: number | bigint, units?: string): number {
   const hashesPerDifficulty = BigInt(2 ** 32);
+  const hashRateBigInt =
+    typeof hashRate === 'bigint'
+      ? hashRate
+      : BigInt(Math.round(Number(hashRate)));
+
+  if (hashRateBigInt === BigInt(0)) {
+    return 0;
+  }
+
   let convertedDifficulty: bigint;
   if (typeof difficulty === 'number') {
-  if (units === 'T') {
+    if (units === 'T') {
       convertedDifficulty = BigInt(Math.round(difficulty * 1e12)); // Convert T
     } else {
       convertedDifficulty = BigInt(Math.round(difficulty)); // No units
@@ -132,12 +141,28 @@ export function calculateAverageTimeToBlock(hashRate: bigint, difficulty: number
   } else {
     convertedDifficulty = difficulty;
   }
-  return Number((BigInt(convertedDifficulty) * BigInt(hashesPerDifficulty)) / BigInt(hashRate));
+
+  if (convertedDifficulty === BigInt(0)) {
+    return 0;
+  }
+
+  return Number((convertedDifficulty * BigInt(hashesPerDifficulty)) / hashRateBigInt);
 }
 
 // Difficulty is assumed to be a % of network, hashrate in H/s
 export function calculateBlockChances(hashRate: bigint, difficulty: number, accepted: bigint): { [key: string]: string } {
-  const networkDiff = (BigInt(accepted) / BigInt(Math.round(Number(difficulty) * 100))) * BigInt(10000);
+  const difficultyFactor = Math.round(Number(difficulty) * 100);
+  if (difficultyFactor === 0 || accepted === BigInt(0)) {
+    return {
+      '1h': '<0.001%',
+      '1d': '<0.001%',
+      '1w': '<0.001%',
+      '1m': '<0.001%',
+      '1y': '<0.001%',
+    };
+  }
+
+  const networkDiff = (BigInt(accepted) / BigInt(difficultyFactor)) * BigInt(10000);
   const hashesPerDifficulty = BigInt(2 ** 32);
   // const convertedDifficulty = BigInt(Math.round(Number(networkDiff) * 1e12));
   const probabilityPerHash = 1 / Number(networkDiff * hashesPerDifficulty);
