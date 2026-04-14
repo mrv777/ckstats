@@ -215,7 +215,7 @@ export function calculateBlockChances(hashRate: bigint, difficulty: number, acce
   const difficultyFactor = Math.round(Number(difficulty) * 100);
   const acceptedBigInt = typeof accepted === 'bigint' ? accepted : BigInt(accepted);
   
-  if (difficultyFactor === 0 || acceptedBigInt === BigInt(0)) {
+  if (!Number.isFinite(difficultyFactor) || difficultyFactor <= 0 || acceptedBigInt <= 0n) {
     return {
       '1h': '<0.001%',
       '1d': '<0.001%',
