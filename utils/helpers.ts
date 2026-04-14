@@ -213,7 +213,9 @@ export function calculateAverageTimeToBlock(hashRate: bigint | number | string, 
  */
 export function calculateBlockChances(hashRate: bigint, difficulty: number, accepted: bigint): { [key: string]: string} {
   const difficultyFactor = Math.round(Number(difficulty) * 100);
-  if (difficultyFactor === 0 || accepted === BigInt(0)) {
+  const acceptedBigInt = typeof accepted === 'bigint' ? accepted : BigInt(accepted);
+  
+  if (difficultyFactor === 0 || acceptedBigInt === BigInt(0)) {
     return {
       '1h': '<0.001%',
       '1d': '<0.001%',
@@ -223,7 +225,7 @@ export function calculateBlockChances(hashRate: bigint, difficulty: number, acce
     };
   }
 
-  const networkDiff = (accepted * BigInt(10000)) / BigInt(difficultyFactor);
+  const networkDiff = (acceptedBigInt * BigInt(10000)) / BigInt(difficultyFactor);
   const hashesPerDifficulty = BigInt(2 ** 32);
   if (networkDiff === BigInt(0)) {
     return {
