@@ -20,7 +20,6 @@ interface PoolStatsDisplayProps {
   stats: PoolStats;
   historicalStats: PoolStats[];
 }
-
 export default function PoolStatsDisplay({
   stats,
   historicalStats,
@@ -129,15 +128,21 @@ export default function PoolStatsDisplay({
               <div className="stat">
                 <div className="stat-title">Avg Time to Find a Block</div>
                 <div className="stat-value text-2xl">
-                  {stats.hashrate6hr && stats.diff
-                    ? formatDuration(
-                        calculateAverageTimeToBlock(
-                          stats.hashrate6hr,
-                          (BigInt(stats.accepted) * BigInt(10000)) /
-                            BigInt(Math.round(Number(stats.diff) * 100))
+                  {(() => {
+                    const roundedDiffFactor = Math.round(
+                      Number(stats.diff) * 100
+                    );
+                    return Number(stats.hashrate6hr) > 0 &&
+                      roundedDiffFactor > 0
+                      ? formatDuration(
+                          calculateAverageTimeToBlock(
+                            stats.hashrate6hr,
+                            (BigInt(stats.accepted) * BigInt(10000)) /
+                              BigInt(roundedDiffFactor)
+                          )
                         )
-                      )
-                    : 'N/A'}
+                      : 'N/A';
+                  })()}
                 </div>
                 <div className="stat-desc">
                   <Link
