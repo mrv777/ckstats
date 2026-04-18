@@ -18,6 +18,9 @@
     "migration:run": "ts-node -P tsconfig.scripts.json ./scripts/migration.ts",
     "migration:run:skip": "ts-node -P tsconfig.scripts.json ./scripts/migration.ts --skip-initial"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@bitcoinerlab/secp256k1": "^1.2.0",
     "@tanstack/react-query": "^5.90.21",
