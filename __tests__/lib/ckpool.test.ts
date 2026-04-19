@@ -62,21 +62,21 @@ describe('CKPoolAPI', () => {
             const mockResponse = {
                 pool: { hashrate: '1000000' },
             };
-            global.fetch = jest.fn().mockResolvedValue({
+            jest.spyOn(global, 'fetch').mockResolvedValue({
                 ok: true,
                 text: () => Promise.resolve(JSON.stringify(mockResponse)),
-            });
+            } as unknown as Response);
 
             const result = await api.poolStatus();
             expect(result).toEqual(mockResponse);
         });
 
         it('throws NOT_FOUND on 404', async () => {
-            global.fetch = jest.fn().mockResolvedValue({
+            jest.spyOn(global, 'fetch').mockResolvedValue({
                 ok: false,
                 status: 404,
                 statusText: 'Not Found',
-            });
+            } as unknown as Response);
 
             await expect(api.poolStatus()).rejects.toMatchObject({
                 code: CKPoolErrorCode.NOT_FOUND,
@@ -84,11 +84,11 @@ describe('CKPoolAPI', () => {
         });
 
         it('throws UNKNOWN on non-404 errors', async () => {
-            global.fetch = jest.fn().mockResolvedValue({
+            jest.spyOn(global, 'fetch').mockResolvedValue({
                 ok: false,
                 status: 500,
                 statusText: 'Internal Server Error',
-            });
+            } as unknown as Response);
 
             await expect(api.poolStatus()).rejects.toThrow(CKPoolError);
             await expect(api.poolStatus()).rejects.toMatchObject({
@@ -97,7 +97,7 @@ describe('CKPoolAPI', () => {
         });
 
         it('throws TIMEOUT on timeout', async () => {
-            global.fetch = jest.fn().mockImplementation(() => {
+            jest.spyOn(global, 'fetch').mockImplementation(() => {
                 const err = new Error('Aborted');
                 err.name = 'TimeoutError';
                 throw err;
@@ -116,10 +116,10 @@ describe('CKPoolAPI', () => {
                 address: 'bc1q...',
                 authorised: true,
             };
-            global.fetch = jest.fn().mockResolvedValue({
+            jest.spyOn(global, 'fetch').mockResolvedValue({
                 ok: true,
                 text: () => Promise.resolve(JSON.stringify(mockResponse)),
-            });
+            } as unknown as Response);
 
             const result = await api.users('bc1qtest');
             expect(result).toEqual(mockResponse);
@@ -134,11 +134,11 @@ describe('CKPoolAPI', () => {
 
         it('throws NOT_FOUND when user does not exist', async () => {
             // Mock 404 response for users endpoint
-            global.fetch = jest.fn().mockResolvedValue({
+            jest.spyOn(global, 'fetch').mockResolvedValue({
                 ok: false,
                 status: 404,
                 statusText: 'Not Found',
-            });
+            } as unknown as Response);
 
             await expect(api.users('bc1qnonexistent')).rejects.toMatchObject({
                 code: CKPoolErrorCode.NOT_FOUND,
