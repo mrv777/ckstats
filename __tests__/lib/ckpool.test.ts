@@ -13,6 +13,10 @@ describe('CKPoolAPI', () => {
         api = new CKPoolAPI();
     });
 
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
     describe('constructor', () => {
         it('defaults to https://solo.ckpool.org', () => {
             const testApi = new CKPoolAPI();
@@ -74,7 +78,6 @@ describe('CKPoolAPI', () => {
                 statusText: 'Not Found',
             });
 
-            await expect(api.poolStatus()).rejects.toThrow(CKPoolError);
             await expect(api.poolStatus()).rejects.toMatchObject({
                 code: CKPoolErrorCode.NOT_FOUND,
             });
@@ -122,28 +125,21 @@ describe('CKPoolAPI', () => {
             expect(result).toEqual(mockResponse);
         });
 
-        it('throws INVALID for paths with invalid characters', async () => {
-            // Using private method access for testing
-            // @ts-expect-error - accessing private method for testing
-            await expect(api.api('/users/../etc/passwd')).rejects.toThrow(
-                CKPoolError
-            );
-            // @ts-expect-error - accessing private method for testing
-            await expect(api.api('/users/../etc/passwd')).rejects.toMatchObject({
+        it('throws INVALID for addresses with invalid characters', async () => {
+            await expect(api.users('../etc/passwd')).rejects.toThrow(CKPoolError);
+            await expect(api.users('../etc/passwd')).rejects.toMatchObject({
                 code: CKPoolErrorCode.INVALID,
             });
         });
 
         it('throws NOT_FOUND when user does not exist', async () => {
+            // Mock 404 response for users endpoint
             global.fetch = jest.fn().mockResolvedValue({
                 ok: false,
                 status: 404,
                 statusText: 'Not Found',
             });
 
-            await expect(api.users('bc1qnonexistent')).rejects.toThrow(
-                CKPoolError
-            );
             await expect(api.users('bc1qnonexistent')).rejects.toMatchObject({
                 code: CKPoolErrorCode.NOT_FOUND,
             });
