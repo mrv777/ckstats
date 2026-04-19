@@ -65,14 +65,6 @@ export class CKPoolAPI {
      * @throws {CKPoolError} With code UNKNOWN for other errors
      */
     private async api(path: string): Promise<string> {
-        // Prevent directory traversal attacks
-        if (/[^a-zA-Z0-9]/.test(path)) {
-            throw new CKPoolError(
-                CKPoolErrorCode.INVALID,
-                'Invalid path: only alphanumeric characters allowed'
-            );
-        }
-
         if (this.isHttp) {
             try {
                 const response = await fetch(`${this.apiUrl}${path}`, {
@@ -145,6 +137,14 @@ export class CKPoolAPI {
      * @throws {CKPoolError} With code UNKNOWN for other errors
      */
     async users(address: string): Promise<unknown> {
+        // Validate address to prevent directory traversal
+        if (/[^a-zA-Z0-9]/.test(address)) {
+            throw new CKPoolError(
+                CKPoolErrorCode.INVALID,
+                'Invalid address: only alphanumeric characters allowed'
+            );
+        }
+
         const data = await this.api(`/users/${address}`);
         return JSON.parse(data);
     }
