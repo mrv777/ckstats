@@ -39,7 +39,6 @@ async function fetchPoolStats(): Promise<Partial<PoolStatsData>> {
 
 async function seed() {
   try {
-    console.log('Fetching pool stats...');
     const stats = await fetchPoolStats();
     
     console.log('Saving pool stats to database...');
@@ -75,6 +74,7 @@ async function seed() {
     console.log('Database seeded successfully');
   } catch (error) {
     console.error('Error seeding database:', error);
+    throw error; // Re-throw to ensure the outer catch block is hit
   } finally {
     const db = await getDb();
     await db.destroy();

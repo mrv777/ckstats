@@ -102,7 +102,18 @@ export class CKPoolAPI {
 
   async poolStatus(): Promise<unknown> {
     const data = await this.api('/pool/pool.status');
-    return JSON.parse(data);
+
+    // 1. Remove all newlines to reunite fragmented keys and handle inconsistent line endings
+    const flattened = data.replace(/\r?\n/g, '');
+
+    // 2. Convert concatenated objects into a valid JSON array string.
+    //    Example: {"a":1}{"b":2} -> [{"a":1},{"b":2}]
+    const arrayified = '[' + flattened.replace(/}\s*{/g, '},{') + ']';
+
+    const objects = JSON.parse(arrayified) as Record<string, any>[];
+
+    // 3. Merge all objects into one
+    return objects.reduce((acc, obj) => ({ ...acc, ...obj }), {});
   }
 
   async users(address: string): Promise<unknown> {
