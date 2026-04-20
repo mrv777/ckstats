@@ -1,15 +1,14 @@
 import 'dotenv/config';
 import 'reflect-metadata';
-import * as fs from 'fs';
 import { getDb } from '../lib/db';
 import { User } from '../lib/entities/User';
 import { UserStats } from '../lib/entities/UserStats';
 import { Worker } from '../lib/entities/Worker';
 import { WorkerStats } from '../lib/entities/WorkerStats';
 import { convertHashrate } from '../utils/helpers';
+import { CKPoolAPI, CKPoolError, CKPoolErrorCode } from '../lib/ckpool';
 
 const BATCH_SIZE = 10;
-const FETCH_TIMEOUT_MS = 10000;
 
 interface WorkerData {
   workername: string;
@@ -48,6 +47,7 @@ async function main() {
   try {
     db = await getDb();
     const userRepository = db.getRepository(User);
+    const ckPoolApi = new CKPoolAPI();
 
     const users = await userRepository.find({
       where: { isActive: true },
@@ -67,29 +67,10 @@ async function main() {
       // 1) Fetch remote data for the entire batch concurrently (limited by batch size)
       const fetchPromises = batch.map(async (user) => {
         const address = user.address;
-
-        // Perform a last minute check to prevent directory traversal vulnerabilities
-        if (/[^a-zA-Z0-9]/.test(address)) {
-          return { address, error: new Error('updateUsers(): address contains invalid characters') };
-        }
-
-        const apiUrl = (process.env.API_URL || 'https://solo.ckpool.org') + `/users/${address}`;
         try {
-          const response = await fetch(apiUrl, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const userData = (await response.json()) as UserData;
-          return { address, userData } as { address: string; userData?: UserData; error?: any };
-        } catch (error: any) {
-          if (error.cause?.code == 'ERR_INVALID_URL') {
-            try {
-              const userData = JSON.parse(fs.readFileSync(apiUrl, 'utf-8')) as UserData;
-              return { address, userData };
-            } catch (fsErr) {
-              return { address, error: fsErr };
-            }
-          }
+          const userData = (await ckPoolApi.users(address)) as UserData;
+          return { address, userData };
+        } catch (error) {
           return { address, error };
         }
       });
@@ -107,12 +88,20 @@ async function main() {
           for (const result of fetched) {
             const address = result.address;
             if (result.error || !result.userData) {
-              // Mark user inactive when fetch failed
-              try {
-                await userRepo.update({ address }, { isActive: false });
-                console.log(`Marked user ${address} as inactive (fetch error)`);
-              } catch (updateErr) {
-                console.error(`Failed to mark user ${address} inactive:`, updateErr);
+              // Only mark as inactive if the pool specifically says NOT_FOUND.
+              // For timeouts or other errors, we keep them active to try again in the next cron run.
+              if (
+                result.error instanceof CKPoolError &&
+                result.error.code === CKPoolErrorCode.NOT_FOUND
+              ) {
+                try {
+                  await userRepo.update({ address }, { isActive: false });
+                  console.log(`Marked user ${address} as inactive (NOT_FOUND)`);
+                } catch (updateErr) {
+                  console.error(`Failed to mark user ${address} inactive:`, updateErr);
+                }
+              } else {
+                console.error(`Skipping user ${address} due to fetch error:`, result.error?.message || 'Unknown error');
               }
               continue;
             }
@@ -240,4 +229,3 @@ async function main() {
 
 // Run the script
 main().catch(console.error); 
-
