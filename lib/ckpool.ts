@@ -106,6 +106,7 @@ export class CKPoolAPI {
   }
 
   async users(address: string): Promise<unknown> {
+    // Reduce the risk of directory traversal attacks
     if (/[^a-zA-Z0-9]/.test(address)) {
       throw new CKPoolError(
         CKPoolErrorCode.INVALID,
