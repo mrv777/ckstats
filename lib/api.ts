@@ -1,12 +1,12 @@
 import NodeCache from 'node-cache';
 
+import { CKPoolAPI, CKPoolError, CKPoolErrorCode } from './ckpool';
 import { getDb } from './db';
 import { PoolStats } from './entities/PoolStats';
 import { User } from './entities/User';
 import { UserStats } from './entities/UserStats';
 import { Worker } from './entities/Worker';
 import { convertHashrate } from '../utils/helpers';
-import { CKPoolAPI, CKPoolError, CKPoolErrorCode } from './ckpool';
 
 const HISTORICAL_DATA_POINTS = 5760;
 
