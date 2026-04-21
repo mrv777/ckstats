@@ -1,7 +1,6 @@
-import * as fs from 'fs';
-
 import NodeCache from 'node-cache';
 
+import { CKPoolAPI, CKPoolError, CKPoolErrorCode } from './ckpool';
 import { getDb } from './db';
 import { PoolStats } from './entities/PoolStats';
 import { User } from './entities/User';
@@ -259,38 +258,13 @@ export async function resetUserActive(address: string): Promise<void> {
 }
 
 export async function updateSingleUser(address: string): Promise<void> {
-  // Perform a last minute check to prevent directory traversal vulnerabilities
-  if (/[^a-zA-Z0-9]/.test(address)) {
-    throw new Error('updateSingleUser(): address contains invalid characters');
-  }
-
-  const apiUrl =
-    (process.env.API_URL || 'https://solo.ckpool.org') + `/users/${address}`;
-
-  if (!apiUrl) {
-    throw new Error('API_URL is not defined in environment variables');
-  }
-
   console.log('Attempting to update user stats for:', address);
 
   try {
-    let userData;
+    const ckPoolApi = new CKPoolAPI();
+    // ckPoolApi.users handles the character validation and file/http logic internally
+    const userData = (await ckPoolApi.users(address)) as any;
 
-    try {
-      const response = await fetch(apiUrl);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      userData = await response.json();
-    } catch (error: any) {
-      if (error.cause?.code == 'ERR_INVALID_URL') {
-        userData = JSON.parse(fs.readFileSync(apiUrl, 'utf-8'));
-      } else throw error;
-    }
-
-    console.log('API URL:', apiUrl);
     console.log('Response:', userData);
 
     const db = await getDb();
@@ -372,6 +346,14 @@ export async function updateSingleUser(address: string): Promise<void> {
 
     console.log(`Updated user and workers for: ${address}`);
   } catch (error) {
+    if (
+      error instanceof CKPoolError &&
+      error.code === CKPoolErrorCode.NOT_FOUND
+    ) {
+      const db = await getDb();
+      const userRepository = db.getRepository(User);
+      await userRepository.update({ address }, { isActive: false });
+    }
     console.error(`Error updating user ${address}:`, error);
     throw error;
   }
