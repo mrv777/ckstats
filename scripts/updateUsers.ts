@@ -195,11 +195,6 @@ async function main() {
               }
             } catch (userWriteErr) {
               console.error(`Failed processing user ${address} in batch transaction:`, userWriteErr);
-              try {
-                await userRepo.update({ address }, { isActive: false });
-              } catch (updateErr) {
-                console.error(`Failed to mark user ${address} inactive after write error:`, updateErr);
-              }
               // continue processing other users in the batch
             }
           }
