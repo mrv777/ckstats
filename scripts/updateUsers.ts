@@ -1,12 +1,12 @@
 import 'dotenv/config';
 import 'reflect-metadata';
+import { CKPoolAPI, CKPoolError, CKPoolErrorCode } from '../lib/ckpool';
 import { getDb } from '../lib/db';
 import { User } from '../lib/entities/User';
 import { UserStats } from '../lib/entities/UserStats';
 import { Worker } from '../lib/entities/Worker';
 import { WorkerStats } from '../lib/entities/WorkerStats';
 import { convertHashrate } from '../utils/helpers';
-import { CKPoolAPI, CKPoolError, CKPoolErrorCode } from '../lib/ckpool';
 
 const BATCH_SIZE = 10;
 
@@ -43,7 +43,7 @@ interface UserData {
 
 async function main() {
   let db;
-  
+
   try {
     db = await getDb();
     const userRepository = db.getRepository(User);

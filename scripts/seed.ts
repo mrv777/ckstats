@@ -1,7 +1,7 @@
 import 'dotenv/config';
+import { CKPoolAPI } from '../lib/ckpool';
 import { getDb } from '../lib/db';
 import { PoolStats } from '../lib/entities/PoolStats';
-import { CKPoolAPI } from '../lib/ckpool';
 import { convertHashrate } from '../utils/helpers';
 
 // Define an interface for the pool stats
@@ -40,9 +40,9 @@ async function fetchPoolStats(): Promise<Partial<PoolStatsData>> {
 async function seed() {
   try {
     const stats = await fetchPoolStats();
-    
+
     console.log('Saving pool stats to database...');
-    
+
     const db = await getDb();
     const poolStatsRepository = db.getRepository(PoolStats);
 
