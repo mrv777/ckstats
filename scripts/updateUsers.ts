@@ -8,6 +8,9 @@ import { Worker } from '../lib/entities/Worker';
 import { WorkerStats } from '../lib/entities/WorkerStats';
 import { convertHashrate } from '../utils/helpers';
 
+/**
+ * Raw worker payload returned by CKPool API for a single worker.
+ */
 interface WorkerData {
   workername: string;
   hashrate1m: number;
@@ -21,6 +24,9 @@ interface WorkerData {
   bestever: string;
 }
 
+/**
+ * Raw user payload returned by CKPool API for a single address.
+ */
 interface UserData {
   authorised: number;
   hashrate1m: number;
@@ -36,12 +42,18 @@ interface UserData {
   worker: WorkerData[];
 }
 
+/**
+ * Result of a CKPool user fetch operation, including success or error state.
+ */
 interface UsersData {
   address: string;
   userData?: unknown;
   error?: unknown;
 }
 
+/**
+ * Load active users, fetch fresh CKPool data, and batch update stats in the database.
+ */
 async function main() {
   let db;
   try {
@@ -139,11 +151,11 @@ async function main() {
 
       // 1. One SQL update for all users
       if (userChanges.length > 0) {
-        const valuesStr = userChanges.map(c => {
-          const authValue = c.authorised !== undefined
-            ? `'${c.authorised}'`
-            : 'NULL';
-          return `('${c.address}', ${authValue}, ${c.isActive})`;
+        const params: any[] = [];
+        const valuesStr = userChanges.map((c, index) => {
+          const base = index * 3;
+          params.push(c.address, c.authorised !== undefined ? c.authorised : null, c.isActive);
+          return `($${base + 1}::text, $${base + 2}::bigint, $${base + 3}::boolean)`;
         }).join(', ');
 
         const result = await manager.query(`
@@ -154,19 +166,31 @@ async function main() {
             "updatedAt" = NOW()
           FROM (VALUES ${valuesStr}) AS v (address, authorised, isActive)
           WHERE u.address = v.address;
-        `);
-        usersUpdated = result[0]?.rowCount ?? userChanges.length;
+        `, params);
+        usersUpdated = result.rowCount ?? userChanges.length;
       }
 
       // 2. One SQL upsert for all workers + prepare workerStats
       const workerStatsToInsert: any[] = [];
       if (workerUpsertValues.length > 0) {
-        const valuesStr = workerUpsertValues.map(v => {
-          const safeName = v.name.replace(/'/g, "''");
-          return `('${v.userAddress}', '${safeName}', '${v.updatedAt.toISOString()}', 
-                  '${v.hashrate1m}', '${v.hashrate5m}', '${v.hashrate1hr}', 
-                  '${v.hashrate1d}', '${v.hashrate7d}', '${v.lastUpdate.toISOString()}', 
-                  '${v.shares}', ${v.bestShare}, '${v.bestEver}')`;
+        const params: any[] = [];
+        const valuesStr = workerUpsertValues.map((v, index) => {
+          const base = index * 12;
+          params.push(
+            v.userAddress,
+            v.name,
+            v.updatedAt.toISOString(),
+            v.hashrate1m,
+            v.hashrate5m,
+            v.hashrate1hr,
+            v.hashrate1d,
+            v.hashrate7d,
+            v.lastUpdate.toISOString(),
+            v.shares,
+            v.bestShare,
+            v.bestEver
+          );
+          return `($${base + 1}, $${base + 2}, $${base + 3}, $${base + 4}, $${base + 5}, $${base + 6}, $${base + 7}, $${base + 8}, $${base + 9}, $${base + 10}, $${base + 11}, $${base + 12})`;
         }).join(', ');
 
         const result = await manager.query(`
@@ -187,7 +211,7 @@ async function main() {
             "bestEver" = EXCLUDED."bestEver",
             "updatedAt" = EXCLUDED."updatedAt"
           RETURNING id, "userAddress", name;
-        `);
+        `, params);
 
         workersUpserted = result.length;
 
@@ -247,4 +271,7 @@ async function main() {
   }
 }
 
-main().catch(console.error);
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
