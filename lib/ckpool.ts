@@ -69,23 +69,31 @@ export class CKPoolAPI {
    * HTTP/2 detection is performed lazily during construction for HTTPS URLs.
    */
   private async detectHttp2Support(): Promise<void> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
     try {
       this.isHttp2 = await new Promise<boolean>((resolve) => {
         const client = http2.connect(this.apiUrl);
-        client.once('connect', () => {
+
+        const cleanup = (value: boolean) => {
+          if (timer) {
+            clearTimeout(timer);
+          }
           client.close();
-          resolve(true);
-        });
-        client.once('error', () => {
-          client.close();
-          resolve(false);
-        });
-        setTimeout(() => {
-          client.close();
-          resolve(false);
+          resolve(value);
+        };
+
+        client.once('connect', () => cleanup(true));
+        client.once('error', () => cleanup(false));
+
+        timer = setTimeout(() => {
+          cleanup(false);
         }, 1000);
       });
     } catch {
+      if (timer) {
+        clearTimeout(timer);
+      }
       this.isHttp2 = false;
     }
   }
