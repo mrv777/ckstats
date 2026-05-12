@@ -263,7 +263,7 @@ export async function updateSingleUser(address: string): Promise<void> {
   try {
     const ckPoolApi = new CKPoolAPI();
     // ckPoolApi.users handles the character validation and file/http logic internally
-    const userData = (await ckPoolApi.users(address)) as any;
+    const userData = (await ckPoolApi.user(address)) as any;
 
     console.log('Response:', userData);
 
