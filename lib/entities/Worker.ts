@@ -22,10 +22,10 @@ export class Worker {
   @Column({ default: '' })
   name: string;
 
-  @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @UpdateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
+  @UpdateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
   @Column('bigint', { default: () => '0' })
@@ -43,7 +43,7 @@ export class Worker {
   @Column('bigint', { default: () => '0' })
   hashrate7d: string;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   lastUpdate: Date;
 
   @Column('bigint', { default: () => '0' })
