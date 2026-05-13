@@ -165,10 +165,11 @@ async function updateUsersInBatch(manager: any, userChanges: any[]): Promise<num
       "isActive" = v.isActive,
       "updatedAt" = NOW()
     FROM (VALUES ${valuesStr}) AS v (address, authorised, isActive)
-    WHERE u.address = v.address;
+    WHERE u.address = v.address
+    RETURNING u.address;
   `, params);
 
-  return result.rowCount ?? userChanges.length;
+  return result.length;
 }
 
 /**
@@ -435,6 +436,7 @@ async function main() {
       for (const failed of failedBatches) {
         console.warn(`  - Users ${failed.batchStart}-${failed.batchEnd}: ${failed.error}`);
       }
+      throw new Error(`${failedBatches.length} batch(es) failed during processing`);
     }
     console.log('All updates committed successfully.');
   } catch (error) {
