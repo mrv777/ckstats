@@ -15,6 +15,12 @@ const cache = new NodeCache({ stdTTL: 60 });
 
 export type PoolStatsInput = Omit<PoolStats, 'id' | 'timestamp'>;
 
+/**
+ * Persist a new pool stats record to the database.
+ *
+ * @param stats - pool stats fields excluding generated id/timestamp
+ * @returns saved PoolStats entity
+ */
 export async function savePoolStats(stats: PoolStatsInput): Promise<PoolStats> {
   const db = await getDb();
   const repository = db.getRepository(PoolStats);
@@ -22,6 +28,11 @@ export async function savePoolStats(stats: PoolStatsInput): Promise<PoolStats> {
   return repository.save(poolStats);
 }
 
+/**
+ * Read the latest pool stats row from the database, using cache when available.
+ *
+ * @returns latest PoolStats or null if none exists
+ */
 export async function getLatestPoolStats(): Promise<PoolStats | null> {
   const cacheKey = 'pool:latest';
 
@@ -45,6 +56,11 @@ export async function getLatestPoolStats(): Promise<PoolStats | null> {
   return result;
 }
 
+/**
+ * Fetch a recent history of pool stats records, limited to a fixed window.
+ *
+ * @returns array of PoolStats rows ordered by newest first
+ */
 export async function getHistoricalPoolStats(): Promise<PoolStats[]> {
   const cacheKey = 'pool:historical';
 
@@ -68,6 +84,12 @@ export async function getHistoricalPoolStats(): Promise<PoolStats[]> {
   return result;
 }
 
+/**
+ * Fetch a user record with its workers and the latest user stats row.
+ *
+ * @param address - Bitcoin address of the user
+ * @returns user entity with workers and latest stats, or null if missing
+ */
 export async function getUserWithWorkersAndStats(address: string) {
   const db = await getDb();
   const userRepo = db.getRepository(User);
@@ -97,6 +119,12 @@ export async function getUserWithWorkersAndStats(address: string) {
   };
 }
 
+/**
+ * Fetch historical stats rows for a specific user.
+ *
+ * @param address - Bitcoin address to query
+ * @returns list of UserStats rows ordered newest first
+ */
 export async function getUserHistoricalStats(address: string) {
   const db = await getDb();
   const repository = db.getRepository(UserStats);
@@ -109,6 +137,13 @@ export async function getUserHistoricalStats(address: string) {
     .getMany();
 }
 
+/**
+ * Retrieve a worker and all its stats for a given user.
+ *
+ * @param userAddress - owner address of the worker
+ * @param workerName - worker name to look up
+ * @returns worker entity with sorted stats, or undefined if not found
+ */
 export async function getWorkerWithStats(
   userAddress: string,
   workerName: string
@@ -136,16 +171,11 @@ export async function getWorkerWithStats(
 }
 
 /**
- * Get top user difficulties.
- *
- * Fetches the latest `UserStats` row for each public user (using a LATERAL
- * subquery) and returns the top `limit` users ordered by `bestEver` (numeric)
- * in descending order. All heavy lifting is done in the database so only the
- * final `limit` rows are returned to the application.
+ * Get top public users by best historical difficulty.
  *
  * @param limit - number of users to return (default: 10)
- * @returns array of objects: { address, workerCount, difficulty,
- *          hashrate1hr, hashrate1d, hashrate7d, bestShare }
+ * @returns array of objects: { address, workerCount, difficulty, hashrate1hr,
+ *          hashrate1d, hashrate7d, bestShare }
  */
 export async function getTopUserDifficulties(limit: number = 10) {
   const cacheKey = `topUserDifficulties:${limit}`;
@@ -251,19 +281,29 @@ export async function getTopUserHashrates(limit: number = 10) {
   return result;
 }
 
+/**
+ * Reactivate a user by setting isActive to true.
+ *
+ * @param address - Bitcoin address of the user to reactivate
+ */
 export async function resetUserActive(address: string): Promise<void> {
   const db = await getDb();
   const userRepository = db.getRepository(User);
   await userRepository.update(address, { isActive: true });
 }
 
+/**
+ * Fetch fresh data for a single user from CKPool and persist it to the DB.
+ *
+ * @param address - Bitcoin address of the user to update
+ */
 export async function updateSingleUser(address: string): Promise<void> {
   console.log('Attempting to update user stats for:', address);
 
   try {
     const ckPoolApi = new CKPoolAPI();
     // ckPoolApi.users handles the character validation and file/http logic internally
-    const userData = (await ckPoolApi.users(address)) as any;
+    const userData = (await ckPoolApi.user(address)) as any;
 
     console.log('Response:', userData);
 
@@ -359,6 +399,12 @@ export async function updateSingleUser(address: string): Promise<void> {
   }
 }
 
+/**
+ * Toggle the public/private visibility flag for a user.
+ *
+ * @param address - Bitcoin address of the user to update
+ * @returns object containing the new visibility state
+ */
 export async function toggleUserStatsPrivacy(
   address: string
 ): Promise<{ isPublic: boolean }> {

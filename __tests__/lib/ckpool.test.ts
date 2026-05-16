@@ -103,12 +103,12 @@ describe('CKPoolAPI', () => {
                 text: () => Promise.resolve(JSON.stringify(mockData)),
             } as any);
 
-            const result = await api.users('bc1qtest');
+            const result = await api.user('bc1qtest');
             expect(result).toEqual(mockData);
         });
 
         it('throws INVALID for addresses with invalid characters', async () => {
-            const err = await api.users('../etc/passwd').catch((e: any) => e);
+            const err = await api.user('../etc/passwd').catch((e: any) => e);
 
             expect(err).toBeInstanceOf(CKPoolError);
             expect(err.code).toBe(CKPoolErrorCode.INVALID);
@@ -122,7 +122,7 @@ describe('CKPoolAPI', () => {
                 text: () => Promise.resolve(''),
             } as any);
 
-            const err = await api.users('bc1qnonexistent').catch((e: any) => e);
+            const err = await api.user('bc1qnonexistent').catch((e: any) => e);
 
             expect(err).toBeInstanceOf(CKPoolError);
             expect(err.code).toBe(CKPoolErrorCode.NOT_FOUND);
