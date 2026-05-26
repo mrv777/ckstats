@@ -88,7 +88,7 @@ function buildUserDataMap(fetched: UsersData[]): Map<string, {
     }
 
     const userData = result.userData as UserData;
-    const workers: any[] = [];
+    const workersMap = new Map<string, any>();
 
     // Extract worker data for each user
     for (const workerData of (userData.worker || [])) {
@@ -98,8 +98,8 @@ function buildUserDataMap(fetched: UsersData[]): Map<string, {
         : workername.includes('_')
           ? workername.split('_')[1]
           : workername;
-
-      workers.push({
+          
+      const newWorker = {
         userAddress: address,
         name: workerName,
         hashrate1m: convertHashrate(workerData.hashrate1m.toString()).toString(),
@@ -112,8 +112,32 @@ function buildUserDataMap(fetched: UsersData[]): Map<string, {
         bestShare: parseFloat(workerData.bestshare),
         bestEver: BigInt(workerData.bestever).toString(),
         updatedAt: new Date(),
-      });
+      };
+
+      const existingWorker = workersMap.get(workerName);
+      if (existingWorker) {
+        existingWorker.hashrate1m = (BigInt(existingWorker.hashrate1m) + BigInt(newWorker.hashrate1m)).toString();
+        existingWorker.hashrate5m = (BigInt(existingWorker.hashrate5m) + BigInt(newWorker.hashrate5m)).toString();
+        existingWorker.hashrate1hr = (BigInt(existingWorker.hashrate1hr) + BigInt(newWorker.hashrate1hr)).toString();
+        existingWorker.hashrate1d = (BigInt(existingWorker.hashrate1d) + BigInt(newWorker.hashrate1d)).toString();
+        existingWorker.hashrate7d = (BigInt(existingWorker.hashrate7d) + BigInt(newWorker.hashrate7d)).toString();
+        existingWorker.shares = (BigInt(existingWorker.shares) + BigInt(newWorker.shares)).toString();
+
+        if (newWorker.lastUpdate > existingWorker.lastUpdate) {
+          existingWorker.lastUpdate = newWorker.lastUpdate;
+        }
+        if (newWorker.bestShare > existingWorker.bestShare) {
+          existingWorker.bestShare = newWorker.bestShare;
+        }
+        if (BigInt(newWorker.bestEver) > BigInt(existingWorker.bestEver)) {
+          existingWorker.bestEver = newWorker.bestEver;
+        }
+      } else {
+        workersMap.set(workerName, newWorker);
+      }
     }
+
+    const workers = Array.from(workersMap.values());
 
     userDataMap.set(address, {
       changes: {
@@ -169,7 +193,11 @@ async function updateUsersInBatch(manager: any, userChanges: any[]): Promise<num
     RETURNING u.address;
   `, params);
 
-  return result.length;
+  // TypeORM Postgres driver returns [rows, rowCount] for UPDATE queries
+  if (Array.isArray(result) && result.length === 2 && Array.isArray(result[0])) {
+    return result[0].length;
+  }
+  return Array.isArray(result) ? result.length : 0;
 }
 
 /**

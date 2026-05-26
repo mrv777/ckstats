@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import * as http2 from 'node:http2';
+import pLimit from 'p-limit';
 
 /**
  * Default fetch timeout in milliseconds for HTTP/1 requests.
@@ -226,56 +227,61 @@ export class CKPoolAPI {
       const client = http2.connect(this.apiUrl);
 
       try {
-        const promises = addresses.map(async (address) => {
-          try {
-            const req = client.request({
-              ':method': 'GET',
-              ':path': `/users/${address}`,
-            });
-            req.end();
+        const CONCURRENCY_LIMIT = 50;
+        const limit = pLimit(CONCURRENCY_LIMIT);
 
-            const status = await new Promise<number>((resolve, reject) => {
-              const timeout = setTimeout(() => {
-                req.close();
-                reject(new Error('Request timeout'));
-              }, 3000);
+        const promises = addresses.map((address) =>
+          limit(async () => {
+            try {
+              const req = client.request({
+                ':method': 'GET',
+                ':path': `/users/${address}`,
+              });
+              req.end();
 
-              req.once('response', (headers) => {
-                clearTimeout(timeout);
-                resolve((headers[':status'] as number) || 0);
+              const status = await new Promise<number>((resolve, reject) => {
+                const timeout = setTimeout(() => {
+                  req.close();
+                  reject(new Error('Request timeout'));
+                }, 5000);
+
+                req.once('response', (headers) => {
+                  clearTimeout(timeout);
+                  resolve((headers[':status'] as number) || 0);
+                });
+
+                req.once('error', (err) => {
+                  clearTimeout(timeout);
+                  reject(err);
+                });
               });
 
-              req.once('error', (err) => {
-                clearTimeout(timeout);
-                reject(err);
-              });
-            });
+              let data = '';
+              for await (const chunk of req) {
+                data += chunk;
+              }
 
-            let data = '';
-            for await (const chunk of req) {
-              data += chunk;
+              if (status === 404) {
+                throw new CKPoolError(
+                  CKPoolErrorCode.NOT_FOUND,
+                  `Resource not found: /users/${address}`
+                );
+              }
+
+              if (status !== 200) {
+                throw new CKPoolError(
+                  CKPoolErrorCode.UNKNOWN,
+                  `HTTP error ${status} for /users/${address}`
+                );
+              }
+
+              const userData = JSON.parse(data);
+              return { address, userData };
+            } catch (error) {
+              return { address, error };
             }
-
-            if (status === 404) {
-              throw new CKPoolError(
-                CKPoolErrorCode.NOT_FOUND,
-                `Resource not found: /users/${address}`
-              );
-            }
-
-            if (status !== 200) {
-              throw new CKPoolError(
-                CKPoolErrorCode.UNKNOWN,
-                `HTTP error ${status} for /users/${address}`
-              );
-            }
-
-            const userData = JSON.parse(data);
-            return { address, userData };
-          } catch (error) {
-            return { address, error };
-          }
-        });
+          })
+        );
 
         return await Promise.all(promises);
       } finally {
@@ -283,16 +289,22 @@ export class CKPoolAPI {
       }
     } else {
       // Use the API for http/1 and file API access
-      const results = await Promise.all(
-        addresses.map(async (address) => {
+      const results: Array<{ address: string; userData?: unknown; error?: unknown }> = [];
+      const CONCURRENCY_LIMIT = 50;
+
+      for (let i = 0; i < addresses.length; i += CONCURRENCY_LIMIT) {
+        const chunk = addresses.slice(i, i + CONCURRENCY_LIMIT);
+        const chunkPromises = chunk.map(async (address) => {
           try {
             const userData = await this.user(address);
             return { address, userData };
           } catch (error) {
             return { address, error };
           }
-        })
-      );
+        });
+
+        results.push(...(await Promise.all(chunkPromises)));
+      }
 
       return results;
     }
