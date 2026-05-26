@@ -225,6 +225,13 @@ export class CKPoolAPI {
 
     if (this.isHttp2) {
       const client = http2.connect(this.apiUrl);
+      client.on('error', (err) => {
+        throw new CKPoolError(
+          CKPoolErrorCode.UNKNOWN,
+          'HTTP/2 client session error',
+          err
+        );
+      });
 
       try {
         const CONCURRENCY_LIMIT = 50;

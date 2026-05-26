@@ -98,7 +98,7 @@ function buildUserDataMap(fetched: UsersData[]): Map<string, {
         : workername.includes('_')
           ? workername.split('_')[1]
           : workername;
-          
+
       const newWorker = {
         userAddress: address,
         name: workerName,
