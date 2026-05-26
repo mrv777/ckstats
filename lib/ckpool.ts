@@ -226,12 +226,15 @@ export class CKPoolAPI {
 
     if (this.isHttp2) {
       const client = http2.connect(this.apiUrl);
+      let clientError: CKPoolError | null = null;
+
       client.on('error', (err) => {
-        throw new CKPoolError(
+        clientError = new CKPoolError(
           CKPoolErrorCode.UNKNOWN,
           'HTTP/2 client session error',
           err
         );
+        client.destroy();
       });
 
       try {
@@ -291,9 +294,15 @@ export class CKPoolAPI {
           })
         );
 
-        return await Promise.all(promises);
+        const results = await Promise.all(promises);
+        if (clientError) {
+          throw clientError;
+        }
+        return results;
       } finally {
-        client.close();
+        if (!client.destroyed) {
+          client.close();
+        }
       }
     } else {
       // Use the API for http/1 and file API access
