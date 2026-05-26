@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import * as http2 from 'node:http2';
+
 import pLimit from 'p-limit';
 
 /**
@@ -296,7 +297,11 @@ export class CKPoolAPI {
       }
     } else {
       // Use the API for http/1 and file API access
-      const results: Array<{ address: string; userData?: unknown; error?: unknown }> = [];
+      const results: Array<{
+        address: string;
+        userData?: unknown;
+        error?: unknown;
+      }> = [];
       const CONCURRENCY_LIMIT = 50;
 
       for (let i = 0; i < addresses.length; i += CONCURRENCY_LIMIT) {
