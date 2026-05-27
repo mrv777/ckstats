@@ -1,5 +1,12 @@
 import 'reflect-metadata';
+import { types } from 'pg';
 import { DataSource } from 'typeorm';
+
+// Fix for pg ^8.20.0: the default type parser for timestamptz (OID 1184)
+// no longer returns a Date object — it returns a string without explicit
+// UTC offset. Force UTC interpretation so timestamps survive serialization.
+types.setTypeParser(1184, (val: string) => new Date(val + '+00:00'));
+types.setTypeParser(1114, (val: string) => new Date(val + '+00:00'));
 
 import { PoolStats } from './entities/PoolStats';
 import { User } from './entities/User';
