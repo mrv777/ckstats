@@ -207,15 +207,32 @@ export function calculateAverageTimeToBlock(hashRate: bigint | number | string, 
  * Calculates the probability of finding a block within various time periods.
  * Returns early with minimal probabilities if inputs are zero.
  * @param {bigint} hashRate - The hashrate in H/s
- * @param {number} difficulty - The difficulty as a percentage of network difficulty
+ * @param {number} difficulty - The Bitcoin network difficulty value
  * @param {bigint} accepted - The number of accepted shares
  * @returns {object} An object with keys '1h', '1d', '1w', '1m', '1y' mapping to probability strings (e.g., "0.123%", "<0.001%")
  */
-export function calculateBlockChances(hashRate: bigint, difficulty: number, accepted: bigint): { [key: string]: string} {
-  const difficultyFactor = Math.round(Number(difficulty) * 100);
-  const acceptedBigInt = typeof accepted === 'bigint' ? accepted : BigInt(accepted);
-  
-  if (!Number.isFinite(difficultyFactor) || difficultyFactor <= 0 || acceptedBigInt <= BigInt(0)) {
+export function calculateBlockChances(
+  hashRate: bigint | number | string,
+  difficulty: number | bigint,
+  accepted: bigint | number | string
+): { [key: string]: string} {
+  // `difficulty` is the absolute Bitcoin network difficulty.
+  const acceptedBigInt =
+    typeof accepted === 'bigint'
+      ? accepted
+      : Number.isFinite(Number(accepted))
+      ? BigInt(Math.round(Number(accepted)))
+      : null;
+
+  const difficultyAbsolute =
+    typeof difficulty === 'number' ? difficulty : Number(difficulty);
+
+  if (
+    !Number.isFinite(difficultyAbsolute) ||
+    difficultyAbsolute <= 0 ||
+    acceptedBigInt === null ||
+    acceptedBigInt <= BigInt(0)
+  ) {
     return {
       '1h': '<0.001%',
       '1d': '<0.001%',
@@ -225,9 +242,8 @@ export function calculateBlockChances(hashRate: bigint, difficulty: number, acce
     };
   }
 
-  const networkDiff = (acceptedBigInt * BigInt(10000)) / BigInt(difficultyFactor);
   const hashesPerDifficulty = BigInt(2 ** 32);
-  if (networkDiff === BigInt(0)) {
+  if (difficultyAbsolute === 0) {
     return {
       '1h': '<0.001%',
       '1d': '<0.001%',
@@ -236,8 +252,26 @@ export function calculateBlockChances(hashRate: bigint, difficulty: number, acce
       '1y': '<0.001%',
     };
   }
-  const probabilityPerHash = 1 / Number(networkDiff * hashesPerDifficulty);
-  const hashesPerSecond = Number(hashRate);
+
+  const probabilityPerHash = 1 / (difficultyAbsolute * Number(hashesPerDifficulty));
+  const hashRateBigInt =
+    typeof hashRate === 'bigint'
+      ? hashRate
+      : Number.isFinite(Number(hashRate))
+      ? BigInt(Math.round(Number(hashRate)))
+      : null;
+
+  if (hashRateBigInt === null || hashRateBigInt <= BigInt(0)) {
+    return {
+      '1h': '<0.001%',
+      '1d': '<0.001%',
+      '1w': '<0.001%',
+      '1m': '<0.001%',
+      '1y': '<0.001%',
+    };
+  }
+
+  const hashesPerSecond = Number(hashRateBigInt);
 
   const periodsInSeconds = {
     '1h': 3600,

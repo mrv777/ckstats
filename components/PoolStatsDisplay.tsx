@@ -50,7 +50,7 @@ export default function PoolStatsDisplay({
     if (key.startsWith('hashrate') || key.startsWith('SPS')) {
       return key.replace(/^(hashrate|SPS)/, '').toUpperCase();
     } else if (key === 'diff') {
-      return '% of Network Diff';
+      return 'Pool Difficulty (% of network)';
     } else if (key === 'bestshare') {
       return 'Best Diff';
     }
