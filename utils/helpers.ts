@@ -243,15 +243,6 @@ export function calculateBlockChances(
   }
 
   const hashesPerDifficulty = BigInt(2 ** 32);
-  if (difficultyAbsolute === 0) {
-    return {
-      '1h': '<0.001%',
-      '1d': '<0.001%',
-      '1w': '<0.001%',
-      '1m': '<0.001%',
-      '1y': '<0.001%',
-    };
-  }
 
   const probabilityPerHash = 1 / (difficultyAbsolute * Number(hashesPerDifficulty));
   const hashRateBigInt =
