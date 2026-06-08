@@ -56,6 +56,44 @@ export async function getLatestPoolStats(): Promise<PoolStats | null> {
   return result;
 }
 
+export async function getNetworkDifficulty(): Promise<number | null> {
+  const cacheKey = 'network:difficulty';
+  const cached = cache.get<number | null>(cacheKey);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  try {
+    const response = await fetch('https://mempool.space/api/blocks', {
+      signal: AbortSignal.timeout(5000),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch network difficulty: ${response.status}`);
+    }
+
+    const blocks = (await response.json()) as Array<{
+      difficulty?: number;
+    }>;
+
+    const difficulty = blocks?.[0]?.difficulty;
+    if (
+      typeof difficulty !== 'number' ||
+      !Number.isFinite(difficulty) ||
+      difficulty <= 0
+    ) {
+      throw new Error('Invalid difficulty from network API');
+    }
+
+    cache.set(cacheKey, difficulty, 3600);
+    return difficulty;
+  } catch (error) {
+    console.error('Error fetching network difficulty:', error);
+    cache.set(cacheKey, null, 60);
+    return null;
+  }
+}
+
 /**
  * Fetch a recent history of pool stats records, limited to a fixed window.
  *

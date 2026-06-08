@@ -97,12 +97,30 @@ describe('Helper Functions', () => {
 
   describe('calculateBlockChances', () => {
     it('calculates block chances correctly', () => {
-      const chances = calculateBlockChances(BigInt(1000000000000), 1, BigInt(100000000000000));
+      const chances = calculateBlockChances(
+        BigInt(1000000000000),
+        1e14,
+        BigInt(100000000000000)
+      );
       expect(chances['1h']).toBe('<0.001%');
       expect(chances['1d']).toMatch(/\d+\.\d+%|<0\.001%/);
       expect(chances['1w']).toMatch(/\d+\.\d+%|<0\.001%/);
       expect(chances['1m']).toMatch(/\d+\.\d+%|<0\.001%/);
       expect(chances['1y']).toMatch(/\d+\.\d+%|<0\.001%/);
+    });
+
+    it('returns 0.038% for 7.18 TH/s and current difficulty', () => {
+      const chances = calculateBlockChances(
+        '7180000000000',
+        138955357012247.3,
+        BigInt(1)
+      );
+      expect(chances['1y']).toBe('0.038%');
+    });
+
+    it('returns fallback for invalid non-numeric accepted/hashRate values', () => {
+      expect(calculateBlockChances('not-a-number', 1e14, BigInt(100000000000000))['1h']).toBe('<0.001%');
+      expect(calculateBlockChances(BigInt(1000000000000), 1e14, 'not-a-number')['1h']).toBe('<0.001%');
     });
   });
 });

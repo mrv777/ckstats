@@ -10,6 +10,7 @@ import {
   getUserWithWorkersAndStats,
   getUserHistoricalStats,
   getLatestPoolStats,
+  getNetworkDifficulty,
 } from '../../../lib/api';
 import {
   formatHashrate,
@@ -26,11 +27,13 @@ export default async function UserPage({
 }: {
   params: { address: string };
 }) {
-  const [userORM, statsORM, historicalStatsORM] = await Promise.all([
-    getUserWithWorkersAndStats(params.address),
-    getLatestPoolStats(),
-    getUserHistoricalStats(params.address),
-  ]);
+  const [userORM, statsORM, historicalStatsORM, networkDifficulty] =
+    await Promise.all([
+      getUserWithWorkersAndStats(params.address),
+      getLatestPoolStats(),
+      getUserHistoricalStats(params.address),
+      getNetworkDifficulty(),
+    ]);
 
   if (!userORM) {
     notFound();
@@ -182,10 +185,10 @@ export default async function UserPage({
         <div className="stat">
           <div className="stat-title">1 Day</div>
           <div className="stat-value text-3xl">
-            {latestStats.hashrate1hr && stats?.diff
+            {Number(latestStats.hashrate1hr) > 0 && networkDifficulty
               ? calculateBlockChances(
                   latestStats.hashrate1hr,
-                  Number(stats.diff),
+                  networkDifficulty,
                   stats.accepted
                 )['1d']
               : 'N/A'}
@@ -194,10 +197,10 @@ export default async function UserPage({
         <div className="stat">
           <div className="stat-title">1 Week</div>
           <div className="stat-value text-3xl">
-            {latestStats.hashrate1hr && stats?.diff
+            {Number(latestStats.hashrate1hr) > 0 && networkDifficulty
               ? calculateBlockChances(
                   latestStats.hashrate1hr,
-                  Number(stats.diff),
+                  networkDifficulty,
                   stats.accepted
                 )['1w']
               : 'N/A'}
@@ -206,10 +209,10 @@ export default async function UserPage({
         <div className="stat">
           <div className="stat-title">1 Month</div>
           <div className="stat-value text-3xl">
-            {latestStats.hashrate1hr && stats?.diff
+            {Number(latestStats.hashrate1hr) > 0 && networkDifficulty
               ? calculateBlockChances(
                   latestStats.hashrate1hr,
-                  Number(stats.diff),
+                  networkDifficulty,
                   stats.accepted
                 )['1m']
               : 'N/A'}
@@ -218,10 +221,10 @@ export default async function UserPage({
         <div className="stat">
           <div className="stat-title">1 Year</div>
           <div className="stat-value text-3xl">
-            {latestStats.hashrate1hr && stats?.diff
+            {Number(latestStats.hashrate1hr) > 0 && networkDifficulty
               ? calculateBlockChances(
                   latestStats.hashrate1hr,
-                  Number(stats.diff),
+                  networkDifficulty,
                   stats.accepted
                 )['1y']
               : 'N/A'}
