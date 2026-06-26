@@ -41,9 +41,11 @@ export default function ThemeController() {
   const [theme, setTheme] = useState('dark');
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') ?? 'dark';
-    setTheme(savedTheme);
-    document.documentElement.setAttribute('data-theme', savedTheme);
+    const savedTheme = localStorage.getItem('theme');
+    const themeToCheck = savedTheme ?? 'dark';
+    const validatedTheme = themes.includes(themeToCheck) ? themeToCheck : 'dark';
+    setTheme(validatedTheme);
+    document.documentElement.setAttribute('data-theme', validatedTheme);
   }, []);
 
   const handleThemeChange = (newTheme: string) => {

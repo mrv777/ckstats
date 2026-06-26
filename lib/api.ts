@@ -128,7 +128,8 @@ export async function getHistoricalPoolStats(): Promise<PoolStats[]> {
  * @param address - Bitcoin address of the user
  * @returns user entity with workers and latest stats, or null if missing
  */
-export async function getUserWithWorkersAndStats(address: string) {
+export async function getUserWithWorkersAndStats(address: string | undefined) {
+  if (!address) return null;
   const db = await getDb();
   const userRepo = db.getRepository(User);
   const statsRepo = db.getRepository(UserStats);
@@ -163,7 +164,8 @@ export async function getUserWithWorkersAndStats(address: string) {
  * @param address - Bitcoin address to query
  * @returns list of UserStats rows ordered newest first
  */
-export async function getUserHistoricalStats(address: string) {
+export async function getUserHistoricalStats(address: string | undefined) {
+  if (!address) return [];
   const db = await getDb();
   const repository = db.getRepository(UserStats);
 
@@ -183,16 +185,17 @@ export async function getUserHistoricalStats(address: string) {
  * @returns worker entity with sorted stats, or undefined if not found
  */
 export async function getWorkerWithStats(
-  userAddress: string,
-  workerName: string
+  userAddress: string | undefined,
+  workerName: string | undefined
 ) {
+  if (!userAddress) return undefined;
   const db = await getDb();
   const repository = db.getRepository(Worker);
 
   const worker = await repository.findOne({
     where: {
       userAddress,
-      name: workerName.trim(),
+      name: workerName ? workerName.trim() : '',
     },
     relations: {
       stats: true,

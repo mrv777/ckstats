@@ -53,7 +53,8 @@ export class CKPoolAPI {
    * Initialize the CKPool API client from the environment.
    */
   constructor() {
-    this.apiUrl = process.env.API_URL ?? 'https://solo.ckpool.org';
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+    this.apiUrl = process.env.API_URL?.trim() || 'https://solo.ckpool.org';
     this.isHttp =
       this.apiUrl.startsWith('http://') || this.apiUrl.startsWith('https://');
 

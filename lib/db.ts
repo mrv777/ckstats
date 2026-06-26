@@ -16,11 +16,15 @@ import { WorkerStats } from './entities/WorkerStats';
 
 const AppDataSource = new DataSource({
   type: 'postgres',
-  host: process.env.DB_HOST ?? 'localhost',
-  port: parseInt(process.env.DB_PORT ?? '5432'),
-  username: process.env.DB_USER ?? 'postgres',
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+  host: process.env.DB_HOST?.trim() || 'localhost',
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+  port: parseInt(process.env.DB_PORT?.trim() || '5432'),
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+  username: process.env.DB_USER?.trim() || 'postgres',
   password: process.env.DB_PASSWORD ?? 'password',
-  database: process.env.DB_NAME ?? 'postgres',
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+  database: process.env.DB_NAME?.trim() || 'postgres',
   entities: [PoolStats, User, UserStats, Worker, WorkerStats],
   logging: process.env.NODE_ENV === 'development',
   ssl:
