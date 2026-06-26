@@ -7,9 +7,7 @@ const nextConfig = {
     });
     return config;
   },
-  experimental: {
-    serverComponentsExternalPackages: ['typeorm'],
-  },
+  serverExternalPackages: ['typeorm'],
   staticPageGenerationTimeout: 300,
 }
 

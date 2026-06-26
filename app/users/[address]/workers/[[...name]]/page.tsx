@@ -13,11 +13,7 @@ import {
   serializeData,
 } from '../../../../../utils/helpers';
 
-export default async function WorkerPage({
-  params,
-}: {
-  params: { address: string; name?: string[] };
-}) {
+export default async function WorkerPage({ params }) {
   const decodedName = params.name ? decodeURIComponent(params.name[0]) : '';
   const workerORM = await getWorkerWithStats(params.address, decodedName);
 

@@ -22,11 +22,7 @@ import {
   serializeData,
 } from '../../../utils/helpers';
 
-export default async function UserPage({
-  params,
-}: {
-  params: { address: string };
-}) {
+export default async function UserPage({ params }) {
   const [userORM, statsORM, historicalStatsORM, networkDifficulty] =
     await Promise.all([
       getUserWithWorkersAndStats(params.address),
@@ -233,7 +229,6 @@ export default async function UserPage({
       </div>
 
       <UserStatsCharts userStats={historicalStats} />
-
       <WorkersTable workers={user.workers} address={params.address} />
     </div>
   );
