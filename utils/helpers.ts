@@ -70,7 +70,7 @@ export function convertHashrate(value: string): bigint {
     const [, num, , unit] = match;
     // Parse the number, which now handles scientific notation
     const parsedNum = parseFloat(num);
-    const isoUnit = isoUnits.find((u) => u.iso.toUpperCase() === unit.toUpperCase()) || { threshold: 1, iso: '' };
+    const isoUnit = isoUnits.find((u) => u.iso.toUpperCase() === unit.toUpperCase()) ?? { threshold: 1, iso: '' };
     return BigInt(Math.round(parsedNum * isoUnit.threshold));
   }
   return BigInt(value);
@@ -86,7 +86,7 @@ export function findISOUnit(num: number): ISOUnit {
 
   for (const unit of isoUnits) {
     if (absNum >= unit.threshold) {
-      return(unit);
+      return unit;
     }
   }
 
@@ -190,7 +190,7 @@ export function calculateAverageTimeToBlock(hashRate: bigint | number | string, 
 
   let convertedDifficulty: bigint;
   if (typeof difficulty === 'number') {
-    const isoUnit = isoUnits.find((u) => u.iso.toUpperCase() === units?.toUpperCase()) || { threshold: 1, iso: '' };
+    const isoUnit = isoUnits.find((u) => u.iso.toUpperCase() === units?.toUpperCase()) ?? { threshold: 1, iso: '' };
     convertedDifficulty = BigInt(Math.round(difficulty * isoUnit.threshold));
   } else {
     convertedDifficulty = difficulty;

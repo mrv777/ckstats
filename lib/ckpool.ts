@@ -53,7 +53,7 @@ export class CKPoolAPI {
    * Initialize the CKPool API client from the environment.
    */
   constructor() {
-    this.apiUrl = process.env.API_URL || 'https://solo.ckpool.org';
+    this.apiUrl = process.env.API_URL ?? 'https://solo.ckpool.org';
     this.isHttp =
       this.apiUrl.startsWith('http://') || this.apiUrl.startsWith('https://');
 
@@ -115,7 +115,7 @@ export class CKPoolAPI {
         });
         if (!response.ok) {
           const status = (response as any).status ?? response.status ?? 0;
-          const statusText = (response.statusText || '').toLowerCase();
+          const statusText = (response.statusText ?? '').toLowerCase();
 
           if (status === 404 || statusText.includes('not found')) {
             throw new CKPoolError(
@@ -128,7 +128,7 @@ export class CKPoolAPI {
 
           throw new CKPoolError(
             CKPoolErrorCode.UNKNOWN,
-            `API request failed: ${status} ${response.statusText || ''} ${errorBody}`.trim()
+            `API request failed: ${status} ${response.statusText ?? ''} ${errorBody}`.trim()
           );
         }
         return await response.text();
@@ -258,7 +258,7 @@ export class CKPoolAPI {
 
                 req.once('response', (headers) => {
                   clearTimeout(timeout);
-                  resolve((headers[':status'] as number) || 0);
+                  resolve((headers[':status'] as number) ?? 0);
                 });
 
                 req.once('error', (err) => {

@@ -30,19 +30,19 @@ async function cleanOldStats(db: DataSource) {
     const poolStatsResult = await db.getRepository(PoolStats).delete({
       timestamp: LessThan(oneWeekAgo)
     });
-    console.log(`Deleted ${poolStatsResult.affected || 0} old pool stats`);
+    console.log(`Deleted ${poolStatsResult.affected ?? 0} old pool stats`);
 
     // Delete old user stats
     const userStatsResult = await db.getRepository(UserStats).delete({
       timestamp: LessThan(threeDaysAgo)
     });
-    console.log(`Deleted ${userStatsResult.affected || 0} old user stats`);
+    console.log(`Deleted ${userStatsResult.affected ?? 0} old user stats`);
 
     // Delete old worker stats
     const workerStatsResult = await db.getRepository(WorkerStats).delete({
       timestamp: LessThan(oneDayAgo)
     });
-    console.log(`Deleted ${workerStatsResult.affected || 0} old worker stats`);
+    console.log(`Deleted ${workerStatsResult.affected ?? 0} old worker stats`);
 
     console.log('Old stats cleanup completed successfully');
   } catch (error) {
@@ -80,13 +80,13 @@ async function cleanDeadWorkers(db: DataSource) {
         const statsResult = await db.getRepository(WorkerStats).delete({
           worker: { id: In(deadWorkerIds) },
         });
-        deletedStatsCount += statsResult.affected || 0;
+        deletedStatsCount += statsResult.affected ?? 0;
 
         // Then delete the workers
         const workersResult = await db.getRepository(Worker).delete({
           id: In(deadWorkerIds),
         });
-        deletedWorkersCount += workersResult.affected || 0;
+        deletedWorkersCount += workersResult.affected ?? 0;
       }
     }
 

@@ -4,7 +4,6 @@ import { CKPoolAPI, CKPoolError, CKPoolErrorCode } from '../lib/ckpool';
 import { getDb } from '../lib/db';
 import { User } from '../lib/entities/User';
 import { UserStats } from '../lib/entities/UserStats';
-import { Worker } from '../lib/entities/Worker';
 import { WorkerStats } from '../lib/entities/WorkerStats';
 import { convertHashrate } from '../utils/helpers';
 
@@ -82,7 +81,7 @@ function buildUserDataMap(fetched: UsersData[]): Map<string, {
         });
         console.log(`Marked user ${address} as inactive (NOT_FOUND)`);
       } else {
-        console.error(`Skipping user ${address} due to fetch error:`, (result.error as Error)?.message || 'Unknown error');
+        console.error(`Skipping user ${address} due to fetch error:`, (result.error as Error)?.message ?? 'Unknown error');
       }
       continue;
     }
@@ -91,7 +90,7 @@ function buildUserDataMap(fetched: UsersData[]): Map<string, {
     const workersMap = new Map<string, any>();
 
     // Extract worker data for each user
-    for (const workerData of (userData.worker || [])) {
+    for (const workerData of (userData.worker ?? [])) {
       const workername = workerData.workername;
       const workerName = workername.includes('.')
         ? workername.split('.')[1]

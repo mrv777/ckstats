@@ -53,6 +53,9 @@ importers:
         specifier: ^0.3.28
         version: 0.3.28(pg@8.20.0)(ts-node@10.9.2(@types/node@18.19.130)(typescript@5.9.3))
     devDependencies:
+      '@eslint/eslintrc':
+        specifier: ^3.3.1
+        version: 3.3.5
       '@testing-library/jest-dom':
         specifier: ^6.9.1
         version: 6.9.1
@@ -5154,7 +5157,7 @@ snapshots:
 
   acorn-walk@8.3.4:
     dependencies:
-      acorn: 8.12.1
+      acorn: 8.17.0
 
   acorn@8.12.1: {}
 
@@ -8627,3 +8630,4 @@ snapshots:
       zod: 4.3.6
 
   zod@4.3.6: {}
+  

@@ -7,8 +7,17 @@ const jsxA11yPlugin = require('eslint-plugin-jsx-a11y');
 const prettierPlugin = require('eslint-plugin-prettier');
 const typescriptPlugin = require('@typescript-eslint/eslint-plugin');
 const typescriptParser = require('@typescript-eslint/parser');
+const { FlatCompat } = require('@eslint/eslintrc');
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+});
+
+// Use Next.js legacy config through compat layer
+const nextLegacyConfigs = compat.config(require('@next/eslint-plugin-next').configs['core-web-vitals']);
 
 module.exports = [
+  ...nextLegacyConfigs,
   // 0. Global ignores for generated files
   {
     ignores: ['**/.next/**', '**/node_modules/**', '**/dist/**', '**/.pnpm-store/**', '**/pnpm-lock.yaml', '**/ormconfig.ts'],

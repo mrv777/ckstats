@@ -27,7 +27,7 @@ export default function Header() {
       });
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to add address');
+        throw new Error(errorData.error ?? 'Failed to add address');
       }
       return response.json();
     },

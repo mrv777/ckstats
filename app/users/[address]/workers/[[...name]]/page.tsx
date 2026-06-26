@@ -69,7 +69,7 @@ export default async function WorkerPage({ params }) {
           Back to User
         </Link>
         <h1 className="text-3xl font-bold text-accent">
-          {worker.name || <span className="italic">Unnamed Worker</span>}
+          {worker.name ?? <span className="italic">Unnamed Worker</span>}
         </h1>
       </div>
 

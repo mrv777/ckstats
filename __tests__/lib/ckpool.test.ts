@@ -27,7 +27,7 @@ describe('CKPoolAPI', () => {
         it('uses API_URL environment variable when set', () => {
             process.env.API_URL = 'https://custom.ckpool.org';
             const testApi = new CKPoolAPI();
-            // @ts-expect-error
+            // @ts-expect-error - accessing private property for testing
             expect(testApi.apiUrl).toBe('https://custom.ckpool.org');
             delete process.env.API_URL;
         });
@@ -35,7 +35,7 @@ describe('CKPoolAPI', () => {
         it('detects HTTP mode', () => {
             process.env.API_URL = 'http://localhost:8080';
             const testApi = new CKPoolAPI();
-            // @ts-expect-error
+            // @ts-expect-error - accessing private property for testing
             expect(testApi.isHttp).toBe(true);
             delete process.env.API_URL;
         });
