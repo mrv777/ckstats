@@ -18,6 +18,89 @@ export enum CKPoolErrorCode {
   UNKNOWN = 'UNKNOWN',
 }
 
+type ApiFlavor = 'ckpool' | 'btcpowlab';
+
+type BtcPowLabSummary = {
+  generated_at: number;
+  connected: boolean;
+  active_sessions: number;
+  current_hashrate_hs: number | null;
+  hashrate_5m_hs: number | null;
+  hashrate_1h_hs: number | null;
+  hashrate_24h_hs: number | null;
+  accepted_shares: number;
+  best_share_difficulty: string | null;
+  last_share_at: number | null;
+  workers: Array<{
+    name: string;
+    accepted_shares: number;
+    hashrate_5m_hs: number | null;
+    hashrate_1h_hs: number | null;
+    last_share_at: number | null;
+  }>;
+};
+
+const hashrate = (value: number | null | undefined): string =>
+  String(Number.isFinite(value) && Number(value) > 0 ? value : 0);
+
+export const mapBtcPowLabUser = (
+  data: BtcPowLabSummary,
+  address = '',
+) => ({
+  authorised: data.connected ? data.generated_at : 0,
+  hashrate1m: hashrate(data.current_hashrate_hs),
+  hashrate5m: hashrate(data.hashrate_5m_hs),
+  hashrate1hr: hashrate(data.hashrate_1h_hs),
+  hashrate1d: hashrate(data.hashrate_24h_hs),
+  hashrate7d: '0',
+  lastshare: data.last_share_at ?? 0,
+  workers: data.active_sessions,
+  shares: String(data.accepted_shares ?? 0),
+  bestshare: data.best_share_difficulty ?? '0',
+  bestever: data.best_share_difficulty ?? '0',
+  worker: (data.workers ?? []).map((worker) => ({
+    workername: address ? `${address}.${worker.name}` : worker.name,
+    hashrate1m: hashrate(worker.hashrate_5m_hs),
+    hashrate5m: hashrate(worker.hashrate_5m_hs),
+    hashrate1hr: hashrate(worker.hashrate_1h_hs),
+    hashrate1d: '0',
+    hashrate7d: '0',
+    lastshare: worker.last_share_at ?? 0,
+    shares: String(worker.accepted_shares ?? 0),
+    bestshare: '0',
+    bestever: '0',
+  })),
+});
+
+export const mapBtcPowLabPool = (data: any) => {
+  const pool = data.pool ?? {};
+  const network = data.network ?? {};
+  return {
+    runtime: '0',
+    Users: String(pool.active_miners ?? 0),
+    Workers: String(pool.active_workers ?? 0),
+    Idle: '0',
+    Disconnected: '0',
+    hashrate1m: hashrate(Number(pool.hashrate_5m_ths ?? 0) * 1e12),
+    hashrate5m: hashrate(Number(pool.hashrate_5m_ths ?? 0) * 1e12),
+    hashrate15m: hashrate(Number(pool.hashrate_15m_ths ?? 0) * 1e12),
+    hashrate1hr: hashrate(Number(pool.hashrate_1h_ths ?? 0) * 1e12),
+    hashrate6hr: '0',
+    hashrate1d: '0',
+    hashrate7d: '0',
+    diff: String(network.difficulty ?? 0),
+    accepted: String(pool.accepted_shares ?? 0),
+    rejected: String(
+      Number(pool.rejected_shares ?? 0) + Number(pool.duplicate_shares ?? 0),
+    ),
+    bestshare: '0',
+    SPS1m: '0',
+    SPS5m: '0',
+    SPS15m: '0',
+    SPS1h: '0',
+  };
+};
+
 /**
  * A structured error type for CKPool API failures.
  */
@@ -47,6 +130,7 @@ export class CKPoolAPI {
   private apiUrl: string;
   private isHttp: boolean;
   public isHttp2: boolean = false;
+  private readonly apiFlavor: ApiFlavor;
   private readonly http2Ready: Promise<void>;
 
   /**
@@ -55,11 +139,12 @@ export class CKPoolAPI {
   constructor() {
     // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
     this.apiUrl = process.env.API_URL?.trim() || 'https://solo.ckpool.org';
+    this.apiFlavor = process.env.API_FLAVOR === 'btcpowlab' ? 'btcpowlab' : 'ckpool';
     this.isHttp =
       this.apiUrl.startsWith('http://') || this.apiUrl.startsWith('https://');
 
     // Check if the server supports http/2
-    if (this.apiUrl.startsWith('https://')) {
+    if (this.apiFlavor === 'ckpool' && this.apiUrl.startsWith('https://')) {
       this.http2Ready = this.detectHttp2Support();
     } else {
       this.http2Ready = Promise.resolve();
@@ -181,6 +266,9 @@ export class CKPoolAPI {
    * aggregated object.
    */
   async poolStatus(): Promise<unknown> {
+    if (this.apiFlavor === 'btcpowlab') {
+      return mapBtcPowLabPool(JSON.parse(await this.api('/public/v1/pool')));
+    }
     const data = await this.api('/pool/pool.status');
 
     const flattened = data.replace(/\r?\n/g, '');
@@ -205,6 +293,12 @@ export class CKPoolAPI {
       );
     }
 
+    if (this.apiFlavor === 'btcpowlab') {
+      const data = JSON.parse(
+        await this.api(`/public/v1/miner/${address}/summary`)
+      ) as BtcPowLabSummary;
+      return mapBtcPowLabUser(data, address);
+    }
     return JSON.parse(await this.api(`/users/${address}`));
   }
   /**

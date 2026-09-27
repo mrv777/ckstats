@@ -27,6 +27,7 @@ This project displays real-time and historical statistics for the CKPool Bitcoin
   - Example:
    ```
    API_URL="https://solo.ckpool.org"
+   API_FLAVOR="ckpool"
    DB_HOST="server"
    DB_PORT="port"
    DB_USER="username"
@@ -34,6 +35,7 @@ This project displays real-time and historical statistics for the CKPool Bitcoin
    DB_NAME="database"
    ```
    Replace `username`, `password`, `server`, `port`, `database` with your actual PostgreSQL credentials, server details, and database names.
+   To monitor BTC PoW Lab instead, use `API_URL="https://btcpowlab-pool.com"` and `API_FLAVOR="btcpowlab"`. The adapter reads the public pool projection and address summary endpoints.
    You can also set the DB_SSL to true if you want to use SSL and set the DB_SSL_REJECT_UNAUTHORIZED to true if you want to reject untrusted SSL certificates (like self-signed certificates).
    If PostgreSQL is running locally, you can make `DB_HOST` `/var/run/postgresql/` (which connects via a Unix socket).  The username and password are then ignored (authentication is done based on the Unix user connection to the socket).
    If ckpool is running locally you can make `API_URL` the path to the logs directory.  For example `/home/ckpool-testnet/solobtc/logs`.
