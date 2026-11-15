@@ -1,0 +1,1 @@
+ckstats is a nodejs web interface for the Bitcoin mining software ckpool.

@@ -1,5 +1,15 @@
 packages:
   - '.'
-
 # Project-wide settings
+overrides:
+  # Security fixes for transitive dependencies (Node 18 compatible)
+  # next pins postcss@8.4.31
+  postcss: ^8.5.23
+  # sharp >=0.35 requires Node >=20.9; keep 0.34.x for Ubuntu 24.04 (Node 18)
+  sharp: ~0.34.5
+allowBuilds:
+  sharp: true
+  unrs-resolver: true
+  # install script only builds from source when explicitly requested; prebuilt binaries are used
+  '@parcel/watcher': false
 minimumReleaseAge: 10080  # 7 days in minutes

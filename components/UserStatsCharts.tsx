@@ -12,6 +12,7 @@ import {
   ResponsiveContainer,
   LegendType,
   Brush,
+  DefaultLegendContent,
 } from 'recharts';
 
 import { UserStats } from '../lib/entities/UserStats';
@@ -181,11 +182,16 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
             />
             <Tooltip formatter={hashrateTooltipFormatter} />
             <Legend
-              payload={legendPayload.map((item) => ({
-                ...item,
-                type: item.type as LegendType,
-              }))}
-              onClick={(e) => handleLegendClick(e.value)}
+              content={(props) => (
+                <DefaultLegendContent
+                  {...props}
+                  payload={legendPayload.map((item) => ({
+                    ...item,
+                    type: item.type as LegendType,
+                  }))}
+                  onClick={(e) => e.value && handleLegendClick(e.value)}
+                />
+              )}
             />
             <Brush
               dataKey="timestamp"
