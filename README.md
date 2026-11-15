@@ -21,7 +21,7 @@ This project displays real-time and historical statistics for the CKPool Bitcoin
 
 1. Clone the repository (git clone https://github.com/mrv777/ckstats.git)
 2. Install pnpm: `curl -fsSL https://get.pnpm.io/install.sh | bash`
-3. Install packages if needed: `sudo apt install postgresql postgresql-contrib nodejs nginx`
+3. Install packages if needed: `sudo apt install postgresql postgresql-contrib nodejs npm`
 4. Go to the directory: `cd ckstats`
 5. Set up the environment variables in `.env`
   - Example:
@@ -48,9 +48,9 @@ This project displays real-time and historical statistics for the CKPool Bitcoin
    - Open the crontab editor: `crontab -e`
    - Add lines to run the scripts.  Example:
      ```
-     */1 * * * * cd /path/to/your/project && /usr/local/bin/pnpm seed
-     */1 * * * * cd /path/to/your/project && /usr/local/bin/pnpm update-users
-     5 */2 * * * cd /path/to/your/project && /usr/local/bin/pnpm cleanup
+     */1 * * * * cd /path/to/your/project && nice /usr/local/bin/pnpm seed
+     */1 * * * * cd /path/to/your/project && nice /usr/local/bin/pnpm update-users
+     5 */2 * * * cd /path/to/your/project && nice /usr/local/bin/pnpm cleanup
      ```
    - Save and exit the editor
    
