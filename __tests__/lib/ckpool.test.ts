@@ -61,7 +61,7 @@ describe('CKPoolAPI', () => {
                 text: () => Promise.resolve(''),
             } as any);
 
-            const err = await api.poolStatus().catch((e: any) => e);
+            const err = (await api.poolStatus().catch((e: any) => e)) as CKPoolError;
 
             expect(err).toBeInstanceOf(CKPoolError);
             expect(err.code).toBe(CKPoolErrorCode.NOT_FOUND);
@@ -75,7 +75,7 @@ describe('CKPoolAPI', () => {
                 text: () => Promise.resolve(''),
             } as any);
 
-            const err = await api.poolStatus().catch((e: any) => e);
+            const err = (await api.poolStatus().catch((e: any) => e)) as CKPoolError;
 
             expect(err).toBeInstanceOf(CKPoolError);
             expect(err.code).toBe(CKPoolErrorCode.UNKNOWN);
@@ -88,7 +88,7 @@ describe('CKPoolAPI', () => {
                 throw err;
             });
 
-            const err = await api.poolStatus().catch((e: any) => e);
+            const err = (await api.poolStatus().catch((e: any) => e)) as CKPoolError;
 
             expect(err).toBeInstanceOf(CKPoolError);
             expect(err.code).toBe(CKPoolErrorCode.TIMEOUT);
@@ -108,7 +108,7 @@ describe('CKPoolAPI', () => {
         });
 
         it('throws INVALID for addresses with invalid characters', async () => {
-            const err = await api.user('../etc/passwd').catch((e: any) => e);
+            const err = (await api.user('../etc/passwd').catch((e: any) => e)) as CKPoolError;
 
             expect(err).toBeInstanceOf(CKPoolError);
             expect(err.code).toBe(CKPoolErrorCode.INVALID);
@@ -122,7 +122,7 @@ describe('CKPoolAPI', () => {
                 text: () => Promise.resolve(''),
             } as any);
 
-            const err = await api.user('bc1qnonexistent').catch((e: any) => e);
+            const err = (await api.user('bc1qnonexistent').catch((e: any) => e)) as CKPoolError;
 
             expect(err).toBeInstanceOf(CKPoolError);
             expect(err.code).toBe(CKPoolErrorCode.NOT_FOUND);
