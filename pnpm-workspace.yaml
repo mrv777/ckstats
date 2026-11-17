@@ -2,11 +2,9 @@ packages:
   - '.'
 # Project-wide settings
 overrides:
-  # Security fixes for transitive dependencies (Node 18 compatible)
+  # Security fixes for transitive dependencies (Node 22 compatible)
   # next pins postcss@8.4.31
   postcss: ^8.5.23
-  # sharp >=0.35 requires Node >=20.9; keep 0.34.x for Ubuntu 24.04 (Node 18)
-  sharp: ~0.34.5
 allowBuilds:
   sharp: true
   unrs-resolver: true
