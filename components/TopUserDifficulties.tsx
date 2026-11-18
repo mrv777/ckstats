@@ -20,7 +20,7 @@ export default async function TopUserDifficulties({
     const difficulties = await getTopUserDifficulties(limit);
 
     return (
-      <div className="card bg-base-100 shadow-xl card-compact sm:card-normal">
+      <div className="card bg-base-100 shadow-xl card-sm sm:card-md">
         <div className="card-body">
           <h2 className="card-title">
             {limit > SMALL_LIMIT ? (
@@ -115,7 +115,7 @@ export default async function TopUserDifficulties({
   } catch (error) {
     console.error('Error fetching top user difficulties:', error);
     return (
-      <div className="card bg-base-100 shadow-xl card-compact sm:card-normal">
+      <div className="card bg-base-100 shadow-xl card-sm sm:card-md">
         <div className="card-body">
           <h2 className="card-title">Top {limit} User Difficulties</h2>
           <p className="text-error">

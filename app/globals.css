@@ -1,8 +1,11 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-/* Add any global styles below this line */
+@plugin 'daisyui' {
+  themes: dark --default, light, cupcake, bumblebee, emerald, corporate, synthwave,
+    retro, cyberpunk, valentine, halloween, garden, forest, aqua, lofi, pastel,
+    fantasy, wireframe, black, luxury, dracula, cmyk, autumn, business, acid,
+    lemonade, night, coffee, winter, dim, nord, sunset;
+}
 
 @layer components {
   .card-body {

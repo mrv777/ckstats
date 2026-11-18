@@ -110,7 +110,7 @@ export default function PoolStatsDisplay({
   return (
     <div className="grid grid-cols-1 gap-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-        <div className="card card-compact">
+        <div className="card card-sm">
           <div className="card-body">
             <div className="flex items-center justify-between gap-2">
               <h2 className="card-title">General Info</h2>
@@ -162,7 +162,7 @@ export default function PoolStatsDisplay({
           </div>
         </div>
         {statGroups.map((group) => (
-          <div key={group.title} className="card card-compact">
+          <div key={group.title} className="card card-sm">
             <div className="card-body">
               <h2 className="card-title">{group.title}</h2>
               <div className="stats stats-vertical lg:stats-horizontal shadow-lg my-2">
@@ -184,7 +184,7 @@ export default function PoolStatsDisplay({
           </div>
         ))}
       </div>
-      <div className="card card-compact">
+      <div className="card card-sm">
         <div className="card-body">
           <h2 className="card-title">{hashrateGroup.title}</h2>
           <div className="stats stats-vertical lg:stats-horizontal shadow-lg my-2">

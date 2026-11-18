@@ -77,12 +77,12 @@ export default function Header() {
           CKPool Stats
         </Link>
       </div>
-      <div className="flex-none gap-1 sm:gap-2 flex-grow md:flex-grow-0">
-        <div className="form-control flex-grow md:flex-grow-0">
+      <div className="flex-none gap-1 sm:gap-2 grow md:grow-0 flex items-center">
+        <div className="grow md:grow-0">
           <input
             type="text"
             placeholder="Enter Bitcoin address"
-            className="input input-bordered w-full md:w-96 text-sm"
+            className="input w-full md:w-96 text-sm"
             value={address}
             onChange={(e) => setAddress(e.target.value.trim())}
             onKeyDown={(e) => {
