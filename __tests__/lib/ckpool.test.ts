@@ -9,6 +9,7 @@ describe('CKPoolAPI', () => {
 
     beforeEach(() => {
         delete process.env.API_URL;
+        delete process.env.API_FLAVOR;
         jest.restoreAllMocks();
         api = new CKPoolAPI();
     });
@@ -92,6 +93,115 @@ describe('CKPoolAPI', () => {
 
             expect(err).toBeInstanceOf(CKPoolError);
             expect(err.code).toBe(CKPoolErrorCode.TIMEOUT);
+        });
+    });
+
+    describe('BTC PoW Lab adapter', () => {
+        it('maps the public pool projection to CK Stats fields', async () => {
+            process.env.API_URL = 'https://btcpowlab-pool.com';
+            process.env.API_FLAVOR = 'btcpowlab';
+            api = new CKPoolAPI();
+            jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+                ok: true,
+                text: () => Promise.resolve(JSON.stringify({
+                    network: { difficulty: '42' },
+                    pool: {
+                        active_miners: 2,
+                        active_workers: 3,
+                        hashrate_5m_ths: 4,
+                        hashrate_15m_ths: 5,
+                        hashrate_1h_ths: 6,
+                        accepted_shares: 7,
+                        duplicate_shares: 1,
+                    },
+                })),
+            } as any);
+
+            await expect(api.poolStatus()).resolves.toMatchObject({
+                Users: '2',
+                Workers: '3',
+                hashrate5m: '4000000000000',
+                accepted: '7',
+                rejected: '1',
+                diff: '42',
+            });
+        });
+
+        it('maps one address summary and workers', async () => {
+            process.env.API_URL = 'https://btcpowlab-pool.com';
+            process.env.API_FLAVOR = 'btcpowlab';
+            api = new CKPoolAPI();
+            jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+                ok: true,
+                text: () => Promise.resolve(JSON.stringify({
+                    generated_at: 100,
+                    connected: true,
+                    active_sessions: 1,
+                    current_hashrate_hs: 10,
+                    hashrate_5m_hs: 11,
+                    hashrate_1h_hs: 12,
+                    hashrate_24h_hs: 13,
+                    accepted_shares: 14,
+                    best_share_difficulty: '15',
+                    last_share_at: 16,
+                    workers: [{
+                        name: 'rig',
+                        accepted_shares: 17,
+                        hashrate_5m_hs: 18,
+                        hashrate_1h_hs: 19,
+                        last_share_at: 20,
+                    }],
+                })),
+            } as any);
+
+            await expect(api.user('bc1qtest')).resolves.toMatchObject({
+                authorised: 100,
+                workers: 1,
+                shares: '14',
+                bestever: '15',
+                worker: [
+                    {
+                        workername: 'bc1qtest.rig',
+                        shares: '17',
+                        hashrate1hr: '19',
+                    },
+                ],
+            });
+        });
+
+        it('preserves input order and individual errors for batched address lookups', async () => {
+            process.env.API_URL = 'https://btcpowlab-pool.com';
+            process.env.API_FLAVOR = 'btcpowlab';
+            api = new CKPoolAPI();
+            jest.spyOn(global, 'fetch')
+                .mockResolvedValueOnce({
+                    ok: true,
+                    text: () =>
+                        Promise.resolve(
+                            JSON.stringify({
+                                generated_at: 100,
+                                connected: true,
+                                active_sessions: 0,
+                                accepted_shares: 1,
+                                workers: [],
+                            })
+                        ),
+                } as any)
+                .mockResolvedValueOnce({
+                    ok: false,
+                    status: 404,
+                    statusText: 'Not Found',
+                    text: () => Promise.resolve(''),
+                } as any);
+
+            const results = await api.users(['bc1qfirst', 'bc1qmissing']);
+
+            expect(results.map((result) => result.address)).toEqual([
+                'bc1qfirst',
+                'bc1qmissing',
+            ]);
+            expect(results[0].userData).toMatchObject({ shares: '1' });
+            expect(results[1].error).toBeInstanceOf(CKPoolError);
         });
     });
 
