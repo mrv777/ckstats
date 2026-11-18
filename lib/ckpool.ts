@@ -82,7 +82,7 @@ export class CKPoolAPI {
           if (timer) {
             clearTimeout(timer);
           }
-          client.close();
+          client.destroy();
           resolve(value);
         };
 
@@ -92,6 +92,7 @@ export class CKPoolAPI {
         timer = setTimeout(() => {
           cleanup(false);
         }, 1000);
+        timer.unref();
       });
     } catch {
       if (timer) {

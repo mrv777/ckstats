@@ -11,6 +11,7 @@
     "strict": false,
     "noEmit": true,
     "incremental": true,
+    "rootDir": ".",
     "module": "esnext",
     "esModuleInterop": true,
     "moduleResolution": "bundler",
@@ -24,7 +25,11 @@
     ],
     "strictNullChecks": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "types": [
+      "node",
+      "jest"
+    ]
   },
   "include": [
     "next-env.d.ts",

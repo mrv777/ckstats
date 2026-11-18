@@ -62,7 +62,9 @@ export async function POST(request: Request) {
     console.log(
       `User ${address} added to database, updating stats in background.`
     );
-    updateSingleUser(address);
+    updateSingleUser(address).catch((error: unknown) => {
+      console.error(`Background update failed for ${address}:`, error);
+    });
 
     // Convert BigInt fields to strings for JSON serialization
     const serializedUser = JSON.parse(
