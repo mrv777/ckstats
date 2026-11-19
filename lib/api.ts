@@ -386,7 +386,12 @@ export async function updateSingleUser(address: string): Promise<void> {
       // Update or create workers
       const workerRepository = manager.getRepository(Worker);
       for (const workerData of userData.worker) {
-        const workerName = workerData.workername.split('.')[1];
+        const workername = workerData.workername;
+        const workerName = workername.includes('.')
+          ? workername.split('.')[1]
+          : workername.includes('_')
+            ? workername.split('_')[1]
+            : workername;
         const worker = await workerRepository.findOne({
           where: {
             userAddress: address,

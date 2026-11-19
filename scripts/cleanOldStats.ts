@@ -61,7 +61,7 @@ async function cleanDeadWorkers(db: DataSource) {
     // Find active users
     const activeUsers = await db.getRepository(User).find({
       where: { isActive: true },
-      relations: ['workers'],
+      relations: { workers: true },
     });
 
     let deletedWorkersCount = 0;

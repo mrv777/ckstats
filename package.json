@@ -18,7 +18,7 @@
     "migration:run:skip": "ts-node -P tsconfig.scripts.json ./scripts/migration.ts --skip-initial"
   },
   "engines": {
-    "node": ">=22.2.1",
+    "node": ">=22.13.0",
     "pnpm": ">=10.0.0"
   },
   "dependencies": {
@@ -34,7 +34,7 @@
     "react-dom": "^19.3.1",
     "recharts": "^3.10.1",
     "reflect-metadata": "^0.2.2",
-    "typeorm": "^0.3.31"
+    "typeorm": "^1.1.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
