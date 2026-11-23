@@ -5,8 +5,7 @@ const reactPlugin = require('eslint-plugin-react');
 const reactHooksPlugin = require('eslint-plugin-react-hooks');
 const jsxA11yPlugin = require('eslint-plugin-jsx-a11y');
 const prettierPlugin = require('eslint-plugin-prettier');
-const typescriptPlugin = require('@typescript-eslint/eslint-plugin');
-const typescriptParser = require('@typescript-eslint/parser');
+const typescript = require('typescript-eslint');
 
 // Next.js core-web-vitals flat config
 const nextCoreWebVitals = nextPlugin.configs['core-web-vitals'];
@@ -57,7 +56,7 @@ module.exports = [
     files: ['**/__tests__/**/*.{js,jsx,ts,tsx}'],
     ignores: ['**/.next/**', '**/node_modules/**', '**/*.config.*', '**/jest.setup.js', '**/next.config.js', '**/tailwind.config.js', '**/postcss.config.js', '**/jest.config.js'],
     plugins: {
-      '@typescript-eslint': typescriptPlugin,
+      '@typescript-eslint': typescript.plugin,
       'import': importPlugin,
       'react': reactPlugin,
       'react-hooks': reactHooksPlugin,
@@ -82,7 +81,7 @@ module.exports = [
         afterAll: 'readonly',
         global: 'readonly',
       },
-      parser: typescriptParser,
+      parser: typescript.parser,
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
@@ -120,7 +119,7 @@ module.exports = [
     files: ['**/scripts/**/*.{js,ts}'],
     ignores: ['**/.next/**', '**/node_modules/**', '**/*.config.*', '**/jest.setup.js', '**/next.config.js', '**/tailwind.config.js', '**/postcss.config.js', '**/jest.config.js'],
     plugins: {
-      '@typescript-eslint': typescriptPlugin,
+      '@typescript-eslint': typescript.plugin,
       'import': importPlugin,
       'prettier': prettierPlugin,
     },
@@ -134,7 +133,7 @@ module.exports = [
         setInterval: 'readonly',
         clearInterval: 'readonly',
       },
-      parser: typescriptParser,
+      parser: typescript.parser,
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
@@ -158,7 +157,7 @@ module.exports = [
     files: ['**/*.{ts,tsx}'],
     ignores: ['**/.next/**', '**/node_modules/**', '**/dist/**', '**/__tests__/**', '**/*.config.*', '**/jest.setup.js', '**/next.config.js', '**/tailwind.config.js', '**/postcss.config.js', '**/jest.config.js', '**/ormconfig.ts'],
     plugins: {
-      '@typescript-eslint': typescriptPlugin,
+      '@typescript-eslint': typescript.plugin,
       'import': importPlugin,
       'react': reactPlugin,
       'react-hooks': reactHooksPlugin,
@@ -173,7 +172,7 @@ module.exports = [
         process: 'readonly',
         fetch: 'readonly',
       },
-      parser: typescriptParser,
+      parser: typescript.parser,
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
@@ -228,7 +227,7 @@ module.exports = [
     files: ['**/app/**/*.{js,jsx}'],
     ignores: ['**/.next/**', '**/node_modules/**', '**/*.config.*', '**/jest.setup.js', '**/next.config.js', '**/tailwind.config.js', '**/postcss.config.js', '**/jest.config.js'],
     plugins: {
-      '@typescript-eslint': typescriptPlugin,
+      '@typescript-eslint': typescript.plugin,
       'import': importPlugin,
       'react': reactPlugin,
       'react-hooks': reactHooksPlugin,
@@ -242,7 +241,7 @@ module.exports = [
         console: 'writable',
         fetch: 'readonly',
       },
-      parser: typescriptParser,
+      parser: typescript.parser,
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
@@ -295,7 +294,7 @@ module.exports = [
     files: ['**/*.{js,jsx}'],
     ignores: ['**/.next/**', '**/node_modules/**', '**/app/**', '**/__tests__/**', '**/scripts/**', '**/*.config.*', '**/jest.setup.js', '**/next.config.js', '**/tailwind.config.js', '**/postcss.config.js', '**/jest.config.js', '**/ormconfig.ts'],
     plugins: {
-      '@typescript-eslint': typescriptPlugin,
+      '@typescript-eslint': typescript.plugin,
       'import': importPlugin,
       'react': reactPlugin,
       'react-hooks': reactHooksPlugin,
@@ -317,7 +316,7 @@ module.exports = [
         document: 'readonly',
         window: 'readonly',
       },
-      parser: typescriptParser,
+      parser: typescript.parser,
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
