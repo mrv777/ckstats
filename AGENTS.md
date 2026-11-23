@@ -20,7 +20,7 @@ ckstats is a nodejs web interface for the Bitcoin mining software ckpool.
 ## Code Style
 
 - TypeScript with `strictNullChecks: true` and `strict: false` for gradual type checking
-- JavaScript standard: ES2020
+- JavaScript standard: ES2023
 - Formatting: Prettier (see .prettierrc), ESLint (see .eslintrc.json)
 - Reference: [utils/helpers.ts](utils/helpers.ts) for formatting patterns, [lib/api.ts](lib/api.ts) for query structure
 
