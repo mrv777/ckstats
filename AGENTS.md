@@ -48,7 +48,3 @@ ckstats is a nodejs web interface for the Bitcoin mining software ckpool.
 - Cache-aside pattern in [lib/api.ts](lib/api.ts)
 
 See [README.md](README.md) for deployment and environment setup.
-
-## Pending upgrades
-
-- `@typescript-eslint/*` 8.73.0 is ready to install after 2026-11-23 (published 2026-11-16, held by the 7-day `minimumReleaseAge` policy in `pnpm-workspace.yaml`). Bump `^8.72.2` → `^8.73.0` in `package.json`, run `pnpm install`, then re-run `pnpm audit` (2 accepted moderate advisories in transitive `glob`/`minimatch` — check whether the newer typescript-estree resolves `minimatch`).
