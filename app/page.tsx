@@ -4,14 +4,15 @@ import PoolStatsChart from '../components/PoolStatsChart';
 import PoolStatsDisplay from '../components/PoolStatsDisplay';
 import TopUserDifficulties from '../components/TopUserDifficulties';
 import TopUserHashrates from '../components/TopUserHashrates';
-import { getLatestPoolStats, getHistoricalPoolStats } from '../lib/api';
+import { getLatestPoolStats, getPoolStatsHistory } from '../lib/api';
 import { serializeData } from '../utils/helpers';
 
 export default async function Home() {
   try {
-    const [latestStatsORM, historicalStatsORM] = await Promise.all([
+    const [latestStatsORM, pool1dORM, pool7dORM] = await Promise.all([
       getLatestPoolStats(),
-      getHistoricalPoolStats(),
+      getPoolStatsHistory('1d'),
+      getPoolStatsHistory('7d'),
     ]);
 
     if (!latestStatsORM) {
@@ -23,16 +24,14 @@ export default async function Home() {
     }
 
     const latestStats = serializeData(latestStatsORM);
-    const historicalStats = serializeData(historicalStatsORM);
+    const pool1d = serializeData(pool1dORM);
+    const pool7d = serializeData(pool7dORM);
 
     return (
       <main className="container mx-auto p-4">
-        <PoolStatsDisplay
-          stats={latestStats}
-          historicalStats={historicalStats}
-        />
-        {historicalStats && historicalStats.length > 0 ? (
-          <PoolStatsChart data={historicalStats} />
+        <PoolStatsDisplay stats={latestStats} historicalStats={pool1d} />
+        {pool1d && pool1d.length > 0 ? (
+          <PoolStatsChart data1d={pool1d} data7d={pool7d} />
         ) : (
           <p>Historical data is not available.</p>
         )}

@@ -8,7 +8,7 @@ import UserStatsCharts from '../../../components/UserStatsCharts';
 import WorkersTable from '../../../components/WorkersTable';
 import {
   getUserWithWorkersAndStats,
-  getUserHistoricalStats,
+  getUserStatsHistory,
   getLatestPoolStats,
   getNetworkDifficulty,
 } from '../../../lib/api';
@@ -24,12 +24,13 @@ import {
 
 export default async function UserPage({ params }) {
   const awaitedParams = await params;
-  const [userORM, statsORM, historicalStatsORM, networkDifficulty] =
+  const [userORM, statsORM, historicalStatsORM, networkDifficulty, userStats7dORM] =
     await Promise.all([
       getUserWithWorkersAndStats(awaitedParams.address),
       getLatestPoolStats(),
-      getUserHistoricalStats(awaitedParams.address),
+      getUserStatsHistory(awaitedParams.address, '1d'),
       getNetworkDifficulty(),
+      getUserStatsHistory(awaitedParams.address, '7d'),
     ]);
 
   if (!userORM) {
@@ -39,6 +40,7 @@ export default async function UserPage({ params }) {
   const user = serializeData(userORM);
   const stats = serializeData(statsORM);
   const historicalStats = serializeData(historicalStatsORM);
+  const userStats7d = serializeData(userStats7dORM);
 
   if (user.isActive === false) {
     return (
@@ -229,7 +231,7 @@ export default async function UserPage({ params }) {
         </div>
       </div>
 
-      <UserStatsCharts userStats={historicalStats} />
+      <UserStatsCharts userStats1d={historicalStats} userStats7d={userStats7d} />
       <WorkersTable workers={user.workers} address={awaitedParams.address} />
     </div>
   );

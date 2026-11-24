@@ -8,7 +8,66 @@ import { UserStats } from './entities/UserStats';
 import { Worker } from './entities/Worker';
 import { convertHashrate } from '../utils/helpers';
 
-const HISTORICAL_DATA_POINTS = 5760;
+const POOL_HISTORY_1D_LIMIT = 1440;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const BUCKET_15_MIN_SECONDS = 15 * 60;
+
+interface BucketColumn {
+  column: string;
+  cast: 'bigint' | 'int' | 'float';
+}
+
+const POOL_BUCKET_COLUMNS: BucketColumn[] = [
+  { column: 'users', cast: 'int' },
+  { column: 'workers', cast: 'int' },
+  { column: 'hashrate1m', cast: 'bigint' },
+  { column: 'hashrate5m', cast: 'bigint' },
+  { column: 'hashrate15m', cast: 'bigint' },
+  { column: 'hashrate1hr', cast: 'bigint' },
+  { column: 'hashrate6hr', cast: 'bigint' },
+  { column: 'hashrate1d', cast: 'bigint' },
+  { column: 'hashrate7d', cast: 'bigint' },
+  { column: 'SPS1m', cast: 'float' },
+  { column: 'SPS5m', cast: 'float' },
+  { column: 'SPS15m', cast: 'float' },
+  { column: 'SPS1h', cast: 'float' },
+];
+
+const USER_BUCKET_COLUMNS: BucketColumn[] = [
+  { column: 'workerCount', cast: 'int' },
+  { column: 'hashrate1m', cast: 'bigint' },
+  { column: 'hashrate5m', cast: 'bigint' },
+  { column: 'hashrate1hr', cast: 'bigint' },
+  { column: 'hashrate1d', cast: 'bigint' },
+  { column: 'hashrate7d', cast: 'bigint' },
+];
+
+const POOL_HISTORY_1D_SELECT = [
+  'stat.timestamp',
+  'stat.users',
+  'stat.workers',
+  'stat.hashrate1m',
+  'stat.hashrate5m',
+  'stat.hashrate15m',
+  'stat.hashrate1hr',
+  'stat.hashrate6hr',
+  'stat.hashrate1d',
+  'stat.hashrate7d',
+  'stat.SPS1m',
+  'stat.SPS5m',
+  'stat.SPS15m',
+  'stat.SPS1h',
+];
+
+const USER_HISTORY_1D_SELECT = [
+  'stat.timestamp',
+  'stat.hashrate1m',
+  'stat.hashrate5m',
+  'stat.hashrate1hr',
+  'stat.hashrate1d',
+  'stat.hashrate7d',
+  'stat.workerCount',
+];
 
 // Initialize cache with a default 1-minute TTL
 const cache = new NodeCache({ stdTTL: 60 });
@@ -95,12 +154,55 @@ export async function getNetworkDifficulty(): Promise<number | null> {
 }
 
 /**
- * Fetch a recent history of pool stats records, limited to a fixed window.
+ * Downsample a stats table into fixed-width time buckets, averaging each column.
  *
- * @returns array of PoolStats rows ordered by newest first
+ * @param table - name of the table to query
+ * @param columns - columns to aggregate with their SQL cast
+ * @param since - earliest timestamp to include
+ * @param bucketSeconds - bucket width in seconds
+ * @param whereFragment - extra SQL appended after `WHERE "timestamp" >= $1`
+ * @param whereParams - parameters for `whereFragment` (indexed from $3 onward)
+ * @returns array of bucket rows ordered by newest first
  */
-export async function getHistoricalPoolStats(): Promise<PoolStats[]> {
-  const cacheKey = 'pool:historical';
+async function getBucketedHistory<T>(
+  table: string,
+  columns: BucketColumn[],
+  since: Date,
+  bucketSeconds: number,
+  whereFragment: string,
+  whereParams: unknown[]
+): Promise<T[]> {
+  const db = await getDb();
+  const columnSql = columns
+    .map(({ column, cast }) => {
+      const aggregate =
+        cast === 'float' ? `AVG("${column}")` : `AVG("${column}")::${cast}`;
+      return `${aggregate} AS "${column}"`;
+    })
+    .join(', ');
+  const sql = `
+    SELECT MIN("timestamp") AS "timestamp", ${columnSql}
+    FROM "${table}"
+    WHERE "timestamp" >= $1 ${whereFragment}
+    GROUP BY (EXTRACT(EPOCH FROM "timestamp")::bigint / $2)
+    ORDER BY MIN("timestamp") DESC
+  `;
+  return (await db.query(sql, [since, bucketSeconds, ...whereParams])) as T[];
+}
+
+/**
+ * Fetch pool stats history for the given range, cached for 60 seconds.
+ *
+ * - `1d`: the last 24 hours at 1-minute resolution (~1440 rows).
+ * - `7d`: the last 7 days downsampled into 15-minute buckets (~672 rows).
+ *
+ * @param range - the time range to fetch
+ * @returns array of PoolStats-shaped rows ordered by newest first
+ */
+export async function getPoolStatsHistory(
+  range: '1d' | '7d'
+): Promise<PoolStats[]> {
+  const cacheKey = `pool:historical:${range}`;
 
   // Try cache first
   const cached = cache.get<PoolStats[]>(cacheKey);
@@ -108,14 +210,28 @@ export async function getHistoricalPoolStats(): Promise<PoolStats[]> {
     return cached;
   }
 
-  const db = await getDb();
-  const repository = db.getRepository(PoolStats);
+  let result: PoolStats[];
+  if (range === '1d') {
+    const db = await getDb();
+    const repository = db.getRepository(PoolStats);
 
-  const result = await repository
-    .createQueryBuilder('stat')
-    .orderBy('stat.timestamp', 'DESC')
-    .limit(HISTORICAL_DATA_POINTS)
-    .getMany();
+    result = await repository
+      .createQueryBuilder('stat')
+      .select(POOL_HISTORY_1D_SELECT)
+      .where('stat.timestamp >= :since', { since: new Date(Date.now() - DAY_MS) })
+      .orderBy('stat.timestamp', 'DESC')
+      .limit(POOL_HISTORY_1D_LIMIT)
+      .getMany();
+  } else {
+    result = await getBucketedHistory<PoolStats>(
+      'PoolStats',
+      POOL_BUCKET_COLUMNS,
+      new Date(Date.now() - 7 * DAY_MS),
+      BUCKET_15_MIN_SECONDS,
+      '',
+      []
+    );
+  }
 
   // Cache for 60 seconds
   cache.set(cacheKey, result, 60);
@@ -159,22 +275,58 @@ export async function getUserWithWorkersAndStats(address: string | undefined) {
 }
 
 /**
- * Fetch historical stats rows for a specific user.
+ * Fetch user stats history for the given range, cached for 60 seconds.
  *
- * @param address - Bitcoin address to query
- * @returns list of UserStats rows ordered newest first
+ * - `1d`: the last 24 hours at 1-minute resolution (~1440 rows).
+ * - `7d`: the last 7 days downsampled into 15-minute buckets (limited by the
+ *   UserStats retention of ~3 days).
+ *
+ * @param address - Bitcoin address of the user
+ * @param range - the time range to fetch
+ * @returns array of UserStats-shaped rows ordered by newest first
  */
-export async function getUserHistoricalStats(address: string | undefined) {
+export async function getUserStatsHistory(
+  address: string | undefined,
+  range: '1d' | '7d'
+): Promise<UserStats[]> {
   if (!address) return [];
-  const db = await getDb();
-  const repository = db.getRepository(UserStats);
+  const cacheKey = `user:historical:${address}:${range}`;
 
-  return repository
-    .createQueryBuilder('stat')
-    .where('stat.userAddress = :address', { address })
-    .orderBy('stat.timestamp', 'DESC')
-    .limit(HISTORICAL_DATA_POINTS)
-    .getMany();
+  // Try cache first
+  const cached = cache.get<UserStats[]>(cacheKey);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  let result: UserStats[];
+  if (range === '1d') {
+    const db = await getDb();
+    const repository = db.getRepository(UserStats);
+
+    result = await repository
+      .createQueryBuilder('stat')
+      .select(USER_HISTORY_1D_SELECT)
+      .where('stat.userAddress = :address AND stat.timestamp >= :since', {
+        address,
+        since: new Date(Date.now() - DAY_MS),
+      })
+      .orderBy('stat.timestamp', 'DESC')
+      .limit(POOL_HISTORY_1D_LIMIT)
+      .getMany();
+  } else {
+    result = await getBucketedHistory<UserStats>(
+      'UserStats',
+      USER_BUCKET_COLUMNS,
+      new Date(Date.now() - 7 * DAY_MS),
+      BUCKET_15_MIN_SECONDS,
+      'AND "userAddress" = $3',
+      [address]
+    );
+  }
+
+  // Cache for 60 seconds
+  cache.set(cacheKey, result, 60);
+  return result;
 }
 
 /**

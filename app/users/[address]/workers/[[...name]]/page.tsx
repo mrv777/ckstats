@@ -137,7 +137,7 @@ export default async function WorkerPage({ params }) {
       </div>
 
       <div className="mt-8">
-        <UserStatsCharts userStats={worker.stats} />
+        <UserStatsCharts userStats1d={worker.stats} />
       </div>
     </div>
   );

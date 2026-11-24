@@ -1,24 +1,11 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  LegendType,
-  Brush,
-  DefaultLegendContent,
-} from 'recharts';
-
+import EChart from './EChart';
 import { UserStats } from '../lib/entities/UserStats';
 import { WorkerStats } from '../lib/entities/WorkerStats';
 
-// Add this function at the top of the file, outside the component
 function getHashrateUnit(maxHashrate: number): [string, number] {
   if (maxHashrate >= 1e16) return ['PH/s', 1e15];
   if (maxHashrate >= 1e13) return ['TH/s', 1e12];
@@ -28,31 +15,45 @@ function getHashrateUnit(maxHashrate: number): [string, number] {
   return ['H/s', 1];
 }
 
+type ViewRange = '1d' | '7d';
+
 interface UserStatsChartsProps {
-  userStats: (UserStats | WorkerStats)[];
+  userStats1d: (UserStats | WorkerStats)[];
+  userStats7d?: (UserStats | WorkerStats)[];
 }
 
-export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
-  const [hashrateUnit, setHashrateUnit] = useState<string>('PH/s');
+export default function UserStatsCharts({
+  userStats1d,
+  userStats7d,
+}: UserStatsChartsProps) {
+  const has7d = !!userStats7d && userStats7d.length > 0;
+  const [view, setView] = useState<ViewRange>('1d');
+  const activeStats =
+    view === '1d' || !has7d
+      ? userStats1d
+      : (userStats7d as (UserStats | WorkerStats)[]);
 
-  const chartData = useMemo(() => {
+  const { chartData, hashrateUnit } = useMemo(() => {
     // Reverse the userStats array
-    const reversedStats = [...userStats].reverse();
+    const reversedStats = [...activeStats].reverse();
 
-    const maxHashrate = Math.max(
-      ...reversedStats.flatMap((stat) => [
+    let maxHashrate = 0;
+    for (const stat of reversedStats) {
+      const values = [
         Number(stat.hashrate1m),
         Number(stat.hashrate5m),
         Number(stat.hashrate1hr),
         Number(stat.hashrate1d),
         Number(stat.hashrate7d),
-      ])
-    );
+      ];
+      for (const value of values) {
+        if (value > maxHashrate) maxHashrate = value;
+      }
+    }
 
     const [unit, scaleFactor] = getHashrateUnit(maxHashrate);
-    setHashrateUnit(unit);
 
-    return reversedStats.map((stat) => ({
+    const chartData = reversedStats.map((stat) => ({
       timestamp: new Date(stat.timestamp).toLocaleString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -66,226 +67,159 @@ export default function UserStatsCharts({ userStats }: UserStatsChartsProps) {
       '1d': Number(stat.hashrate1d) / scaleFactor,
       '7d': Number(stat.hashrate7d) / scaleFactor,
     }));
-  }, [userStats]);
 
-  const [visibleLines, setVisibleLines] = useState({
-    '1m': false,
-    '5m': true,
-    '1hr': true,
-    '1d': true,
-    '7d': false,
-  });
-
-  const handleLegendClick = (dataKey: string) => {
-    setVisibleLines((prev) => ({ ...prev, [dataKey]: !prev[dataKey] }));
-  };
-
-  const hashrateTooltipFormatter = (value: number, name: string) => [
-    `${value.toLocaleString(undefined, { maximumFractionDigits: 2 })} ${hashrateUnit}`,
-    name,
-  ];
-
-  const legendPayload = [
-    {
-      value: '1m',
-      type: 'line',
-      color: visibleLines['1m'] ? '#8884d8' : '#aaaaaa',
-      formatter: (value: string) =>
-        visibleLines['1m'] ? (
-          <span style={{ cursor: 'pointer' }}>{value}</span>
-        ) : (
-          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
-            {value}
-          </span>
-        ),
-    },
-    {
-      value: '5m',
-      type: 'line',
-      color: visibleLines['5m'] ? '#82ca9d' : '#aaaaaa',
-      formatter: (value: string) =>
-        visibleLines['5m'] ? (
-          <span style={{ cursor: 'pointer' }}>{value}</span>
-        ) : (
-          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
-            {value}
-          </span>
-        ),
-    },
-    {
-      value: '1hr',
-      type: 'line',
-      color: visibleLines['1hr'] ? '#ffc658' : '#aaaaaa',
-      formatter: (value: string) =>
-        visibleLines['1hr'] ? (
-          <span style={{ cursor: 'pointer' }}>{value}</span>
-        ) : (
-          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
-            {value}
-          </span>
-        ),
-    },
-    {
-      value: '1d',
-      type: 'line',
-      color: visibleLines['1d'] ? '#ff7300' : '#aaaaaa',
-      formatter: (value: string) =>
-        visibleLines['1d'] ? (
-          <span style={{ cursor: 'pointer' }}>{value}</span>
-        ) : (
-          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
-            {value}
-          </span>
-        ),
-    },
-    {
-      value: '7d',
-      type: 'line',
-      color: visibleLines['7d'] ? '#a4de6c' : '#aaaaaa',
-      formatter: (value: string) =>
-        visibleLines['7d'] ? (
-          <span style={{ cursor: 'pointer' }}>{value}</span>
-        ) : (
-          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
-            {value}
-          </span>
-        ),
-    },
-  ];
+    return { chartData, hashrateUnit: unit };
+  }, [activeStats]);
 
   const workerCountChanged = useMemo(() => {
-    if (!('workerCount' in userStats[0])) return false;
-    const firstWorkerCount = userStats[0].workerCount;
-    return userStats.some(
+    if (!activeStats.length || !('workerCount' in activeStats[0])) return false;
+    const firstWorkerCount = activeStats[0].workerCount;
+    return activeStats.some(
       (stat) => 'workerCount' in stat && stat.workerCount !== firstWorkerCount
     );
-  }, [userStats]);
+  }, [activeStats]);
+
+  const options = useMemo(() => {
+     
+    const fmt = (v: any, maxFrac = 2) =>
+      Number(v).toLocaleString(undefined, { maximumFractionDigits: maxFrac });
+    const timestamps = chartData.map((r) => r.timestamp);
+
+    return {
+      hashrate: {
+        animation: false,
+        tooltip: {
+          trigger: 'axis',
+           
+          valueFormatter: (v: any) =>
+            `${fmt(Array.isArray(v) ? v[0] : v, 2)} ${hashrateUnit}`,
+        },
+        legend: {
+          data: ['1M', '5M', '1HR', '1D', '7D'],
+          bottom: 5,
+          selected: {
+            '1M': false,
+            '5M': true,
+            '1HR': true,
+            '1D': true,
+            '7D': false,
+          },
+        },
+        grid: { left: 60, right: 30, top: 30, bottom: 70 },
+        xAxis: { type: 'category', data: timestamps, boundaryGap: false },
+        yAxis: [
+          {
+            type: 'value',
+            splitLine: { show: false },
+            axisLabel: {
+              formatter: (v) => `${fmt(v, 2)} ${hashrateUnit}`,
+            },
+          },
+        ],
+        series: [
+          {
+            name: '1M',
+            type: 'line',
+            data: chartData.map((r) => r['1m']),
+            showSymbol: false,
+            smooth: true,
+            sampling: 'lttb',
+            itemStyle: { color: '#8884d8' },
+          },
+          {
+            name: '5M',
+            type: 'line',
+            data: chartData.map((r) => r['5m']),
+            showSymbol: false,
+            smooth: true,
+            sampling: 'lttb',
+            itemStyle: { color: '#82ca9d' },
+          },
+          {
+            name: '1HR',
+            type: 'line',
+            data: chartData.map((r) => r['1hr']),
+            showSymbol: false,
+            smooth: true,
+            sampling: 'lttb',
+            itemStyle: { color: '#ffc658' },
+          },
+          {
+            name: '1D',
+            type: 'line',
+            data: chartData.map((r) => r['1d']),
+            showSymbol: false,
+            smooth: true,
+            sampling: 'lttb',
+            itemStyle: { color: '#ff7300' },
+          },
+          {
+            name: '7D',
+            type: 'line',
+            data: chartData.map((r) => r['7d']),
+            showSymbol: false,
+            smooth: true,
+            sampling: 'lttb',
+            itemStyle: { color: '#a4de6c' },
+          },
+        ],
+      },
+      workerCount: {
+        animation: false,
+        tooltip: { trigger: 'axis' },
+        grid: { left: 50, right: 30, top: 30, bottom: 30 },
+        xAxis: { type: 'category', data: timestamps, boundaryGap: false },
+        yAxis: [{ type: 'value', minInterval: 1, splitLine: { show: false } }],
+        series: [
+          {
+            name: 'Workers',
+            type: 'line',
+            data: chartData.map((r) => r.workerCount ?? 0),
+            showSymbol: false,
+            smooth: true,
+            sampling: 'lttb',
+            itemStyle: { color: '#8884d8' },
+          },
+        ],
+      },
+    };
+  }, [chartData, hashrateUnit]);
 
   return (
     <div className="space-y-8 mt-4">
+      {has7d && (
+        <div className="flex justify-end items-center">
+          <div className="join">
+            <button
+              type="button"
+              className={`btn btn-xs join-item ${view === '1d' ? 'btn-active btn-primary' : ''}`}
+              aria-pressed={view === '1d'}
+              onClick={() => setView('1d')}
+            >
+              1d
+            </button>
+            <button
+              type="button"
+              className={`btn btn-xs join-item ${view === '7d' ? 'btn-active btn-primary' : ''}`}
+              aria-pressed={view === '7d'}
+              onClick={() => setView('7d')}
+            >
+              7d
+            </button>
+          </div>
+        </div>
+      )}
       <div>
         <h2 className="text-xl font-bold mb-4">
           Hashrate History ({hashrateUnit})
         </h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart
-            data={chartData}
-            margin={{ top: 5, right: 0, left: 0, bottom: 5 }}
-          >
-            <XAxis dataKey="timestamp" minTickGap={50} />
-            <YAxis
-              allowDataOverflow={true}
-              domain={[
-                (dataMin: number) => Math.floor(dataMin * 0.99),
-                (dataMax: number) => Math.ceil(dataMax * 1.01),
-              ]}
-            />
-            <Tooltip formatter={hashrateTooltipFormatter} />
-            <Legend
-              content={(props) => (
-                <DefaultLegendContent
-                  {...props}
-                  payload={legendPayload.map((item) => ({
-                    ...item,
-                    type: item.type as LegendType,
-                  }))}
-                  onClick={(e) => e.value && handleLegendClick(e.value)}
-                />
-              )}
-            />
-            <Brush
-              dataKey="timestamp"
-              height={30}
-              alwaysShowText={true}
-              startIndex={
-                chartData.length - 1440 > 0 ? chartData.length - 1440 : 0
-              }
-            />
-            {visibleLines['1m'] && (
-              <Line
-                type="monotone"
-                dataKey="1m"
-                stroke="#8884d8"
-                dot={false}
-                isAnimationActive={false}
-              />
-            )}
-            {visibleLines['5m'] && (
-              <Line
-                type="monotone"
-                dataKey="5m"
-                stroke="#82ca9d"
-                dot={false}
-                isAnimationActive={false}
-              />
-            )}
-            {visibleLines['1hr'] && (
-              <Line
-                type="monotone"
-                dataKey="1hr"
-                stroke="#ffc658"
-                dot={false}
-                isAnimationActive={false}
-              />
-            )}
-            {visibleLines['1d'] && (
-              <Line
-                type="monotone"
-                dataKey="1d"
-                stroke="#ff7300"
-                dot={false}
-                isAnimationActive={false}
-              />
-            )}
-            {visibleLines['7d'] && (
-              <Line
-                type="monotone"
-                dataKey="7d"
-                stroke="#a4de6c"
-                dot={false}
-                isAnimationActive={false}
-              />
-            )}
-          </LineChart>
-        </ResponsiveContainer>
+        <EChart option={options.hashrate} height={300} />
       </div>
 
-      {'workerCount' in userStats[0] && workerCountChanged && (
+      {workerCountChanged && (
         <div>
           <h2 className="text-xl font-bold mb-4">Worker Count History</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart
-              data={chartData}
-              margin={{ top: 5, right: 0, left: 0, bottom: 5 }}
-            >
-              <XAxis dataKey="timestamp" minTickGap={50} />
-              <YAxis
-                allowDataOverflow={true}
-                domain={[
-                  (dataMin: number) => Math.floor(dataMin * 0.99),
-                  (dataMax: number) => Math.ceil(dataMax * 1.01),
-                ]}
-              />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="workerCount"
-                stroke="#8884d8"
-                name="Workers"
-                dot={false}
-                isAnimationActive={false}
-              />
-              <Brush
-                dataKey="timestamp"
-                height={30}
-                alwaysShowText={true}
-                startIndex={
-                  chartData.length - 1440 > 0 ? chartData.length - 1440 : 0
-                }
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          <EChart option={options.workerCount} height={300} />
         </div>
       )}
     </div>

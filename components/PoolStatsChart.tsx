@@ -1,431 +1,304 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  LegendType,
-  Brush,
-  DefaultLegendContent,
-} from 'recharts';
-
+import EChart from './EChart';
 import { PoolStats } from '../lib/entities/PoolStats';
 import { ISOUnit, findISOUnit } from '../utils/helpers';
 
 interface PoolStatsChartProps {
-  data: PoolStats[];
+  data1d: PoolStats[];
+  data7d: PoolStats[];
 }
 
-export default function PoolStatsChart({ data }: PoolStatsChartProps) {
-  const [visibleLines, setVisibleLines] = useState({
-    '1m': false,
-    '5m': true,
-    '15m': true,
-    '1hr': true,
-    '6hr': true,
-    '1d': true,
-    '7d': true,
-  });
+type ViewRange = '1d' | '7d';
 
-  const handleLegendClick = (dataKey: string) => {
-    setVisibleLines((prev) => ({ ...prev, [dataKey]: !prev[dataKey] }));
-  };
+export default function PoolStatsChart({
+  data1d,
+  data7d,
+}: PoolStatsChartProps) {
+  const [view, setView] = useState<ViewRange>('1d');
 
-  const legendPayload = [
-    {
-      value: '1m',
-      type: 'line',
-      color: visibleLines['1m'] ? '#8884d8' : '#aaaaaa',
-      formatter: (value: string) =>
-        visibleLines['1m'] ? (
-          <span style={{ cursor: 'pointer' }}>{value}</span>
-        ) : (
-          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
-            {value}
-          </span>
-        ),
-    },
-    {
-      value: '5m',
-      type: 'line',
-      color: visibleLines['5m'] ? '#82ca9d' : '#aaaaaa',
-      formatter: (value: string) =>
-        visibleLines['5m'] ? (
-          <span style={{ cursor: 'pointer' }}>{value}</span>
-        ) : (
-          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
-            {value}
-          </span>
-        ),
-    },
-    {
-      value: '15m',
-      type: 'line',
-      color: visibleLines['15m'] ? '#ffc658' : '#aaaaaa',
-      formatter: (value: string) =>
-        visibleLines['15m'] ? (
-          <span style={{ cursor: 'pointer' }}>{value}</span>
-        ) : (
-          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
-            {value}
-          </span>
-        ),
-    },
-    {
-      value: '1hr',
-      type: 'line',
-      color: visibleLines['1hr'] ? '#ff7300' : '#aaaaaa',
-      formatter: (value: string) =>
-        visibleLines['1hr'] ? (
-          <span style={{ cursor: 'pointer' }}>{value}</span>
-        ) : (
-          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
-            {value}
-          </span>
-        ),
-    },
-    {
-      value: '6hr',
-      type: 'line',
-      color: visibleLines['6hr'] ? '#00C49F' : '#aaaaaa',
-      formatter: (value: string) =>
-        visibleLines['6hr'] ? (
-          <span style={{ cursor: 'pointer' }}>{value}</span>
-        ) : (
-          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
-            {value}
-          </span>
-        ),
-    },
-    {
-      value: '1d',
-      type: 'line',
-      color: visibleLines['1d'] ? '#0088FE' : '#aaaaaa',
-      formatter: (value: string) =>
-        visibleLines['1d'] ? (
-          <span style={{ cursor: 'pointer' }}>{value}</span>
-        ) : (
-          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
-            {value}
-          </span>
-        ),
-    },
-    {
-      value: '7d',
-      type: 'line',
-      color: visibleLines['7d'] ? '#FF1493' : '#aaaaaa',
-      formatter: (value: string) =>
-        visibleLines['7d'] ? (
-          <span style={{ cursor: 'pointer' }}>{value}</span>
-        ) : (
-          <span style={{ fontStyle: 'italic', cursor: 'pointer' }}>
-            {value}
-          </span>
-        ),
-    },
-  ];
+  const activeData = view === '1d' ? data1d : data7d;
 
-  // Calculate the maximum hashrate
-  const maxHashrate = Math.max(
-    ...data.flatMap((stat) => [
-      Number(stat.hashrate1m),
-      Number(stat.hashrate5m),
-      Number(stat.hashrate15m),
-      Number(stat.hashrate1hr),
-      Number(stat.hashrate6hr),
-      Number(stat.hashrate1d),
-      Number(stat.hashrate7d),
-    ])
-  );
+  const { formattedData, hashrateUnit } = useMemo(() => {
+    // Calculate the maximum hashrate
+    let maxHashrate = 0;
+    for (const stat of activeData) {
+      const values = [
+        Number(stat.hashrate1m),
+        Number(stat.hashrate5m),
+        Number(stat.hashrate15m),
+        Number(stat.hashrate1hr),
+        Number(stat.hashrate6hr),
+        Number(stat.hashrate1d),
+        Number(stat.hashrate7d),
+      ];
+      for (const value of values) {
+        if (value > maxHashrate) maxHashrate = value;
+      }
+    }
 
-  // Find out the nearest ISO unit
-  const hashrateUnit: ISOUnit = findISOUnit(Number(maxHashrate));
-  const hashrateDivisor: number = hashrateUnit.threshold;
+    // Find out the nearest ISO unit
+    const unit: ISOUnit = findISOUnit(Number(maxHashrate));
+    const divisor: number = unit.threshold;
 
-  // Reverse the data array
-  const reversedData = [...data].reverse();
+    // Reverse the data array
+    const reversedData = [...activeData].reverse();
 
-  // Format the reversed data for the charts
-  const formattedData = reversedData.map((item) => ({
-    ...item,
-    timestamp: new Date(item.timestamp).toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }),
-    hashrate1m: Number(item.hashrate1m) / hashrateDivisor,
-    hashrate5m: Number(item.hashrate5m) / hashrateDivisor,
-    hashrate15m: Number(item.hashrate15m) / hashrateDivisor,
-    hashrate1hr: Number(item.hashrate1hr) / hashrateDivisor,
-    hashrate6hr: Number(item.hashrate6hr) / hashrateDivisor,
-    hashrate1d: Number(item.hashrate1d) / hashrateDivisor,
-    hashrate7d: Number(item.hashrate7d) / hashrateDivisor,
-    SPS1m: item.SPS1m ?? 0,
-    SPS5m: item.SPS5m ?? 0,
-    SPS15m: item.SPS15m ?? 0,
-    SPS1h: item.SPS1h ?? 0,
-  }));
+    // Format the reversed data for the charts
+    const rows = reversedData.map((item) => ({
+      ...item,
+      timestamp: new Date(item.timestamp).toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      hashrate1m: Number(item.hashrate1m) / divisor,
+      hashrate5m: Number(item.hashrate5m) / divisor,
+      hashrate15m: Number(item.hashrate15m) / divisor,
+      hashrate1hr: Number(item.hashrate1hr) / divisor,
+      hashrate6hr: Number(item.hashrate6hr) / divisor,
+      hashrate1d: Number(item.hashrate1d) / divisor,
+      hashrate7d: Number(item.hashrate7d) / divisor,
+      SPS1m: item.SPS1m ?? 0,
+      SPS5m: item.SPS5m ?? 0,
+      SPS15m: item.SPS15m ?? 0,
+      SPS1h: item.SPS1h ?? 0,
+    }));
 
-  const hashrateTooltipFormatter = (value: number, name: string) => [
-    `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })} ${hashrateUnit.iso}H/s`,
-    name,
-  ];
+    return { formattedData: rows, hashrateUnit: unit };
+  }, [activeData]);
 
-  const spsTooltipFormatter = (value: number, name: string) => [
-    `${value > 10 ? value.toFixed(0) : value.toFixed(1)} SPS`,
-    name,
-  ];
+  const options = useMemo(() => {
+    const fmt = (v: number, maxFrac = 2) =>
+      v.toLocaleString(undefined, { maximumFractionDigits: maxFrac });
+    const unit = hashrateUnit.iso;
+    const timestamps = formattedData.map((r) => r.timestamp);
 
-  const renderUsersChart = () => (
-    <div className="h-80 w-full mb-8">
-      <h2 className="text-xl font-bold mb-2">Users and Workers</h2>
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={formattedData}
-          margin={{ top: 5, right: 0, left: 0, bottom: 5 }}
-        >
-          <XAxis dataKey="timestamp" minTickGap={40} />
-          <YAxis
-            yAxisId="left"
-            allowDataOverflow={true}
-            domain={[
-              (dataMin: number) => Math.floor(dataMin * 0.99),
-              (dataMax: number) => Math.ceil(dataMax * 1.01),
-            ]}
-          />
-          <YAxis
-            yAxisId="right"
-            orientation="right"
-            allowDataOverflow={true}
-            domain={[
-              (dataMin: number) => Math.floor(dataMin * 0.99),
-              (dataMax: number) => Math.ceil(dataMax * 1.01),
-            ]}
-          />
-          <Tooltip />
-          <Legend />
-          <Brush
-            dataKey="timestamp"
-            height={30}
-            alwaysShowText={true}
-            startIndex={
-              formattedData.length - 1440 > 0 ? formattedData.length - 1440 : 0
-            }
-          />
-          <Line
-            yAxisId="left"
-            type="monotone"
-            dataKey="users"
-            stroke="#8884d8"
-            activeDot={{ r: 8 }}
-            name="Users"
-            dot={false}
-            isAnimationActive={false}
-          />
-          <Line
-            yAxisId="right"
-            type="monotone"
-            dataKey="workers"
-            stroke="#82ca9d"
-            activeDot={{ r: 8 }}
-            name="Workers"
-            dot={false}
-            isAnimationActive={false}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  );
-
-  const renderHashrateChart = () => (
-    <div className="h-80 w-full mb-8">
-      <h2 className="text-xl font-bold mb-2">
-        Hashrate ({hashrateUnit.iso}H/s)
-      </h2>
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={formattedData}
-          margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
-        >
-          <XAxis dataKey="timestamp" minTickGap={40} />
-          <YAxis
-            allowDataOverflow={true}
-            domain={[
-              (dataMin: number) => Math.floor(dataMin * 0.99),
-              (dataMax: number) => Math.ceil(dataMax * 1.01),
-            ]}
-          />
-          <Tooltip formatter={hashrateTooltipFormatter} />
-          <Legend
-            content={(props) => (
-              <DefaultLegendContent
-                {...props}
-                payload={legendPayload.map((item) => ({
-                  ...item,
-                  type: item.type as LegendType,
-                }))}
-                onClick={(e) => e.value && handleLegendClick(e.value)}
-              />
-            )}
-          />
-          <Brush
-            dataKey="timestamp"
-            height={30}
-            alwaysShowText={true}
-            startIndex={
-              formattedData.length - 1440 > 0 ? formattedData.length - 1440 : 0
-            }
-          />
-          {visibleLines['1m'] && (
-            <Line
-              type="monotone"
-              dataKey="hashrate1m"
-              name="1M"
-              stroke="#8884d8"
-              dot={false}
-              isAnimationActive={false}
-            />
-          )}
-          {visibleLines['5m'] && (
-            <Line
-              type="monotone"
-              dataKey="hashrate5m"
-              name="5M"
-              stroke="#82ca9d"
-              dot={false}
-              isAnimationActive={false}
-            />
-          )}
-          {visibleLines['15m'] && (
-            <Line
-              type="monotone"
-              dataKey="hashrate15m"
-              name="15M"
-              stroke="#ffc658"
-              dot={false}
-              isAnimationActive={false}
-            />
-          )}
-          {visibleLines['1hr'] && (
-            <Line
-              type="monotone"
-              dataKey="hashrate1hr"
-              name="1HR"
-              stroke="#ff7300"
-              dot={false}
-              isAnimationActive={false}
-            />
-          )}
-          {visibleLines['6hr'] && (
-            <Line
-              type="monotone"
-              dataKey="hashrate6hr"
-              name="6HR"
-              stroke="#00C49F"
-              dot={false}
-              isAnimationActive={false}
-            />
-          )}
-          {visibleLines['1d'] && (
-            <Line
-              type="monotone"
-              dataKey="hashrate1d"
-              name="1D"
-              stroke="#0088FE"
-              dot={false}
-              isAnimationActive={false}
-            />
-          )}
-          {visibleLines['7d'] && (
-            <Line
-              type="monotone"
-              dataKey="hashrate7d"
-              name="7D"
-              stroke="#FF1493"
-              dot={false}
-              isAnimationActive={false}
-            />
-          )}
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  );
-
-  const renderSPSChart = () => (
-    <div className="h-80 w-full mb-8">
-      <h2 className="text-xl font-bold mb-2">Shares Per Second</h2>
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={formattedData}
-          margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
-        >
-          <XAxis dataKey="timestamp" minTickGap={40} />
-          <YAxis
-            allowDataOverflow={true}
-            domain={[
-              (dataMin: number) => Math.floor(dataMin * 0.99),
-              (dataMax: number) => Math.ceil(dataMax * 1.01),
-            ]}
-          />
-          <Tooltip formatter={spsTooltipFormatter} />
-          <Legend />
-          <Brush
-            dataKey="timestamp"
-            height={30}
-            alwaysShowText={true}
-            startIndex={
-              formattedData.length - 1440 > 0 ? formattedData.length - 1440 : 0
-            }
-          />
-          <Line
-            type="monotone"
-            dataKey="SPS1m"
-            name="1M"
-            stroke="#8884d8"
-            dot={false}
-            isAnimationActive={false}
-          />
-          <Line
-            type="monotone"
-            dataKey="SPS5m"
-            name="5M"
-            stroke="#82ca9d"
-            dot={false}
-            isAnimationActive={false}
-          />
-          <Line
-            type="monotone"
-            dataKey="SPS15m"
-            name="15M"
-            stroke="#ffc658"
-            dot={false}
-            isAnimationActive={false}
-          />
-          <Line
-            type="monotone"
-            dataKey="SPS1h"
-            name="1H"
-            stroke="#ff7300"
-            dot={false}
-            isAnimationActive={false}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  );
+    return {
+      users: {
+        animation: false,
+        tooltip: { trigger: 'axis' },
+        legend: { data: ['Users', 'Workers'], bottom: 5 },
+        grid: { left: 50, right: 60, top: 30, bottom: 70 },
+        xAxis: { type: 'category', data: timestamps, boundaryGap: false },
+        yAxis: [
+          { type: 'value', name: 'Users', splitLine: { show: false } },
+          { type: 'value', name: 'Workers', splitLine: { show: false } },
+        ],
+        series: [
+          {
+            name: 'Users',
+            type: 'line',
+            data: formattedData.map((r) => Number(r.users)),
+            yAxisIndex: 0,
+            showSymbol: false,
+            smooth: true,
+            sampling: 'lttb',
+            itemStyle: { color: '#8884d8' },
+          },
+          {
+            name: 'Workers',
+            type: 'line',
+            data: formattedData.map((r) => Number(r.workers)),
+            yAxisIndex: 1,
+            showSymbol: false,
+            smooth: true,
+            sampling: 'lttb',
+            itemStyle: { color: '#82ca9d' },
+          },
+        ],
+      },
+      hashrate: {
+        animation: false,
+        tooltip: {
+          trigger: 'axis',
+           
+          valueFormatter: (v: any) =>
+            `${fmt(Array.isArray(v) ? Number(v[0]) : Number(v), 1)} ${unit}H/s`,
+        },
+        legend: {
+          data: ['1M', '5M', '15M', '1HR', '6HR', '1D', '7D'],
+          bottom: 5,
+          selected: {
+            '1M': false,
+            '5M': true,
+            '15M': true,
+            '1HR': true,
+            '6HR': true,
+            '1D': true,
+            '7D': true,
+          },
+        },
+        grid: { left: 60, right: 30, top: 30, bottom: 70 },
+        xAxis: { type: 'category', data: timestamps, boundaryGap: false },
+        yAxis: [
+          {
+            type: 'value',
+            splitLine: { show: false },
+            axisLabel: { formatter: (v: number) => `${fmt(Number(v), 1)} ${unit}` },
+          },
+        ],
+        series: [
+          {
+            name: '1M',
+            type: 'line',
+            data: formattedData.map((r) => Number(r.hashrate1m)),
+            showSymbol: false,
+            smooth: true,
+            sampling: 'lttb',
+            itemStyle: { color: '#8884d8' },
+          },
+          {
+            name: '5M',
+            type: 'line',
+            data: formattedData.map((r) => Number(r.hashrate5m)),
+            showSymbol: false,
+            smooth: true,
+            sampling: 'lttb',
+            itemStyle: { color: '#82ca9d' },
+          },
+          {
+            name: '15M',
+            type: 'line',
+            data: formattedData.map((r) => Number(r.hashrate15m)),
+            showSymbol: false,
+            smooth: true,
+            sampling: 'lttb',
+            itemStyle: { color: '#ffc658' },
+          },
+          {
+            name: '1HR',
+            type: 'line',
+            data: formattedData.map((r) => Number(r.hashrate1hr)),
+            showSymbol: false,
+            smooth: true,
+            sampling: 'lttb',
+            itemStyle: { color: '#ff7300' },
+          },
+          {
+            name: '6HR',
+            type: 'line',
+            data: formattedData.map((r) => Number(r.hashrate6hr)),
+            showSymbol: false,
+            smooth: true,
+            sampling: 'lttb',
+            itemStyle: { color: '#00C49F' },
+          },
+          {
+            name: '1D',
+            type: 'line',
+            data: formattedData.map((r) => Number(r.hashrate1d)),
+            showSymbol: false,
+            smooth: true,
+            sampling: 'lttb',
+            itemStyle: { color: '#0088FE' },
+          },
+          {
+            name: '7D',
+            type: 'line',
+            data: formattedData.map((r) => Number(r.hashrate7d)),
+            showSymbol: false,
+            smooth: true,
+            sampling: 'lttb',
+            itemStyle: { color: '#FF1493' },
+          },
+        ],
+      },
+      sps: {
+        animation: false,
+        tooltip: {
+          trigger: 'axis',
+           
+          valueFormatter: (v: any) => {
+            const n = Number(Array.isArray(v) ? v[0] : v);
+            return `${n > 10 ? n.toFixed(0) : n.toFixed(1)} SPS`;
+          },
+        },
+        legend: { data: ['1M', '5M', '15M', '1H'], bottom: 5 },
+        grid: { left: 60, right: 30, top: 30, bottom: 70 },
+        xAxis: { type: 'category', data: timestamps, boundaryGap: false },
+        yAxis: [{ type: 'value', splitLine: { show: false } }],
+        series: [
+          {
+            name: '1M',
+            type: 'line',
+            data: formattedData.map((r) => Number(r.SPS1m)),
+            showSymbol: false,
+            smooth: true,
+            sampling: 'lttb',
+            itemStyle: { color: '#8884d8' },
+          },
+          {
+            name: '5M',
+            type: 'line',
+            data: formattedData.map((r) => Number(r.SPS5m)),
+            showSymbol: false,
+            smooth: true,
+            sampling: 'lttb',
+            itemStyle: { color: '#82ca9d' },
+          },
+          {
+            name: '15M',
+            type: 'line',
+            data: formattedData.map((r) => Number(r.SPS15m)),
+            showSymbol: false,
+            smooth: true,
+            sampling: 'lttb',
+            itemStyle: { color: '#ffc658' },
+          },
+          {
+            name: '1H',
+            type: 'line',
+            data: formattedData.map((r) => Number(r.SPS1h)),
+            showSymbol: false,
+            smooth: true,
+            sampling: 'lttb',
+            itemStyle: { color: '#ff7300' },
+          },
+        ],
+      },
+    };
+  }, [formattedData, hashrateUnit]);
 
   return (
     <div className="mt-4">
-      {renderUsersChart()}
-      {renderHashrateChart()}
-      {renderSPSChart()}
+      <div className="flex justify-end items-center mb-2">
+        <div className="join">
+          <button
+            type="button"
+            className={`btn btn-xs join-item ${view === '1d' ? 'btn-active btn-primary' : ''}`}
+            aria-pressed={view === '1d'}
+            onClick={() => setView('1d')}
+          >
+            1d
+          </button>
+          <button
+            type="button"
+            className={`btn btn-xs join-item ${view === '7d' ? 'btn-active btn-primary' : ''}`}
+            aria-pressed={view === '7d'}
+            onClick={() => setView('7d')}
+          >
+            7d
+          </button>
+        </div>
+      </div>
+      <div className="mb-8">
+        <h2 className="text-xl font-bold mb-2">Users and Workers</h2>
+        <EChart option={options.users} height={320} />
+      </div>
+      <div className="mb-8">
+        <h2 className="text-xl font-bold mb-2">
+          Hashrate ({hashrateUnit.iso}H/s)
+        </h2>
+        <EChart option={options.hashrate} height={320} />
+      </div>
+      <div className="mb-8">
+        <h2 className="text-xl font-bold mb-2">Shares Per Second</h2>
+        <EChart option={options.sps} height={320} />
+      </div>
     </div>
   );
 }
