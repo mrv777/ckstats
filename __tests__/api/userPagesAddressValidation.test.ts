@@ -71,6 +71,35 @@ describe('/users/[address]/workers page', () => {
     expect(getWorkerWithStats).not.toHaveBeenCalled();
   });
 
+  it('returns not-found without touching the database for a worker name over 1024 characters', async () => {
+    await expect(
+      WorkerPage({ params: Promise.resolve({ address: VALID, name: ['a'.repeat(1025)] }) })
+    ).rejects.toThrow(NotFoundError);
+    expect(getWorkerWithStats).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['rig%2F1', 'slash'],
+    ['%2Frig', 'leading slash'],
+    ['rig%00x', 'NUL byte'],
+  ])(
+    'returns not-found without touching the database for worker name %s (%s)',
+    async (name) => {
+      await expect(
+        WorkerPage({ params: Promise.resolve({ address: VALID, name: [name] }) })
+      ).rejects.toThrow(NotFoundError);
+      expect(getWorkerWithStats).not.toHaveBeenCalled();
+    }
+  );
+
+  it('accepts a worker name of exactly 1024 characters', async () => {
+    const name = 'a'.repeat(1024);
+    await expect(
+      WorkerPage({ params: Promise.resolve({ address: VALID, name: [name] }) })
+    ).rejects.toThrow(NotFoundError);
+    expect(getWorkerWithStats).toHaveBeenCalledWith(VALID, name);
+  });
+
   it('looks up a valid address and decoded worker name', async () => {
     await expect(
       WorkerPage({ params: Promise.resolve({ address: VALID, name: ['rig%201'] }) })

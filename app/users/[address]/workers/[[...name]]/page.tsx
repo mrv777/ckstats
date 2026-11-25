@@ -14,6 +14,9 @@ import {
 } from '../../../../../utils/helpers';
 import { validateBitcoinAddress } from '../../../../../utils/validateBitcoinAddress';
 
+// ckpool limits a whole stratum message to 1024 bytes, which bounds worker names.
+const MAX_WORKER_NAME_LENGTH = 1024;
+
 export default async function WorkerPage({ params }) {
   const awaitedParams = await params;
   // Reject malformed addresses before any database query.
@@ -27,6 +30,16 @@ export default async function WorkerPage({ params }) {
       namePart && namePart !== '' ? decodeURIComponent(namePart) : undefined;
   } catch {
     // Malformed percent-encoding in the worker name.
+    notFound();
+  }
+  // ckpool never accepts '/' in a worker name, and Postgres rejects NUL, so no
+  // stored worker can match either.
+  if (
+    decodedName !== undefined &&
+    (decodedName.length > MAX_WORKER_NAME_LENGTH ||
+      decodedName.includes('/') ||
+      decodedName.includes('\0'))
+  ) {
     notFound();
   }
   const workerORM = await getWorkerWithStats(awaitedParams.address, decodedName);
