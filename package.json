@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && mkdir -p -m 700 .next/server/route-cache",
     "start": "NODE_OPTIONS='--max-old-space-size=6144' next start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

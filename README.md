@@ -1,6 +1,6 @@
 # CK Stats
 
-This project displays real-time and historical statistics for the CKPool Bitcoin mining pool using data from their API.
+This project displays real-time and historical statistics for the CKPool Bitcoin mining pool using data from its API.
 
 ## Features
 
@@ -11,10 +11,11 @@ This project displays real-time and historical statistics for the CKPool Bitcoin
 
 ## Technologies Used
 
+- Node.js 22.22.1 (as ships with Ubuntu 26.04.1)
 - Next.js
 - Tailwind CSS
 - daisyUI
-- Recharts
+- Apache ECharts 
 - TypeORM
 
 ## Deployment
@@ -35,8 +36,9 @@ This project displays real-time and historical statistics for the CKPool Bitcoin
    ```
    Replace `username`, `password`, `server`, `port`, `database` with your actual PostgreSQL credentials, server details, and database names.
    You can also set the DB_SSL to true if you want to use SSL and set the DB_SSL_REJECT_UNAUTHORIZED to true if you want to reject untrusted SSL certificates (like self-signed certificates).
-   If PostgreSQL is running locally, you can make `DB_HOST` `/var/run/postgresql/` (which connects via a Unix socket).  The username and password are then ignored (authentication is done based on the Unix user connection to the socket).
-   If ckpool is running locally you can make `API_URL` the path to the logs directory.  For example `/home/ckpool-testnet/solobtc/logs`.
+
+   If PostgreSQL is running locally, you can set `DB_HOST` to `/var/run/postgresql/` (which connects via a Unix socket).  The username and password are then ignored (authentication is done based on the Unix user connection to the socket).
+   If ckpool is running locally you can set `API_URL` to the logs directory.  For example `/var/log/ckpool/`.
 
 6. If you are upgrading from an existing version: `pnpm store prune`
 7. Install dependencies: `pnpm install`
@@ -54,8 +56,18 @@ This project displays real-time and historical statistics for the CKPool Bitcoin
      ```
    - Save and exit the editor
    
-   These cronjobs will run the `seed` and `update-users` scripts every 1 minute to populate the database and clean up old statistics every 2 hours.
+   These cronjobs will run the `seed` and `update-users` scripts every 1 minute to populate the database, and clean up old statistics every 2 hours.
 
+
+### Running as a systemd service
+
+An example  unit is provided in [ckstats.service.example](ckstats.service.example). Copy it to `/etc/systemd/system/ckstats.service`, then edit `User`, `Group`, `WorkingDirectory`, the `ExecStart` path to `pnpm`, the `ReadWritePaths` path and the unit names in `After=`/`Requires=` to match your system. Then run:
+
+```
+sudo systemctl daemon-reload
+sudo systemctl enable --now ckstats
+systemd-analyze security ckstats.service
+```
 
 ## Scripts
 

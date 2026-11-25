@@ -1,0 +1,59 @@
+# Example hardened systemd unit for ckstats.
+# Copy to /etc/systemd/system/ckstats.service and adjust User, Group,
+# WorkingDirectory, the pnpm path and the unit names in After=/Requires=.
+# Check the result with: systemd-analyze security ckstats.service
+[Unit]
+Description=ckstats
+After=network.target ckpool.service postgresql.service
+Requires=ckpool.service postgresql.service
+
+[Service]
+Type=simple
+User=pid
+Group=pid
+WorkingDirectory=/home/pid/ckstats
+ExecStart=/home/pid/.local/share/pnpm/bin/pnpm start --port 3334
+Restart=always
+RestartSec=30
+
+# Filesystem
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/pid/ckstats/.next/server/route-cache
+PrivateTmp=yes
+PrivateDevices=yes
+UMask=0077
+RemoveIPC=yes
+
+# Privileges
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictSUIDSGID=yes
+LockPersonality=yes
+RestrictRealtime=yes
+PrivateUsers=yes
+
+# Kernel and process visibility
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+ProtectProc=invisible
+ProcSubset=pid
+
+# Network: HTTP server and PostgreSQL only (TCP or a local unix socket).
+# AF_NETLINK is required by Node.js to list network interfaces (getifaddrs).
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+RestrictNamespaces=yes
+
+# System calls. MemoryDenyWriteExecute is deliberately NOT set:
+# Node.js (V8) needs writable+executable memory for its JIT.
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources
+
+[Install]
+WantedBy=multi-user.target
