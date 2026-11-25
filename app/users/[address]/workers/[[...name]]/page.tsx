@@ -12,11 +12,23 @@ import {
   getPercentageChangeColor,
   serializeData,
 } from '../../../../../utils/helpers';
+import { validateBitcoinAddress } from '../../../../../utils/validateBitcoinAddress';
 
 export default async function WorkerPage({ params }) {
   const awaitedParams = await params;
+  // Reject malformed addresses before any database query.
+  if (!validateBitcoinAddress(awaitedParams.address)) {
+    notFound();
+  }
   const namePart = awaitedParams.name?.[0];
-  const decodedName = namePart && namePart !== '' ? decodeURIComponent(namePart) : undefined;
+  let decodedName: string | undefined;
+  try {
+    decodedName =
+      namePart && namePart !== '' ? decodeURIComponent(namePart) : undefined;
+  } catch {
+    // Malformed percent-encoding in the worker name.
+    notFound();
+  }
   const workerORM = await getWorkerWithStats(awaitedParams.address, decodedName);
 
   if (!workerORM) {

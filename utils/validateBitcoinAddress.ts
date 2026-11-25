@@ -25,8 +25,9 @@ const BECH32_HRP: Record<string, boolean> = { bc: true, tb: true };
  */
 export function validateBitcoinAddress(address: string): boolean {
   if (typeof address !== 'string' || address.length === 0) return false;
-  // Reject non-ASCII input (unicode, emoji, control chars) before any decode work.
-  if (/[^\x21-\x7e]/.test(address)) return false;
+  // Whitelist: every valid base58check and bech32/bech32m address is
+  // alphanumeric. Reject anything else before any decode work.
+  if (/[^a-zA-Z0-9]/.test(address)) return false;
 
   // Base58Check (P2PKH / P2SH): decode enforces charset + checksum, then check version.
   try {

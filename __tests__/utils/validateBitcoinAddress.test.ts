@@ -105,4 +105,14 @@ describe('validateBitcoinAddress', () => {
   test('rejects taproot address with mixed case', () => {
     expect(validateBitcoinAddress('BC1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0')).toBe(false);
   });
+  test.each([
+    ['path separators', '../../etc/passwd'],
+    ['symbols embedded in a valid address', 'bc1qfpwl5zfe4ep8zuc4ntn2xe4vcm0srqhpk3lwm6/'],
+    ['whitespace', ' bc1qfpwl5zfe4ep8zuc4ntn2xe4vcm0srqhpk3lwm6'],
+    ['percent-encoding', 'bc1qfpwl5zfe4ep8zuc4ntn2xe4vcm0srqhpk3lwm6%00'],
+    ['SQL', "' OR 1=1 --"],
+    ['unicode', 'bc1qfpwl5zfe4ep8zuc4ntn2xe4vcm0srqhpk3lwm\u00e9'],
+  ])('rejects non-alphanumeric input: %s', (_name, input) => {
+    expect(validateBitcoinAddress(input)).toBe(false);
+  });
 });

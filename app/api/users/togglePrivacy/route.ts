@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { toggleUserStatsPrivacy } from '../../../../lib/api';
+import { validateBitcoinAddress } from '../../../../utils/validateBitcoinAddress';
 
 export async function POST(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -8,6 +9,13 @@ export async function POST(request: NextRequest) {
 
   if (!address) {
     return NextResponse.json({ error: 'Address is required' }, { status: 400 });
+  }
+
+  if (!validateBitcoinAddress(address)) {
+    return NextResponse.json(
+      { error: 'Invalid Bitcoin address' },
+      { status: 400 }
+    );
   }
 
   try {

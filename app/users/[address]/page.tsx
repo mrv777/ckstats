@@ -21,9 +21,14 @@ import {
   calculateBlockChances,
   serializeData,
 } from '../../../utils/helpers';
+import { validateBitcoinAddress } from '../../../utils/validateBitcoinAddress';
 
 export default async function UserPage({ params }) {
   const awaitedParams = await params;
+  // Reject malformed addresses before any database query or cache write.
+  if (!validateBitcoinAddress(awaitedParams.address)) {
+    notFound();
+  }
   const [userORM, statsORM, historicalStatsORM, networkDifficulty, userStats7dORM] =
     await Promise.all([
       getUserWithWorkersAndStats(awaitedParams.address),
