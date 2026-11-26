@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build && mkdir -p -m 700 .next/server/route-cache",
-    "start": "NODE_OPTIONS='--max-old-space-size=6144' next start",
+    "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "seed": "ts-node -P tsconfig.scripts.json scripts/seed.ts",
